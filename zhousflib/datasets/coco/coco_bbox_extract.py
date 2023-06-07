@@ -186,7 +186,7 @@ def generate_image_by_label(data_dirs: list, dist_dir: Path, label: str, contain
             "categories": categories_new,
             "annotations": anno_new,
             "info": info_new
-        }, f)
+        }, f, ensure_ascii=False, indent=4)
 
 
 if __name__ == "__main__":
