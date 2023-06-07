@@ -74,7 +74,7 @@ def merge_dataset_coco(dataset_dirs: list, dist_dir: Path, img_index=0):
             "categories": categories_new,
             "annotations": anno_new,
             "info": info_new
-        }, f)
+        }, f, ensure_ascii=False, indent=4)
     pass
 
 

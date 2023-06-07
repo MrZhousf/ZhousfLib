@@ -43,15 +43,16 @@ def merge_label(coco_dir: Path, labels: dict):
         if label_name in need_modify_labels:
             label_name = need_modify_labels.get(label_name)
         label_dict[label_id] = label_name
+
     index_mapping = {}
-    label_names = []
+    label_names = {}
     for index in label_dict.keys():
         name = label_dict.get(index)
         if name not in label_names:
             index_mapping[index] = index
-            label_names.append(name)
+            label_names[name] = index
         else:
-            index_mapping[index] = label_names.index(name)
+            index_mapping[index] = label_names.get(name)
     print(index_mapping)
     print(label_dict)
     # 构建新的标签列表
@@ -160,8 +161,4 @@ def update_coco(coco_dir: Path):
 
 
 if __name__ == "__main__":
-    labels_ = {"等级": ['等级_1', '等级_2', '等级_2E', '等级_2F', '等级_2FE', '等级_3', '等级_3E', '等级_3F', '等级_3FE',
-               '等级_3R', '等级_4', '等级_4E', '等级_4F', '等级_4FE']}
-    coco_dir_ = Path(r"目标检测\local\val")
-    merge_label(coco_dir=coco_dir_, labels=labels_)
     pass
