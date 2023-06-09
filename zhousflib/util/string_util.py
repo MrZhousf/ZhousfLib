@@ -3,6 +3,7 @@
 # Description:
 import re
 
+
 def is_number(string: str):
     """
     是否数值，包含int、float、double
@@ -36,6 +37,7 @@ def contains(string: str, what: list):
         if string.find(s) > -1:
             return True
     return False
+
 
 def is_empty(obj):
     str_obj = str(obj)
