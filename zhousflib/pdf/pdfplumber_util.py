@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 # Author:  zhousf-a
 # Description: pdf表格还原工具
+# pip install pdfplumber
 import pdfplumber
 import pandas as pd
 

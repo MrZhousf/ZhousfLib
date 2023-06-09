@@ -9,9 +9,6 @@ from pathlib import Path
 # 宋体-汉字
 Font_SimSun: Path = Path(__file__).parent.joinpath("SimSun.ttf")
 
-# 仿宋-汉字
-Font_SimFang: Path = Path(__file__).parent.joinpath("simfang.ttf")
-
 # 符号、数字、字母、数学符号： ①ⓒԑ
 Font_SYMBOLA: Path = Path(__file__).parent.joinpath("Symbola.ttf")
 

@@ -4,16 +4,18 @@
 import shutil
 import json
 from pathlib import Path
+import numpy as np
 from prettytable import PrettyTable
 
 
-def train_test_split(data_dirs: list, dst_dir: Path, val_size=0.2, test_size=0.2):
+def train_test_split(data_dirs: list, dst_dir: Path, val_size=0.2, test_size=0.2, shuffle=True):
     """
     训练集、验证集、测试集划分
     :param data_dirs: 数据集目录
     :param dst_dir: 生成训练集、测试集的目录
     :param val_size: 验证集占比
     :param test_size: 测试集占比
+    :param shuffle: 打乱数据集顺序
     :return:
     """
     def split_data(dir_save: Path, dataset: list, annotations: dict):
@@ -93,6 +95,11 @@ def train_test_split(data_dirs: list, dst_dir: Path, val_size=0.2, test_size=0.2
                 info = _info
             if len(categories) == 0:
                 categories = _categories
+    # 打乱顺序
+    if shuffle:
+        state = np.random.get_state()
+        np.random.shuffle(images)
+        np.random.set_state(state)
     # 开始数据集划分
     dataset_val = []
     dataset_test = []

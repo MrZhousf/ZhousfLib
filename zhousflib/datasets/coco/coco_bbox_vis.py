@@ -99,8 +99,11 @@ def draw_bbox_label(img_file: Path, bboxes: list, classes_dict, show=False):
         if str(class_id).isdigit():
             class_name = classes_dict[class_id]
         else:
-            class_name = class_id
-        class_name += ":{0:.3f}".format(score)
+            class_name = str(class_id)
+        if score != "-":
+            class_name += ":{0:.3f}".format(score)
+        else:
+            class_name += ":{0}".format(score)
         bbox_color = colors[classes_index.index(class_id)]
         width = abs(x_max - x_min)
         height = abs(y_max - y_min)
