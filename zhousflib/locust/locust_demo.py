@@ -2,9 +2,9 @@
 # Author:  zhousf
 # Date:    2022-10-21
 # Description: 并发测试工具
+# pip install locust
 import os
 import time
-import hashlib
 from locust import HttpUser, task, TaskSet
 
 HOST = "http://127.0.0.1:5000"
