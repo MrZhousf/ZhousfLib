@@ -6,7 +6,8 @@ from pathlib import Path
 from zhousflib.util import re_util
 
 
-def unmerge_and_fill_cells(excel_file: Path, merged_cell_rate=2/3, delete_duplicates=True, tmp_excel: Path = None, target_sheet_name=None) -> Path:
+def unmerge_and_fill_cells(excel_file: Path, merged_cell_rate=2/3, delete_duplicates=True, tmp_excel: Path = None,
+                           target_sheet_name=None) -> Path:
     """
     拆分合并单元格并填充有效值
     :param excel_file:
@@ -17,6 +18,7 @@ def unmerge_and_fill_cells(excel_file: Path, merged_cell_rate=2/3, delete_duplic
     :return:
     """
     wb = openpyxl.load_workbook(str(excel_file))
+    contain_merge_cells = False
     for sheet_name in wb.sheetnames:
         if target_sheet_name:
             if target_sheet_name != sheet_name:
@@ -42,13 +44,14 @@ def unmerge_and_fill_cells(excel_file: Path, merged_cell_rate=2/3, delete_duplic
                 cell = worksheet.cell(row=row_index, column=col_index)
                 cell.value = merged_cell.value
         """
-        找到符合需要拆分合并单元格条件的单元格rows
+        找到符合拆分合并单元格条件的单元格rows
         """
         need_fill = []
         for i in rows_deal:
             column_count = rows_deal.get(i)
             if column_count >= merged_cell_rate * worksheet.max_column:
                 need_fill.append(i)
+                contain_merge_cells = True
         """
         拆分合并单元格后，对空单元格赋予有效值
         """
@@ -74,6 +77,7 @@ def unmerge_and_fill_cells(excel_file: Path, merged_cell_rate=2/3, delete_duplic
         wb.close()
         return tmp_excel
     else:
-        wb.save(str(excel_file))
+        if contain_merge_cells:
+            wb.save(str(excel_file))
         wb.close()
         return excel_file

@@ -84,7 +84,7 @@ def delete_label(coco_dir: Path, labels: list):
     """
     删除标签
     :param coco_dir: COCO目录
-    :param merge_labels: ['等级_1', '等级_2', '等级_2E']
+    :param labels: ['等级_1', '等级_2', '等级_2E']
     :return:
     """
     result_json_file = coco_dir.joinpath("result.json")
@@ -107,6 +107,7 @@ def delete_label(coco_dir: Path, labels: list):
         file_name = img["file_name"]
         file_name = str(file_name).rsplit("/")[-1]
         img["file_name"] = file_name
+        print(file_name)
     delete_indexes = [item.get("id") for item in categories if item.get("name") in labels]
     for i in range(len(annotations) - 1, -1, -1):
         ann = annotations[i]
