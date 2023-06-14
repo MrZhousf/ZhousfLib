@@ -7,10 +7,20 @@ import hashlib
 from pathlib import Path
 
 
-def get_file_base64(file_file: Path):
-    with file_file.open('rb') as infile:
+def get_file_base64(file_path: Path, contain_file_name=True, split_char=","):
+    """
+    图片转base64
+    :param file_path: 图片路径
+    :param contain_file_name: 是否包含文件名称
+    :param split_char: 分隔符
+    :return: 'a.jpg,iVBORw0KGgoAAAANSUhEUgAABNcAAANtCAYAAACzHZ25AAA.....'
+    """
+    with file_path.open('rb') as infile:
         s = infile.read()
-    return base64.b64encode(s).decode("utf-8")
+    base64_str = base64.b64encode(s).decode("utf-8")
+    if contain_file_name:
+        base64_str = file_path.name + split_char + base64_str
+    return base64_str
 
 
 def md5(file_path: Path):
@@ -34,12 +44,12 @@ def rename_image_with_md5(src_dir: Path, dst_dir: Path):
         if dst_dir.joinpath(new_name).exists():
             repeat += 1
             continue
-        file.rename(dst_dir.joinpath(new_name))
+        if not dst_dir.joinpath(file.parent.name).exists():
+            dst_dir.joinpath(file.parent.name).mkdir(parents=True)
+        file.rename(dst_dir.joinpath(file.parent.name).joinpath(new_name))
     print("count=", count)
     print("repeat=", repeat)
 
 
 if __name__ == "__main__":
-    src_dir_ = Path("/Users/zhousf/Desktop/工作空间/土建排布图/标注数据/目标检测/第3批/第三批已筛选图纸-3.24交付")
-    dst_dir_ = Path("/Users/zhousf/Desktop/工作空间/土建排布图/标注数据/目标检测/第3批/原图1")
-    rename_image_with_md5(src_dir_, dst_dir_)
+    pass

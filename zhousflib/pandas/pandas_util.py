@@ -164,7 +164,4 @@ def write_row_csv(csv_path, data):
 
 
 if __name__ == "__main__":
-    df = read_excel_merge_cell(file_path=Path(r"C:\Users\zhousf-a\Desktop\1_ocr_data.xlsx"))
-    for index, row in df.iterrows():
-        print(row)
     pass
