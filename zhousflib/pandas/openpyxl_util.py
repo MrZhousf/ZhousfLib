@@ -71,7 +71,12 @@ def unmerge_and_fill_cells(excel_file: Path, merged_cell_rate=2/3, delete_duplic
         """
         if delete_duplicates:
             for fill in need_fill:
-                worksheet.delete_rows(idx=fill[1])
+                data = []
+                for row_cells in worksheet.iter_rows(min_row=min(fill), max_row=max(fill)):
+                    data.append([cell.value for cell in row_cells])
+                if len(data) == 2:
+                    if data[0] == data[1]:
+                        worksheet.delete_rows(idx=fill[1])
     if tmp_excel:
         wb.save(str(tmp_excel))
         wb.close()
