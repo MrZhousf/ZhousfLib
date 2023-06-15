@@ -66,11 +66,12 @@ def write_csv(file_path, data, columns=None, seq=None):
     data_frame.to_csv(file_path, header=header, columns=columns, index=False, sep=seq)
 
 
-def read_excel(file_path, sheet_name=None):
+def read_excel(file_path, sheet_name=None, header=None):
     """
     读取excel文件
     :param file_path:
     :param sheet_name: None第一张表
+    :param header:
     :return:
     """
     if sheet_name is None:
@@ -78,14 +79,14 @@ def read_excel(file_path, sheet_name=None):
         sheets = exc.sheet_names
         if len(sheets) > 0:
             sheet_name = sheets[0]
-    data_ = pd.read_excel(file_path, sheet_name=sheet_name, dtype=object)
+    data_ = pd.read_excel(file_path, sheet_name=sheet_name, dtype=object, header=header)
     # 若nan则替换成空字符串
     data_ = data_.fillna("")
     return data_
 
 
 def read_excel_merge_cell(file_path: Path, sheet_name=None, merged_cell_rate=2 / 3, delete_duplicates=True,
-                          tmp_excel: Path = None):
+                          tmp_excel: Path = None, header=None):
     """
     读取excel文件，并处理合并单元格
     :param file_path: excel文件
@@ -93,12 +94,13 @@ def read_excel_merge_cell(file_path: Path, sheet_name=None, merged_cell_rate=2 /
     :param merged_cell_rate: 合并单元格的数量占列数的比例，若大于该比例则拆分该合并单元格，合并单元格选项
     :param delete_duplicates: 是否对拆分合并单元格的结果去重，合并单元格选项
     :param tmp_excel: 临时文件，若为空则会更新源文件，合并单元格选项
+    :param header:
     :return:
     """
     excel_file = openpyxl_util.unmerge_and_fill_cells(excel_file=file_path, target_sheet_name=sheet_name,
                                                       merged_cell_rate=merged_cell_rate,
                                                       delete_duplicates=delete_duplicates, tmp_excel=tmp_excel)
-    return read_excel(str(excel_file), sheet_name=sheet_name)
+    return read_excel(str(excel_file), sheet_name=sheet_name, header=header)
 
 
 def write_excel(data, columns=None, save_file='output.xlsx', sheet='Sheet1'):

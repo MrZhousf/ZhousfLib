@@ -17,6 +17,36 @@ def is_number(string: str):
         return False
 
 
+def is_greater_than_number(string1: str, string2: str):
+    """
+    string1数值大于string2数值
+    :param string1: "12"
+    :param string2: "12.0"
+    :return:
+    """
+    if is_number(string1) and is_number(string2):
+        if float(string1) > float(string2):
+            return True
+    if string1 == string2:
+        return True
+    return False
+
+
+def is_less_than_number(string1: str, string2: str):
+    """
+    string1数值小于string2数值
+    :param string1: "12"
+    :param string2: "12.0"
+    :return:
+    """
+    if is_number(string1) and is_number(string2):
+        if float(string1) < float(string2):
+            return True
+    if string1 == string2:
+        return True
+    return False
+
+
 def is_equal_number(string1: str, string2: str):
     """
     数值是否相等
