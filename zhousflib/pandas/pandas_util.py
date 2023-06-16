@@ -85,20 +85,18 @@ def read_excel(file_path, sheet_name=None, header=None):
     return data_
 
 
-def read_excel_merge_cell(file_path: Path, sheet_name=None, merged_cell_rate=2 / 3, delete_duplicates=True,
+def read_excel_merge_cell(file_path: Path, sheet_name=None, delete_duplicates=True,
                           tmp_excel: Path = None, header=None):
     """
     读取excel文件，并处理合并单元格
     :param file_path: excel文件
     :param sheet_name: None第一张表
-    :param merged_cell_rate: 合并单元格的数量占列数的比例，若大于该比例则拆分该合并单元格，合并单元格选项
     :param delete_duplicates: 是否对拆分合并单元格的结果去重，合并单元格选项
     :param tmp_excel: 临时文件，若为空则会更新源文件，合并单元格选项
     :param header:
     :return:
     """
     excel_file = openpyxl_util.unmerge_and_fill_cells(excel_file=file_path, target_sheet_name=sheet_name,
-                                                      merged_cell_rate=merged_cell_rate,
                                                       delete_duplicates=delete_duplicates, tmp_excel=tmp_excel)
     return read_excel(str(excel_file), sheet_name=sheet_name, header=header)
 
@@ -166,7 +164,7 @@ def write_row_csv(csv_path, data):
 
 
 if __name__ == "__main__":
-    read_excel_merge_cell(file_path=Path(r"C:\Users\zhousf-a\Desktop\2_ocr_data.xlsx"),
-                          tmp_excel=Path(r"C:\Users\zhousf-a\Desktop\2_ocr_data-tmp.xlsx"),
+    read_excel_merge_cell(file_path=Path(r"C:\Users\zhousf-a\Desktop\6_ocr_data.xlsx"),
+                          tmp_excel=Path(r"C:\Users\zhousf-a\Desktop\6_ocr_data-tmp.xlsx"),
                           delete_duplicates=True)
     pass
