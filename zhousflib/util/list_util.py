@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 # Author:  zhousf
-# Description:
+# Description:  list交集、并集、差集运算
 import random
 
 
@@ -30,4 +30,48 @@ def none_filter(data: list) -> list:
                 break
         return res
     return data
+
+
+def intersection(a, b):
+    """
+    交集
+    :param a: [1, 2, 3, 4, 5]
+    :param b: [2, 3, 9]
+    :return: [2, 3]
+    """
+    if len(a) == 0:
+        return b
+    if len(b) == 0:
+        return a
+    return list(set(a).intersection(set(b)))
+
+
+def union(a, b):
+    """
+    并集
+    :param a: [1, 2, 3, 4, 5]
+    :param b: [2, 3, 9]
+    :return: [1, 2, 3, 4, 5, 9]
+    """
+    if len(a) == 0:
+        return b
+    if len(b) == 0:
+        return a
+    return list(set(a).union(set(b)))
+
+
+def difference(a, b):
+    """
+    并集
+    :param a: [1, 2, 3, 4, 5]
+    :param b: [2, 3, 9]
+    :return: [1, 4, 5]
+    """
+    if len(a) == 0:
+        return b
+    if len(b) == 0:
+        return a
+    return list(set(a).difference(set(b)))
+
+
 
