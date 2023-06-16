@@ -1,6 +1,5 @@
 # -*- coding:utf-8 -*-
 # Author:  zhousf
-# Date:    2022-10-21
 # Description: 并发测试工具
 # pip install locust
 import os
