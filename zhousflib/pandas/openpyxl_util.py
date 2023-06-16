@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# @Author  : zhousf-a
+# @Author  : zhousf
 # @Function:
 import openpyxl
 from pathlib import Path
@@ -49,9 +49,11 @@ def unmerge_and_fill_cells(excel_file: Path, merged_cell_rate=2/3, delete_duplic
         need_fill = []
         for i in rows_deal:
             column_count = rows_deal.get(i)
-            if column_count >= merged_cell_rate * worksheet.max_column:
-                need_fill.append(i)
-                contain_merge_cells = True
+            # if column_count >= merged_cell_rate * worksheet.max_column:
+            #     need_fill.append(i)
+            #     contain_merge_cells = True
+            need_fill.append(i)
+            contain_merge_cells = True
         """
         拆分合并单元格后，对空单元格赋予有效值
         """
@@ -69,18 +71,24 @@ def unmerge_and_fill_cells(excel_file: Path, merged_cell_rate=2/3, delete_duplic
         """
         拆分合并单元格后会有重复的两条，这里去重一下
         """
+        if len(need_fill) > 0:
+            need_fill.sort(key=lambda x: x[0], reverse=False)
         if delete_duplicates:
+            # 偏移量，记录删除row的个数
+            offset = 0
             for fill in need_fill:
                 data = []
+                fill = (fill[0]-offset, fill[1]-offset)
                 for row_cells in worksheet.iter_rows(min_row=min(fill), max_row=max(fill)):
                     data.append([cell.value for cell in row_cells])
-                if len(data) == 0:
+                if len(data) < 2:
                     continue
-                first_row_value = data[0]
                 first_row_index = min(fill) + 1
                 for i in range(1, len(data)):
+                    first_row_value = data[i-1]
                     if data[i] == first_row_value:
                         worksheet.delete_rows(idx=first_row_index)
+                        offset += 1
     if tmp_excel:
         wb.save(str(tmp_excel))
         wb.close()

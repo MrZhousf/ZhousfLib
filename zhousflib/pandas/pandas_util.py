@@ -166,4 +166,7 @@ def write_row_csv(csv_path, data):
 
 
 if __name__ == "__main__":
+    read_excel_merge_cell(file_path=Path(r"C:\Users\zhousf-a\Desktop\2_ocr_data.xlsx"),
+                          tmp_excel=Path(r"C:\Users\zhousf-a\Desktop\2_ocr_data-tmp.xlsx"),
+                          delete_duplicates=True)
     pass

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# @Author  : zhousf-a
+# @Author  : zhousf
 # @Function: lmdb (Lightning Memory-Mapped Database) 快如闪电的内存映射数据库
 # pip install lmdb
 import pickle
