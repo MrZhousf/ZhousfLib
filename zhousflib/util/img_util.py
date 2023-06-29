@@ -7,7 +7,7 @@ import hashlib
 from pathlib import Path
 
 
-def get_file_base64(file_path: Path, contain_file_name=True, split_char=","):
+def get_file_base64(file_path: Path, contain_file_name=False, split_char=","):
     """
     图片转base64
     :param file_path: 图片路径
