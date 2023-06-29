@@ -47,13 +47,13 @@ def cal(calc_formula: str) -> str:
         if number_str[0] in ["*", "/"]:
             union_symbol = number_str[0]
             number_str = number_str[1:]
-    number_str_cal_result = eval("".join(number_str)) if len(number_str) > 0 else ""
+    number_str_cal_result = round(eval("".join(number_str)), 8) if len(number_str) > 0 else ""
     not_number_str = ["{0}".format(not_number) for not_number in not_number_list]
     if number_is_first:
         result_union = str(number_str_cal_result) + union_symbol + "".join(not_number_str)
     else:
         if not number_str_cal_result and not union_symbol and len(str(number_str_cal_result)) > 0:
-            print(number_str_cal_result, type(number_str_cal_result), len(str(number_str_cal_result)))
+            # print(number_str_cal_result, type(number_str_cal_result), len(str(number_str_cal_result)))
             if number_str_cal_result > 0:
                 union_symbol = "+"
         result_union = "".join(not_number_str) + union_symbol + str(number_str_cal_result)
@@ -71,6 +71,7 @@ if __name__ == "__main__":
     # print(cal("+752+2+"))
     # print(cal("+05+120"))
     # print(cal("100*2/4"))
-    print(cal("167.6+167.6+183+25+30+30|30+63+25+25"))
+    # print(cal("60.3+733.9"))
+    print(cal("1811-(137+350)"))
     pass
 
