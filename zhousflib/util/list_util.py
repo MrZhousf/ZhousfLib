@@ -62,7 +62,7 @@ def union(a, b):
 
 def difference(a, b):
     """
-    并集
+    差集
     :param a: [1, 2, 3, 4, 5]
     :param b: [2, 3, 9]
     :return: [1, 4, 5]
@@ -72,6 +72,5 @@ def difference(a, b):
     if len(b) == 0:
         return a
     return list(set(a).difference(set(b)))
-
 
 
