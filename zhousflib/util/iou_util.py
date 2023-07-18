@@ -272,6 +272,34 @@ def box_scale_up(box, offset=50):
     return _x_min, _y_min, _x_max, _y_max
 
 
+def box_scale_up_horizontal(box, offset=50):
+    """
+    box增大，仅水平方向
+    :param box:
+    :param offset:
+    :return:
+    """
+    x_min, y_min, x_max, y_max = box
+    _x_min = x_min - offset
+    _x_min = 0 if _x_min < 0 else _x_min
+    _x_max = x_max + offset
+    return _x_min, y_min, _x_max, y_max
+
+
+def box_scale_up_vertical(box, offset=50):
+    """
+    box增大，仅垂直方向
+    :param box:
+    :param offset:
+    :return:
+    """
+    x_min, y_min, x_max, y_max = box
+    _y_min = y_min - offset
+    _y_min = 0 if _y_min < 0 else _y_min
+    _y_max = y_max + offset
+    return x_min, _y_min, x_max, _y_max
+
+
 def box_scale_down(box, offset=50):
     """
     box缩小

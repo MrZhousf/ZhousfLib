@@ -47,7 +47,14 @@ def cal(calc_formula: str) -> str:
         if number_str[0] in ["*", "/"]:
             union_symbol = number_str[0]
             number_str = number_str[1:]
-    number_str_cal_result = round(eval("".join(number_str)), 8) if len(number_str) > 0 else ""
+    try:
+        num = eval("".join(number_str))
+    except Exception as e:
+        num = number_str
+    if isinstance(type(num), int) or isinstance(type(num), float):
+        number_str_cal_result = round(num, 8) if len(number_str) > 0 else ""
+    else:
+        number_str_cal_result = num if len(number_str) > 0 else ""
     not_number_str = ["{0}".format(not_number) for not_number in not_number_list]
     if number_is_first:
         result_union = str(number_str_cal_result) + union_symbol + "".join(not_number_str)
@@ -72,6 +79,8 @@ if __name__ == "__main__":
     # print(cal("+05+120"))
     # print(cal("100*2/4"))
     # print(cal("60.3+733.9"))
-    print(cal("1811-(137+350)"))
+    # print(cal("1811-(137+350)"))
+    print(cal("10+20+均353.5"))
+    # print(round(eval("均353.5"), 8))
     pass
 
