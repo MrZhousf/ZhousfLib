@@ -51,7 +51,7 @@ def cal(calc_formula: str) -> str:
         num = eval("".join(number_str))
     except Exception as e:
         num = number_str
-    if isinstance(type(num), int) or isinstance(type(num), float):
+    if isinstance(num, int) or isinstance(num, float):
         number_str_cal_result = round(num, 8) if len(number_str) > 0 else ""
     else:
         number_str_cal_result = num if len(number_str) > 0 else ""
@@ -80,7 +80,9 @@ if __name__ == "__main__":
     # print(cal("100*2/4"))
     # print(cal("60.3+733.9"))
     # print(cal("1811-(137+350)"))
-    print(cal("10+20+均353.5"))
+    # print(cal("10+20+均353.5"))
     # print(round(eval("均353.5"), 8))
+    print(cal("811-846.6"))
+    print(cal("846.6-811"))
     pass
 
