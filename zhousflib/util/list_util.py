@@ -2,6 +2,21 @@
 # Author:  zhousf
 # Description:  list交集、并集、差集运算
 import random
+from collections import Counter
+
+
+def counter(data_list: list, arg=None):
+    """
+    统计列表中某个元素的个数
+    :param data_list: 列表
+    :param arg: 某个元素，空时则返回counter
+    :return:
+    """
+    res = Counter(data_list)
+    if arg:
+        return res.get(arg, 0)
+    else:
+        return res
 
 
 def random_choices(data_list: list, choose_k=3) -> list:

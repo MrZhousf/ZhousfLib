@@ -3,6 +3,7 @@
 # @Function: 业务日志记录
 import time
 from pathlib import Path
+from prettytable import PrettyTable
 
 
 class Logger(object):
@@ -24,9 +25,22 @@ class Logger(object):
         self.log(log_dir)
         # 日志信息-仅标题
         self.__log_txt_level = []
+        # 耗时
+        self.elapsed_time_dict = {}
+
+    def elapsed_time(self, k: str, start: float, end: float):
+        if k in self.elapsed_time_dict:
+            self.elapsed_time_dict[k] += abs(end - start)
+        else:
+            self.elapsed_time_dict[k] = abs(end - start)
 
     def print_log(self):
         print(self.log_txt)
+        if len(self.elapsed_time_dict) > 0:
+            table = PrettyTable()
+            table.field_names = self.elapsed_time_dict.keys()
+            table.add_row([self.elapsed_time_dict.get(i) for i in self.elapsed_time_dict.keys()])
+            print(table)
 
     @property
     def level_log_first(self):
