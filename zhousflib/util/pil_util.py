@@ -21,12 +21,13 @@ def four_point_convert_bbox(four_points: list):
     return x_min, y_min, x_max, y_max
 
 
-def draw_rectangle(bbox: list, image_file: Path = None, image_size: list = None, show=True):
+def draw_rectangle(bbox: list, image_file: Path = None, image_size: list = None, fill_transparent=255, show=True):
     """
     绘制矩形框
     :param bbox: [(x_min, y_min, x_max, y_max)]
     :param image_file: 空时以空白为背景进行绘制
     :param image_size:
+    :param fill_transparent: 填充色透明度[0, 255]，当为-1时则不填充
     :param show:
     :return:
     """
@@ -34,7 +35,17 @@ def draw_rectangle(bbox: list, image_file: Path = None, image_size: list = None,
     for box in bbox:
         x_min, y_min, x_max, y_max = box
         draw_p.append([(x_min, y_min), (x_max, y_min), (x_max, y_max), (x_min, y_max)])
-    return draw_polygon(polygon=draw_p, image_file=image_file, image_size=image_size, show=show)
+    return draw_polygon(polygon=draw_p, image_file=image_file, image_size=image_size, fill_transparent=fill_transparent, show=show)
+
+
+def get_w_h(image_file: Path = None):
+    """
+    获取图片宽高
+    :param image_file:
+    :return:
+    """
+    image = Image.open(image_file)
+    return [image.width, image.height]
 
 
 def draw_polygon(polygon: list, image_file: Path = None, image_size: list = None, fill_transparent=255, show=True):
@@ -69,6 +80,7 @@ def draw_polygon(polygon: list, image_file: Path = None, image_size: list = None
         # 填充颜色+透明
         file_color = (polygon_color[0], polygon_color[1], polygon_color[2], fill_transparent) if fill_transparent > -1 else None
         draw.polygon(draw_p, outline=polygon_color, fill=file_color)
+        draw.text(xy=(draw_p[0][0]+1, draw_p[0][1]+1), text=str(index))
     if image_white is not None:
         image.paste(Image.alpha_composite(image, image_white))
     if show:
