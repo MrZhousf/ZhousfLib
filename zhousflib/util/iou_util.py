@@ -316,53 +316,33 @@ def box_scale_down(box, offset=50):
     return _x_min, _y_min, _x_max, _y_max
 
 
+def location_y_axis(target_box, box, height_threshold=0.25):
+    """
+    y轴位置关系判断，判断box在target_box的上面还是下面，通过中心点的y计算
+    :param target_box:
+    :param box:
+    :param height_threshold: 阈值比，若大于target_box该比例的高度，则位置不同
+    :return: 1: 上面   0: 下面   -1: 位置相同
+    """
+    c_y_t = (target_box[-3] + target_box[-1]) / 2
+    height_t = abs(target_box[-3] - target_box[-1])
+    c_y = (box[-3] + box[-1]) / 2
+    # 两个中心点的Y轴坐标差超过target_box高度*height_threshold，表示两个box在target_box上面
+    if abs(c_y_t - c_y) >= (height_t * height_threshold):
+        if c_y_t > c_y:
+            return 1
+        else:
+            return 0
+    else:
+        return -1
+
+
 if __name__ == "__main__":
     # print(box_scale_down((10, 10, 20, 20), offset=2))
-    print(box_scale_up((-166.68197631835938, -0.008893102407455444, 1810.6822509765625, 143.40452575683594), offset=2))
+    # print(box_scale_up((-166.68197631835938, -0.008893102407455444, 1810.6822509765625, 143.40452575683594), offset=2))
     # a =(168.9995880126953, 40.77224349975586, 186.8643341064453, 62.222076416015625)
     # b =(151.0, 34.0, 234.0, 77.0)
     # print(compute_iou(a, b))
     # print(compute_contain(a, b))
     # show_rect([a, b])
-    # od_result = [('引线', 0.9127930998802185, 317.42401123046875, 280.783203125, 553.0108032226562,
-    #               395.31756591796875), (
-    #              '引线', 0.9017542600631714, 356.3954772949219, 434.4830322265625, 595.97314453125,
-    #              548.5955200195312), (
-    #              '普通钢筋大样图', 0.7828382253646851, 234.65667724609375, 433.5041809082031,
-    #              609.3646240234375, 576.8939208984375), (
-    #              '普通钢筋大样图', 0.7160109281539917, 222.05714416503906, 276.25738525390625,
-    #              662.2127685546875, 420.0615539550781), (
-    #              '编号', 0.7344087958335876, 505.61639404296875, 439.4078674316406, 590.3804931640625,
-    #              524.0474243164062), (
-    #              '编号', 0.6869884729385376, 468.19793701171875, 285.3776550292969, 550.497802734375,
-    #              370.9029541015625)]
-    # ocr_data = [{'bbox': [[374, 295], [486, 296], [485, 322], [373, 321]], 'label': '192史12',
-    #              'confidence': 96},
-    #             {'bbox': [[494, 305], [525, 305], [525, 344], [494, 344]], 'label': '1',
-    #              'confidence': 95},
-    #             {'bbox': [[415, 329], [459, 329], [459, 362], [415, 362]], 'label': '56',
-    #              'confidence': 99},
-    #             {'bbox': [[421, 357], [463, 357], [463, 389], [421, 389]], 'label': '56',
-    #              'confidence': 99},
-    #             {'bbox': [[422, 445], [519, 445], [519, 473], [422, 473]], 'label': '6412',
-    #              'confidence': 99},
-    #             {'bbox': [[536, 466], [560, 466], [560, 496], [536, 496]], 'label': '2',
-    #              'confidence': 99},
-    #             {'bbox': [[453, 484], [491, 484], [491, 511], [453, 511]], 'label': '50',
-    #              'confidence': 99},
-    #             {'bbox': [[411, 512], [450, 512], [450, 543], [411, 543]], 'label': '50',
-    #              'confidence': 99}]
-    # ocr_result = []
-    # for data in ocr_data:
-    #     box = data.get("bbox")
-    #     _label = data.get("label")
-    #     _score = data.get("confidence") / 100
-    #     ocr_result.append((_label, _score, box[0][0], box[0][1], box[2][0], box[2][1]))
-    # od_result.extend(ocr_result)
-    # box_group = group_by_box_overlap(od_result)
-    # for group in box_group:
-    #     for item in group:
-    #         (index1, [area1, box1]) = item
-    #         print(item)
-    #     print("---------")
     pass
