@@ -46,7 +46,8 @@ def rename_image_with_md5(src_dir: Path, dst_dir: Path):
             continue
         if not dst_dir.joinpath(file.parent.name).exists():
             dst_dir.joinpath(file.parent.name).mkdir(parents=True)
-        file.rename(dst_dir.joinpath(file.parent.name).joinpath(new_name))
+        if not dst_dir.joinpath(file.parent.name).joinpath(new_name).exists():
+            file.rename(dst_dir.joinpath(file.parent.name).joinpath(new_name))
     print("count=", count)
     print("repeat=", repeat)
 
