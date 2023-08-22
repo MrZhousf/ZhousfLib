@@ -14,7 +14,7 @@ import mars.dataframe as md
 from zhousflib.pandas import openpyxl_util
 
 
-def read_csv(file_path, header="infer", title=None, encoding=None, nrows=None, dtype=None, sep="\t"):
+def read_csv(file_path: str, header="infer", title=None, encoding=None, nrows=None, dtype=None, sep="\t"):
     """
     取值：
         csv_data['column_name']
@@ -32,7 +32,10 @@ def read_csv(file_path, header="infer", title=None, encoding=None, nrows=None, d
     """
     if not os.path.exists(file_path):
         raise Exception("file not exists: {}".format(file_path))
-    return pd.read_csv(file_path, header=header, usecols=title, encoding=encoding, nrows=nrows, dtype=dtype, sep=sep)
+    if header:
+        return pd.read_csv(file_path, header=header, usecols=title, encoding=encoding, nrows=nrows, dtype=dtype, sep=sep)
+    else:
+        return pd.read_csv(file_path, usecols=title, encoding=encoding, nrows=nrows, dtype=dtype, sep=sep)
 
 
 def read_csv_mars(csv_file):
@@ -47,7 +50,7 @@ def read_csv_mars(csv_file):
     return md.read_csv(csv_file, low_memory=False).execute().fetch()
 
 
-def write_csv(file_path, data, columns=None, seq=None):
+def write_csv(file_path: Path, data, columns=None, seq=None):
     """
     按列写入csv
     :param file_path: '/home/data.csv'
@@ -79,7 +82,10 @@ def read_excel(file_path, sheet_name=None, header=None):
         sheets = exc.sheet_names
         if len(sheets) > 0:
             sheet_name = sheets[0]
-    data_ = pd.read_excel(file_path, sheet_name=sheet_name, dtype=object, header=header)
+    if header:
+        data_ = pd.read_excel(file_path, sheet_name=sheet_name, dtype=object, header=header)
+    else:
+        data_ = pd.read_excel(file_path, sheet_name=sheet_name, dtype=object)
     # 若nan则替换成空字符串
     data_ = data_.fillna("")
     return data_
@@ -101,7 +107,7 @@ def read_excel_merge_cell(file_path: Path, sheet_name=None, delete_duplicates_ra
     return read_excel(str(excel_file), sheet_name=sheet_name, header=header)
 
 
-def write_excel(data, columns=None, save_file='output.xlsx', sheet='Sheet1'):
+def write_excel(data, columns=None, save_file: Path = Path('output.xlsx'), sheet='Sheet1'):
     """
     写入excel表格
     :param data: [[1, 1], [2, 2]]
@@ -113,7 +119,7 @@ def write_excel(data, columns=None, save_file='output.xlsx', sheet='Sheet1'):
     writer = pd.ExcelWriter(save_file)
     df1 = pd.DataFrame(data=data, columns=columns)
     df1.to_excel(writer, sheet, index=False)
-    writer.save()
+    writer.close()
 
 
 def print_shape(file_path):
@@ -164,7 +170,7 @@ def write_row_csv(csv_path, data):
 
 
 if __name__ == "__main__":
-    read_excel_merge_cell(file_path=Path(r"C:\Users\zhousf-a\Desktop\4_ocr_data.xlsx"),
-                          tmp_excel=Path(r"C:\Users\zhousf-a\Desktop\4_ocr_data-tmp.xlsx"),
-                          delete_duplicates_rate=0.85)
+    # read_excel_merge_cell(file_path=Path(r"C:\Users\zhousf-a\Desktop\4_ocr_data.xlsx"),
+    #                       tmp_excel=Path(r"C:\Users\zhousf-a\Desktop\4_ocr_data-tmp.xlsx"),
+    #                       delete_duplicates_rate=0.85)
     pass
