@@ -100,11 +100,12 @@ def compute_contain(box1, box2):
         return area / p_area
 
 
-def group_by_box_overlap(od_result: list, return_area=False):
+def group_by_box_overlap(od_result: list, return_area=False, area_rate=0.8):
     """
     根据box的重叠面积进行分组-通用算法，适用目标检测、画图等
     :param od_result: [(?, ?, x_min, y_min, x_max, y_max)], box置于tuple最后
     :param return_area: 是否返回面积
+    :param area_rate: 两个box重叠面积比例，若大于该值则为包含关系
     :return:
     [[(index, [area, (?, ?, x_min, y_min, x_max, y_max)])]]
     or
@@ -130,7 +131,7 @@ def group_by_box_overlap(od_result: list, return_area=False):
             (index2, [area2, box2]) = item2
             (x_min2, y_min2, x_max2, y_max2) = box2[-4:]
             if compute_contain((x_min1, y_min1, x_max1, y_max1),
-                               (x_min2, y_min2, x_max2, y_max2)) > 0.8:
+                               (x_min2, y_min2, x_max2, y_max2)) > area_rate:
                 if item1 == item2:
                     continue
                 if index2 in has_add_index:
