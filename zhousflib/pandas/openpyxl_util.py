@@ -77,6 +77,8 @@ def unmerge_and_fill_cells(excel_file: Path, delete_duplicates_rate: float = 1.0
                 for i in range(fill[0], fill[1]+1):
                     current_data = []
                     next_data = []
+                    if i - offset < 1:
+                        continue
                     for row_cells in worksheet.iter_rows(min_row=i-offset, max_row=i-offset):
                         current_data = [cell.value for cell in row_cells]
                     if i < fill[1]:
