@@ -21,21 +21,30 @@ def four_point_convert_bbox(four_points: list):
     return x_min, y_min, x_max, y_max
 
 
-def draw_rectangle(bbox: list, image_file: Path = None, image_size: list = None, fill_transparent=255, show=True):
+def draw_rectangle(bbox: list, image_file: Path = None, image_size: list = None, font = None,
+                   fill_transparent=255, show=True):
     """
     绘制矩形框
-    :param bbox: [(x_min, y_min, x_max, y_max)]
+    :param bbox: [(label, x_min, y_min, x_max, y_max)]
     :param image_file: 空时以空白为背景进行绘制
     :param image_size:
+    :param font: ImageFont.truetype(font_path, font_size, encoding="utf-8")
     :param fill_transparent: 填充色透明度[0, 255]，当为-1时则不填充
     :param show:
     :return:
     """
     draw_p = []
+    texts = []
     for box in bbox:
-        x_min, y_min, x_max, y_max = box
+        if len(box) == 5:
+            texts.append(box[-5])
+        x_min = box[-4]
+        y_min = box[-3]
+        x_max = box[-2]
+        y_max = box[-1]
         draw_p.append([(x_min, y_min), (x_max, y_min), (x_max, y_max), (x_min, y_max)])
-    return draw_polygon(polygon=draw_p, image_file=image_file, image_size=image_size, fill_transparent=fill_transparent, show=show)
+    return draw_polygon(polygon=draw_p, image_file=image_file, image_size=image_size, font=font, texts=texts,
+                        fill_transparent=fill_transparent, show=show)
 
 
 def get_w_h(image_file: Path = None):
@@ -48,12 +57,15 @@ def get_w_h(image_file: Path = None):
     return [image.width, image.height]
 
 
-def draw_polygon(polygon: list, image_file: Path = None, image_size: list = None, fill_transparent=255, show=True):
+def draw_polygon(polygon: list, image_file: Path = None, image_size: list = None, font = None,
+                 texts: list = None, fill_transparent=255, show=True):
     """
     绘制四边形
     :param polygon: [[[255, 376], [291, 409], [255, 443], [218, 409]], [[252, 140], [300, 140], [300, 189], [252, 189]]]
     :param image_file: 空时以空白为背景进行绘制
     :param image_size:
+    :param font: ImageFont.truetype(font_path, font_size, encoding="utf-8")
+    :param texts: box框的描述文本，长度等于polygon
     :param fill_transparent: 填充色透明度[0, 255]，当为-1时则不填充
     :param show:
     :return:
@@ -80,7 +92,14 @@ def draw_polygon(polygon: list, image_file: Path = None, image_size: list = None
         # 填充颜色+透明
         file_color = (polygon_color[0], polygon_color[1], polygon_color[2], fill_transparent) if fill_transparent > -1 else None
         draw.polygon(draw_p, outline=polygon_color, fill=file_color)
-        draw.text(xy=(draw_p[0][0]+1, draw_p[0][1]+1), text=str(index))
+        if texts:
+            text = texts[index]
+        else:
+            text = str(index)
+        if font:
+            draw.text(xy=(draw_p[0][0]+1, draw_p[0][1]+1), text=text, fill="black", font=font)
+        else:
+            draw.text(xy=(draw_p[0][0] + 1, draw_p[0][1] + 1), text=text, fill="black")
     if image_white is not None:
         image.paste(Image.alpha_composite(image, image_white))
     if show:
