@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 # Author:  zhousf
-# Description: coco bbox 修改工具：合并标签
+# Description: coco bbox 修改工具：合并标签、删除标签
 import json
 from pathlib import Path
 
