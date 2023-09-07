@@ -194,6 +194,7 @@ def search_nearby_bottom_box(target_box, boxes: list):
     t_y = (target_box[-3] + target_box[-1]) / 2
     t_width = abs(target_box[-2] - target_box[-4])
     t_height = abs(target_box[-3] - target_box[-1])
+    boxes = sorted(boxes, key=lambda v: v[-3], reverse=False)
     for box in boxes:
         c_x = (box[-2] + box[-4]) / 2
         c_y = (box[-3] + box[-1]) / 2
@@ -219,6 +220,7 @@ def search_nearby_right_box(target_box, boxes: list):
     t_y = (target_box[-3] + target_box[-1]) / 2
     t_width = abs(target_box[-2] - target_box[-4])
     t_height = abs(target_box[-3] - target_box[-1])
+    boxes = sorted(boxes, key=lambda v: v[-4], reverse=False)
     for box in boxes:
         c_x = (box[-2] + box[-4]) / 2
         c_y = (box[-3] + box[-1]) / 2
@@ -244,6 +246,7 @@ def search_nearby_left_box(target_box, boxes: list):
     t_y = (target_box[-3] + target_box[-1]) / 2
     t_width = abs(target_box[-2] - target_box[-4])
     t_height = abs(target_box[-3] - target_box[-1])
+    boxes = sorted(boxes, key=lambda v: v[-4], reverse=False)
     for box in boxes:
         c_x = (box[-2] + box[-4]) / 2
         c_y = (box[-3] + box[-1]) / 2

@@ -74,7 +74,7 @@ def read_excel(file_path, sheet_name=None, header=None):
     读取excel文件
     :param file_path:
     :param sheet_name: None第一张表
-    :param header:
+    :param header: 为None则无表头，为0则第一行为表头
     :return:
     """
     if sheet_name is None:
@@ -82,10 +82,7 @@ def read_excel(file_path, sheet_name=None, header=None):
         sheets = exc.sheet_names
         if len(sheets) > 0:
             sheet_name = sheets[0]
-    if header:
-        data_ = pd.read_excel(file_path, sheet_name=sheet_name, dtype=object, header=header)
-    else:
-        data_ = pd.read_excel(file_path, sheet_name=sheet_name, dtype=object)
+    data_ = pd.read_excel(file_path, sheet_name=sheet_name, dtype=object, header=header)
     # 若nan则替换成空字符串
     data_ = data_.fillna("")
     return data_
@@ -170,7 +167,7 @@ def write_row_csv(csv_path, data):
 
 
 if __name__ == "__main__":
-    read_excel_merge_cell(file_path=Path(r"C:\Users\zhousf-a\Desktop\images_40_1_ocr_data.xlsx"),
-                          tmp_excel=Path(r"C:\Users\zhousf-a\Desktop\images_40_1_ocr_data-tmp.xlsx"),
-                          delete_duplicates_rate=0.85)
+    # read_excel_merge_cell(file_path=Path(r"C:\Users\zhousf-a\Desktop\images_40_1_ocr_data.xlsx"),
+    #                       tmp_excel=Path(r"C:\Users\zhousf-a\Desktop\images_40_1_ocr_data-tmp.xlsx"),
+    #                       delete_duplicates_rate=0.85)
     pass
