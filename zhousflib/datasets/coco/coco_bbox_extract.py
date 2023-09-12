@@ -61,12 +61,12 @@ def box_expand(box, offset=50):
     return _x_min, _y_min, _x_max, _y_max
 
 
-def generate_image_by_label(data_dirs: list, dist_dir: Path, label: str, contain_child: bool = False):
+def generate_image_by_label(data_dirs: list, dist_dir: Path, labels: list, contain_child: bool = False):
     """
     根据标签生成标注数据，进行图片裁剪
     :param data_dirs:
     :param dist_dir:
-    :param label: 提取标签名称
+    :param labels: 提取标签名称
     :param contain_child: 提取时包括区域内的所有标签
     :return:
     """
@@ -93,12 +93,12 @@ def generate_image_by_label(data_dirs: list, dist_dir: Path, label: str, contain
             _categories = result_json["categories"]
             if not contain_child:
                 for cate in _categories:
-                    if cate.get("name") == label:
+                    if cate.get("name") in labels:
                         categories_new.append(cate)
             else:
                 categories_new = _categories
             if len(categories_new) == 0:
-                print("label not exist: {0}".format(label))
+                print("label not exist: {0}".format(labels))
                 return
             label_dict = {item.get("id"): item.get("name") for item in _categories}
             # 标注
@@ -128,7 +128,7 @@ def generate_image_by_label(data_dirs: list, dist_dir: Path, label: str, contain
                 for anno in anno_list:
                     category_id = anno["category_id"]
                     category_name = label_dict.get(category_id)
-                    if category_name == label:
+                    if category_name in labels:
                         steel_graph_anno_list.append(anno)
                     else:
                         others_anno.append(anno)
