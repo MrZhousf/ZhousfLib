@@ -69,8 +69,10 @@ def clip_img(labelme_dir: Path, dst_dir: Path, clip_labels: list, show=False):
             shape_clip = shape.copy()
             shape_clip["points"] = p_arr_clip
             data_clip["shapes"] = [shape_clip]
-            data_clip["version"] = data["version"]
-            data_clip["flags"] = data["flags"]
+            if "version" in data:
+                data_clip["version"] = data["version"]
+            if "flags" in data:
+                data_clip["flags"] = data["flags"]
             with save_file.open("w", encoding="utf-8") as f:
                 json.dump(data_clip, f, ensure_ascii=False, indent=4)
             if show:

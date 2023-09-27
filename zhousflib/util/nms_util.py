@@ -5,24 +5,24 @@
 import numpy as np
 
 
-def nms(boxes, iou_thresh=0.9) -> list:
+def nms(boxes, iou_thresh=0.8) -> list:
     """
-    :param boxes: [[scores, x_min, y_min, x_max, y_max]....], x_min必须是int
+    仅适合单个类别，不适合多类别
+    :param boxes: [[scores, x_min, y_min, x_max, y_max]....]
     :param iou_thresh: 交并比的阈值，当大于该阈值时则选优
     :return: [index] boxes的索引
     """
     if isinstance(boxes, list):
         boxes = np.array(boxes)
-    x1 = boxes[:, -4]
-    y1 = boxes[:, -3]
-    x2 = boxes[:, -2]
-    y2 = boxes[:, -1]
+    x1 = boxes[:, -4].astype(float).astype(int)
+    y1 = boxes[:, -3].astype(float).astype(int)
+    x2 = boxes[:, -2].astype(float).astype(int)
+    y2 = boxes[:, -1].astype(float).astype(int)
     areas = (y2 - y1 + 1) * (x2 - x1 + 1)
-    scores = boxes[:, -5]
+    scores = boxes[:, -5].astype(float)
     # 存放nms后剩余的box
     boxes_filter = []
-    # 取出分数从大到小排列的索引
-    # .argsort()是从小到大排列，[::-1]是列表头和尾颠倒一下
+    # 取出分数从大到小排列的索引 .argsort()是从小到大排列，[::-1]是列表头和尾颠倒一下
     index = scores.argsort()[::-1]
     # print('index:',index)
     # 上面这两句比如分数[0.72 0.8  0.92 0.72 0.81 0.9 ]
@@ -80,6 +80,29 @@ def nms(boxes, iou_thresh=0.9) -> list:
     return boxes_filter
 
 
+def multi_nms(boxes: list, iou_thresh=0.8) -> list:
+    """
+    适合多类别
+    :param boxes: [[cls, scores, x_min, y_min, x_max, y_max]....]
+    :param iou_thresh: 交并比的阈值，当大于该阈值时则选优
+    :return: [index] boxes的索引
+    """
+    if isinstance(boxes, list):
+        boxes = np.array(boxes)
+    classes = boxes[:, -6]
+    res_ids = []
+    unique_cls = np.unique(classes)
+    # 遍历每个类别，进行nms操作
+    for cls in unique_cls:
+        det = [box for box in boxes if box[0] == cls]
+        det_ids = [index for index, box in enumerate(boxes) if box[0] == cls]
+        res = nms(boxes=det, iou_thresh=iou_thresh)
+        if len(res):
+            for i in res:
+                res_ids.append(det_ids[i])
+    return res_ids
+
+
 if __name__ == "__main__":
     boxes_ = np.array([[0.72, 100, 100, 210, 210],
                       [0.80, 250, 250, 420, 420],
@@ -87,4 +110,5 @@ if __name__ == "__main__":
                       [0.72, 100, 100, 210, 210],
                       [0.81, 230, 240, 325, 330],
                       [0.90, 220, 230, 315, 340]])
-    print(nms(boxes_, iou_thresh=0.7))
+    # print(nms(boxes_, iou_thresh=0.7))
+
