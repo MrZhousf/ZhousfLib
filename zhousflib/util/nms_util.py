@@ -110,5 +110,5 @@ if __name__ == "__main__":
                       [0.72, 100, 100, 210, 210],
                       [0.81, 230, 240, 325, 330],
                       [0.90, 220, 230, 315, 340]])
-    # print(nms(boxes_, iou_thresh=0.7))
+    print(nms(boxes_, iou_thresh=0.7))
 
