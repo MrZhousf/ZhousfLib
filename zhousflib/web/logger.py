@@ -1,9 +1,35 @@
 # -*- coding: utf-8 -*-
-# @Author  : zhousf-a
+# @Author  : zhousf
 # @Function: 业务日志记录
 import time
 from pathlib import Path
+from zhousflib.util import time_util
 from prettytable import PrettyTable
+
+
+def get_dir_path(dir_path, client=None, req_id=None, make_dirs=True) -> Path:
+    """
+    获取业务处理的目录
+    :param dir_path: 插件模块的文件处理根目录
+    :param client: 调用方名称，用于区分不同的调用方
+    :param req_id: 每次请求的ID，每次请求都是唯一的
+    :param make_dirs: 是否自动创建目录
+    :return:
+    """
+    """
+    目录层级：根目录/调用方/日期/req_id
+    """
+    if isinstance(dir_path, str):
+        dir_path = Path(dir_path)
+    if client is not None:
+        dir_path = dir_path.joinpath(client.upper())
+    dir_path = dir_path.joinpath(time_util.get_y_m_d())
+    if req_id is not None:
+        dir_path = dir_path.joinpath(req_id)
+    if make_dirs:
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True)
+    return dir_path
 
 
 class Logger(object):
@@ -12,7 +38,6 @@ class Logger(object):
         数据链
         :param log_dir: 日志目录，默认空
         :param g: flask.g 默认空
-        :param print: 打印日志
         """
         self.log_dir = log_dir
         day_time = time.strftime('%Y/%m/%d %H:%M:%S', time.localtime(time.time())) + '\n'
@@ -29,6 +54,13 @@ class Logger(object):
         self.elapsed_time_dict = {}
 
     def elapsed_time(self, k: str, start: float, end: float):
+        """
+        耗时记录
+        :param k:
+        :param start:
+        :param end:
+        :return:
+        """
         if k in self.elapsed_time_dict:
             self.elapsed_time_dict[k] += abs(end - start)
         else:

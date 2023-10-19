@@ -349,4 +349,8 @@ if __name__ == "__main__":
     # print(compute_iou(a, b))
     # print(compute_contain(a, b))
     # show_rect([a, b])
+    txt_box = ['0', None, None, 'L3', 0.009990513324737549, 549, 44, 604, 85]
+    box_steel_id = [None, '3', 0.926153838634491, '编号', 0.8614592552185059, 638.6162719726562, 13.244131088256836, 690.3391723632812, 66.04812622070312]
+    print(location_y_axis(box_steel_id, txt_box))
+
     pass
