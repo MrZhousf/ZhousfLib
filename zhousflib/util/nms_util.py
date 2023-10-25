@@ -80,13 +80,19 @@ def nms(boxes, iou_thresh=0.8) -> list:
     return boxes_filter
 
 
-def multi_nms(boxes: list, iou_thresh=0.8) -> list:
+def multi_nms(boxes: list, iou_thresh=None) -> list:
     """
     适合多类别
     :param boxes: [[cls, scores, x_min, y_min, x_max, y_max]....]
     :param iou_thresh: 交并比的阈值，当大于该阈值时则选优
+        {   "base": 0.8,
+            "cls_1": 0.5,
+            "cls_2": 0.5
+        }
     :return: [index] boxes的索引
     """
+    if iou_thresh is None:
+        iou_thresh = {"base": 0.8}
     if isinstance(boxes, list):
         boxes = np.array(boxes)
     classes = boxes[:, -6]
@@ -96,7 +102,8 @@ def multi_nms(boxes: list, iou_thresh=0.8) -> list:
     for cls in unique_cls:
         det = [box for box in boxes if box[0] == cls]
         det_ids = [index for index, box in enumerate(boxes) if box[0] == cls]
-        res = nms(boxes=det, iou_thresh=iou_thresh)
+        thresh = iou_thresh.get(cls, iou_thresh.get("base"))
+        res = nms(boxes=det, iou_thresh=thresh)
         if len(res):
             for i in res:
                 res_ids.append(det_ids[i])
@@ -104,11 +111,18 @@ def multi_nms(boxes: list, iou_thresh=0.8) -> list:
 
 
 if __name__ == "__main__":
-    boxes_ = np.array([[0.72, 100, 100, 210, 210],
-                      [0.80, 250, 250, 420, 420],
-                      [0.92, 220, 220, 320, 330],
-                      [0.72, 100, 100, 210, 210],
-                      [0.81, 230, 240, 325, 330],
-                      [0.90, 220, 230, 315, 340]])
-    print(nms(boxes_, iou_thresh=0.7))
+    # boxes_ = np.array([[0.72, 100, 100, 210, 210],
+    #                   [0.80, 250, 250, 420, 420],
+    #                   [0.92, 220, 220, 320, 330],
+    #                   [0.72, 100, 100, 210, 210],
+    #                   [0.81, 230, 240, 325, 330],
+    #                   [0.90, 220, 230, 315, 340]])
+    # print(nms(boxes_, iou_thresh=0.7))
+    boxes_ = np.array([["1", 0.72, 100, 100, 210, 210],
+                      ["1", 0.80, 250, 250, 420, 420],
+                      ["1", 0.92, 220, 220, 320, 330],
+                      ["2", 0.72, 100, 100, 210, 210],
+                      ["2", 0.81, 230, 240, 325, 330],
+                      ["2", 0.90, 220, 230, 315, 340]]).tolist()
+    print(multi_nms(boxes_, iou_thresh={"base": 0.5, "1": 0.7, "2": 0.9}))
 

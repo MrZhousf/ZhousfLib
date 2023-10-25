@@ -20,8 +20,9 @@ class CoreConfig(object):
     JSON_SORT_KEYS = False
     JSONIFY_MIMETYPE = 'application/json;charset=utf-8'
     SQLALCHEMY_TRACK_MODIFICATIONS = True
-    PROJECT_DIR = os.path.dirname(__file__)
-    PID_FILE = "{0}/pid.txt".format(PROJECT_DIR)
+    # PROJECT_DIR = os.path.dirname(__file__)
+    # PID_FILE = "{0}/pid.txt".format(PROJECT_DIR)
+    # VISIT_JSON_FILE = "{0}/visit-list.json".format(PROJECT_DIR)
     GPU_ASSIGNED = "0"
     HOST = "0.0.0.0"
     PORT = 8090
@@ -29,7 +30,6 @@ class CoreConfig(object):
     LOG_SERVICE_DIR = None
     LOG_GUNICORN_DIR = None
     ALLOWED_FILE_TYPE = ["jpg", "JPG", "jpeg", "JPEG", "png", "PNG","bmp"]
-    VISIT_JSON_FILE = "{0}/visit-list.json".format(PROJECT_DIR)
     CHECK_PERMISSION = True
 
     @staticmethod
