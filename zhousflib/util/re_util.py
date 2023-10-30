@@ -107,7 +107,7 @@ def normalize_multiple_sign(string, from_char: list = None, to_char="*"):
                 item = str(res[0]).replace("x", to_char).replace("X", to_char).replace("×", to_char)
                 string = string.replace(res[0], item)
     return string
-
+print(normalize_multiple_sign("1Xb+8", from_char=["x", "X"], to_char="×"))
 
 def normalize_calculate_formula(string: str) -> str:
     """
@@ -116,6 +116,7 @@ def normalize_calculate_formula(string: str) -> str:
     320+10707/2+1272              ->   10707/2+1272+320
     320+1272*2                    ->   1272*2+320
     320+1272*2+(12+11)            ->   1272*2+320+(11+12)
+    17+3.1416*110                 ->   110*3.1416+17
     """
     # 先把括号里的顺序排列好
     res = re.findall(r"[(](.*?)[)]", string)
@@ -140,6 +141,11 @@ def normalize_calculate_formula(string: str) -> str:
         ite = item.split("*")
         ite.sort()
         string_blank = string_blank.replace(item, "*".join(ite))
+    # 再次排序
+    res = string_blank.split("+")
+    res.sort()
+    string_blank = "+".join(res)
+    # 最后映射转换
     for blank in blank_map:
         string_blank = string_blank.replace(blank, blank_map.get(blank))
     return string_blank

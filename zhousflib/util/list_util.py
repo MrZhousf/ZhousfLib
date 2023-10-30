@@ -3,6 +3,7 @@
 # Description:  list交集、并集、差集运算
 import random
 from collections import Counter
+from zhousflib.util import string_util
 
 
 def counter(data_list: list, arg=None):
@@ -98,3 +99,33 @@ def sort(data: list, index: int = 0, reverse=False):
     :return:
     """
     return sorted(data, key=lambda v: v[index], reverse=reverse)
+
+
+def get_min_number(what: list):
+    """
+    获取list中最小值
+    ["685.2", "10", "ab"]  -> 10
+    :param what:
+    :return:
+    """
+    min_value = ""
+    number = [item for item in what if string_util.is_number(item)]
+    for item in number:
+        if string_util.is_less_than_number(item, min_value) or not min_value:
+            min_value = item
+    return min_value
+
+
+def get_max_number(what: list):
+    """
+    获取list中最大值
+    ["685.2", "10", "ab"]  -> 685.2
+    :param what:
+    :return:
+    """
+    max_value = ""
+    number = [item for item in what if string_util.is_number(item)]
+    for item in number:
+        if string_util.is_greater_than_number(item, max_value) or not max_value:
+            max_value = item
+    return max_value
