@@ -4,7 +4,7 @@
 import re
 
 
-def is_number(string: str):
+def is_number(string: str) -> bool:
     """
     是否数值，包含int、float、double
     :param string:
@@ -17,7 +17,7 @@ def is_number(string: str):
         return False
 
 
-def is_greater_than_number(string1: str, string2: str):
+def is_greater_than_number(string1: str, string2: str) -> bool:
     """
     string1数值大于string2数值
     :param string1: "12"
@@ -32,7 +32,7 @@ def is_greater_than_number(string1: str, string2: str):
     return False
 
 
-def is_less_than_number(string1: str, string2: str):
+def is_less_than_number(string1: str, string2: str) -> bool:
     """
     string1数值小于string2数值
     :param string1: "12"
@@ -47,7 +47,7 @@ def is_less_than_number(string1: str, string2: str):
     return False
 
 
-def is_equal_number(string1: str, string2: str):
+def is_equal_number(string1: str, string2: str) -> bool:
     """
     数值是否相等
     :param string1: "12"
@@ -62,14 +62,14 @@ def is_equal_number(string1: str, string2: str):
     return False
 
 
-def contains(string: str, what: list):
+def contains(string: str, what: list) -> bool:
     for s in what:
         if string.find(s) > -1:
             return True
     return False
 
 
-def is_empty(obj):
+def is_empty(obj) -> bool:
     str_obj = str(obj)
     if str_obj is None or str_obj == 'None':
         return True
@@ -78,7 +78,7 @@ def is_empty(obj):
     return False
 
 
-def is_not_empty(obj):
+def is_not_empty(obj) -> bool:
     str_obj = str(obj)
     if str_obj is None or str_obj == 'None':
         return False
@@ -87,7 +87,7 @@ def is_not_empty(obj):
     return True
 
 
-def contain(obj, what):
+def contain(obj, what) -> bool:
     str_obj = str(obj)
     str_what = str(what)
     if is_not_empty(str_obj) and is_not_empty(str_what):
@@ -96,7 +96,7 @@ def contain(obj, what):
     return False
 
 
-def not_contain(obj, what):
+def not_contain(obj, what) -> bool:
     str_obj = str(obj)
     str_what = str(what)
     if is_not_empty(str_obj) and is_not_empty(str_what):
@@ -105,7 +105,7 @@ def not_contain(obj, what):
     return True
 
 
-def right_just(obj, length, fill_char=' '):
+def right_just(obj, length, fill_char=' ') -> str:
     """
     左补齐（右调整）
     :param obj: abc
@@ -118,7 +118,7 @@ def right_just(obj, length, fill_char=' '):
     return obj.rjust(length, fill_char)
 
 
-def left_just(obj, length, fill_char=' '):
+def left_just(obj, length, fill_char=' ') -> str:
     """
     右补齐（左调整）
     :param obj: abc
@@ -131,7 +131,7 @@ def left_just(obj, length, fill_char=' '):
     return obj.ljust(length, fill_char)
 
 
-def center_just(obj, length):
+def center_just(obj, length) -> str:
     """
     中间补齐（两端调整）
     :param obj: abc
@@ -143,7 +143,7 @@ def center_just(obj, length):
     return obj.center(length)
 
 
-def only_digit_letter_chinese(string):
+def only_digit_letter_chinese(string) -> bool:
     """
     同时包含中文 & (数字 or 字母)
     :param string:
@@ -162,7 +162,7 @@ def only_digit_letter_chinese(string):
     return (len(match_chinese) + len(match_digit) + len(match_letter)) == len(string)
 
 
-def only_digit_letter(string):
+def only_digit_letter(string) -> bool:
     """
     同时包含数字和字母
     :param string:
@@ -177,7 +177,7 @@ def only_digit_letter(string):
     return (len(match_digit) + len(match_letter)) == len(string)
 
 
-def digit_or_letter(string):
+def digit_or_letter(string) -> bool:
     """
     包含数字或字母
     :param string:
@@ -190,7 +190,7 @@ def digit_or_letter(string):
     return (len(match_digit) + len(match_letter)) == len(string)
 
 
-def only_digit(string):
+def only_digit(string) -> bool:
     """
     只包含数字
     :param string:
@@ -199,7 +199,7 @@ def only_digit(string):
     return string.isdigit()
 
 
-def only_letter(string):
+def only_letter(string) -> bool:
     """
     只包含字母
     :param string:
