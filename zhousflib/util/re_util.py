@@ -107,7 +107,7 @@ def normalize_multiple_sign(string, from_char: list = None, to_char="*"):
                 item = str(res[0]).replace("x", to_char).replace("X", to_char).replace("×", to_char)
                 string = string.replace(res[0], item)
     return string
-print(normalize_multiple_sign("1Xb+8", from_char=["x", "X"], to_char="×"))
+
 
 def normalize_calculate_formula(string: str) -> str:
     """
