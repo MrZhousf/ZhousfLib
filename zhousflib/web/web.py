@@ -126,7 +126,12 @@ class WebApp(object):
 
         @FLASK_APP.route('/')
         def index():
-            ip, port = request.host.split(":")
+            port = ""
+            host = request.host.split(":")
+            if len(host) == 2:
+                ip, port = host
+            else:
+                ip = host
             return res.success_tip(status=200, result="{0}:{1}".format(ip, port))
 
         @FLASK_APP.route('/favicon.ico')
