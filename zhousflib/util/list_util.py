@@ -129,3 +129,29 @@ def get_max_number(what: list):
         if string_util.is_greater_than_number(item, max_value) or not max_value:
             max_value = item
     return max_value
+
+
+def delete_same_value(data_list: list, same_value_limit=1):
+    """
+    删除重复的值
+    :param data_list:
+    :param same_value_limit: 限制重复值的个数
+    :return:
+    ['113.8', '113.8', '131.8', '131.8', '131.8', '131.8', '131.8', "1"]
+    处理成：
+    ['113.8', '131.8', '1']
+    """
+    if len(data_list) == 0:
+        return data_list
+    counter_ = counter(data_list)
+    repeat_num = [num for num in counter_.values() if num > 1]
+    if len(repeat_num) > 1:
+        for key in counter_.keys():
+            num = counter_.get(key)
+            if num > same_value_limit:
+                counter_[key] = same_value_limit
+    data_list.clear()
+    for key in counter_.keys():
+        for i in range(counter_.get(key)):
+            data_list.append(key)
+    return data_list

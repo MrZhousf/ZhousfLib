@@ -52,6 +52,8 @@ def max_connectivity_domain(mask_arr: np.array, connectivity=4) -> np.array:
             background = row
     # 删除背景后的连通域列表
     stats_no_bg = np.delete(stats, background, axis=0)
+    if len(stats_no_bg) == 0:
+        return stats_no_bg
     # 获取连通域最大的索引
     max_idx = stats_no_bg[:, 4].argmax()
     max_region = np.where(labels == max_idx + 1, 1, 0)

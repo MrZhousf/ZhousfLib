@@ -4,6 +4,7 @@
 # pip install matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
+from zhousflib.util import math_util
 
 
 def show_rect(boxes: list):
@@ -257,6 +258,30 @@ def search_nearby_left_box(target_box, boxes: list):
             if t_x > c_x:
                 return box
     return None
+
+
+def search_nearby_box(target_box, boxes: list, top=1) -> list:
+    """
+    搜索紧邻target_box的box，以box中心点计算
+    :param target_box: (?, ?, x_min, y_min, x_max, y_max)
+    :param boxes: [(?, ?, x_min, y_min, x_max, y_max)]
+    :param top: 返回紧邻的top个box，按照距离从小到大排序
+    :return: box
+    """
+    if len(boxes) == 0:
+        return []
+    t_x = (target_box[-2] + target_box[-4]) / 2
+    t_y = (target_box[-3] + target_box[-1]) / 2
+    boxes = sorted(boxes, key=lambda v: v[-4], reverse=True)
+    boxes_list = []
+    for box in boxes:
+        c_x = (box[-2] + box[-4]) / 2
+        c_y = (box[-3] + box[-1]) / 2
+        # 计算两个box的中心点距离
+        distance = math_util.get_distance_from_point_to_point((t_x, t_y), (c_x, c_y))
+        boxes_list.append((distance, box))
+    boxes_list = sorted(boxes_list, key=lambda v: v[0], reverse=False)
+    return boxes_list[0:top]
 
 
 def box_scale_up(box, offset=50):
