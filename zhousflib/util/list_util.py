@@ -20,6 +20,34 @@ def counter(data_list: list, arg=None):
         return res
 
 
+def get_max_counter(data_list: list) -> int:
+    """
+    返回列表中重复项最多的个数
+    :param data_list:  ['2', '2', '131.8', '131.8', '131.8', '131.8', '131.8', '1']
+    :return: 5
+    """
+    if len(data_list) == 0:
+        return 0
+    res = Counter(data_list)
+    count_list = [res.get(i) for i in res]
+    count_list.sort(reverse=True)
+    return count_list[0]
+
+
+def get_min_counter(data_list: list) -> int:
+    """
+    返回列表中重复项最少的个数
+    :param data_list:  ['2', '2', '131.8', '131.8', '131.8', '131.8', '131.8', '1']
+    :return: 1
+    """
+    if len(data_list) == 0:
+        return 0
+    res = Counter(data_list)
+    count_list = [res.get(i) for i in res]
+    count_list.sort(reverse=False)
+    return count_list[0]
+
+
 def random_choices(data_list: list, choose_k=3) -> list:
     """
     从列表中随机抽取choose_k个数（会有重复值）
