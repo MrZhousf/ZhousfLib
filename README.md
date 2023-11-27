@@ -9,6 +9,11 @@ python常用工具库：coco数据集、labelme数据集、segmentation数据集
 * [X]  datasets/labelme：数据集制作、格式转换、可视化、统计、数据更新/合并/提取
 * [X]  datasets/segmentation：数据集制作
 
+### ANN转换
+
+* [X]  ann/torch_to_onnx：torch保存/加载onnx
+* [X]  ann/torch_to_script：torch保存/加载script
+
 ### 数据库
 
 * [X]  db/lmdb：内存映射数据库
