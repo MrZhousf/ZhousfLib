@@ -42,23 +42,30 @@ def load_script_model(model_dir: Path, map_location="cpu"):
     return model, tokenizer, state_dict
 
 
-def convert_script_model(model_dir: Path, export_dir: Path, device="cpu", example_inputs=None, **kwargs):
+def convert_script_model(model_dir: Path, export_dir: Path, device="cpu", example_inputs=None,
+                         module: torch.nn.Module = None, **kwargs):
     """
     转torchScript
     :param model_dir: 训练模型目录，包含bin文件、config.json
     :param export_dir: 导出模型目录
     :param device: 绑定硬件, cpu|cuda:0|cuda:1
     :param example_inputs: 输入样例
+    :param module: 神经网络
     :param kwargs: 网络自定义参数
     :return:
+
+    读取权重示例
     model, tokenizer, state_dict = load_script_model(Path(r"F:\torch\script"))
     fc = nn.Linear(768, 1, bias=True)
     fc.weight.data = torch_to_script.get_state_dict_v(state_dict, "fc.weight")
     """
     if not export_dir.exists():
         export_dir.mkdir(parents=True)
-    config = AutoConfig.from_pretrained(pretrained_model_name_or_path=model_dir, **kwargs)
-    model = AutoModel.from_pretrained(model_dir, config=config)
+    if module is None:
+        config = AutoConfig.from_pretrained(pretrained_model_name_or_path=model_dir, **kwargs)
+        model = AutoModel.from_pretrained(model_dir, config=config)
+    else:
+        model = module
     is_use_gpu = False if device == "cpu" else True
     if is_use_gpu:
         model = model.to(device)
@@ -79,37 +86,18 @@ def convert_script_model(model_dir: Path, export_dir: Path, device="cpu", exampl
     print("done.")
 
 
-def convert_bert_demo():
+def example_inputs_demo(device="cpu", input_size=10, batch_size=128):
     """
-    转换示例：以bert转torchScript为例
+    输入样例
     :return:
     """
-
-    def example_inputs(device="cpu"):
-        """
-        输入样例
-        :return:
-        """
-        input_size = 10
-        batch_size = 128
-        ids = torch.LongTensor(input_size, batch_size).zero_()
-        seq_len = torch.LongTensor(input_size, batch_size).zero_()
-        mask = torch.LongTensor(input_size, batch_size).zero_()
-        if device == "cpu":
-            return ids, seq_len, mask,
-        else:
-            return ids.cuda(), seq_len.cuda(), mask.cuda(),
-
-    """
-    以bert为例：
-    example_inputs       输入样例
-    output_hidden_states 输出隐藏层
-    output_attentions    输出意力层
-    """
-    convert_script_model(model_dir=Path(r"F:\torch\train_model"),
-                         export_dir=Path(r"F:\torch\script"),
-                         device="cpu", example_inputs=example_inputs(),
-                         torchscript=True, use_cache=False, output_hidden_states=True, output_attentions=True)
+    ids = torch.LongTensor(input_size, batch_size).zero_()
+    seq_len = torch.LongTensor(input_size, batch_size).zero_()
+    mask = torch.LongTensor(input_size, batch_size).zero_()
+    if device == "cpu":
+        return [ids, seq_len, mask]
+    else:
+        return [ids.cuda(), seq_len.cuda(), mask.cuda()]
 
 
 def get_state_dict_v(state_dict: dict, state_name: str):
@@ -123,6 +111,23 @@ def get_state_dict_v(state_dict: dict, state_name: str):
         if name == state_name:
             return state_dict.get(name)
     return None
+
+
+def convert_bert_demo():
+    """
+    转换示例：以bert转torchScript为例
+    :return:
+    """
+    """
+    以bert为例：
+    example_inputs       输入样例
+    output_hidden_states 输出隐藏层
+    output_attentions    输出意力层
+    """
+    convert_script_model(model_dir=Path(r"F:\torch\train_model"),
+                         export_dir=Path(r"F:\torch\script"),
+                         device="cpu", example_inputs=(example_inputs_demo(),),
+                         torchscript=True, use_cache=False, output_hidden_states=True, output_attentions=True)
 
 
 if __name__ == "__main__":
