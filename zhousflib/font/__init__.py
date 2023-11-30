@@ -2,9 +2,10 @@
 # Author:  zhousf
 # Description:
 import re
+from pathlib import Path
 
 from PIL import ImageFont
-from pathlib import Path
+
 
 # 宋体-汉字
 Font_SimSun: Path = Path(__file__).parent.joinpath("SimSun.ttf")

@@ -7,11 +7,13 @@ import os
 import json
 import numpy
 import base64
-import requests
 import numpy as np
 from io import BytesIO
 from pathlib import Path
+
+import requests
 from PIL import Image, ImageOps
+
 from zhousflib.util import pil_util
 
 

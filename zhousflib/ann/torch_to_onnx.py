@@ -14,7 +14,7 @@ import torch
 import onnxruntime
 from transformers import AutoModel, AutoConfig, AutoTokenizer
 
-from zhousflib.ann import check_cuda, get_device
+from zhousflib.ann import check_cuda, check_device_id, get_device
 
 
 def load_onnx(model_dir: Path, device_id: int = -1):
@@ -106,7 +106,7 @@ def example_inputs_demo(device_id: int = -1, input_size=10, batch_size=128):
     :param batch_size:
     :return:
     """
-    assert device_id >= -1
+    check_device_id(device_id)
     ids = torch.LongTensor(input_size, batch_size).zero_()
     seq_len = torch.LongTensor(input_size, batch_size).zero_()
     mask = torch.LongTensor(input_size, batch_size).zero_()

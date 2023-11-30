@@ -13,8 +13,9 @@ windows:
 https://blog.alivate.com.au/poppler-windows/
 将路径 E:/.../venv/poppler-0.68.0/bin 添加到系统环境变量path中后重启
 """
-from pdf2image import convert_from_path
 from pathlib import Path
+
+from pdf2image import convert_from_path
 from PIL import Image
 Image.MAX_IMAGE_PIXELS = None
 

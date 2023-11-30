@@ -3,8 +3,10 @@
 # @Function: 业务日志记录
 import time
 from pathlib import Path
-from zhousflib.util import time_util
+
 from prettytable import PrettyTable
+
+from zhousflib.util import time_util
 
 
 def get_dir_path(dir_path, client=None, req_id=None, make_dirs=True) -> Path:

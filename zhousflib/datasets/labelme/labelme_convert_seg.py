@@ -4,13 +4,14 @@ import os
 import io
 import os.path as osp
 import numpy as np
+import glob
+import traceback
+from pathlib import Path
+
 import PIL.Image
 import PIL.ImageDraw
 from PIL import Image
 import matplotlib.pyplot as plt
-import glob
-import traceback
-from pathlib import Path
 
 
 def label_colormap(N=256):
