@@ -1,11 +1,12 @@
 # -*- coding:utf-8 -*-
 # Author:  zhousf
 # Description:
-import zipfile
 from pathlib import Path
 import os
 import shutil
 import random
+
+import zipfile
 
 
 def unzip_file(zip_file, dst_dir):

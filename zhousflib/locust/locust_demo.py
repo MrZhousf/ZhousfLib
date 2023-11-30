@@ -4,7 +4,9 @@
 # pip install locust
 import os
 import time
+
 from locust import HttpUser, task, TaskSet
+
 
 HOST = "http://127.0.0.1:5000"
 API = "/api/demo"

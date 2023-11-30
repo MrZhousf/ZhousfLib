@@ -4,7 +4,9 @@
 import json
 import numpy as np
 from pathlib import Path
+
 from PIL import Image, ImageDraw, ImageFont
+
 from zhousflib.util.img_util import get_file_base64
 from zhousflib.font import Font_SimSun
 FONT = ImageFont.truetype(font=str(Font_SimSun), size=15)

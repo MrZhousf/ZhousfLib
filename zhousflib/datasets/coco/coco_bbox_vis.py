@@ -5,7 +5,9 @@ import json
 import random
 import colorsys
 from pathlib import Path
+
 from PIL import Image, ImageDraw, ImageFont
+
 from zhousflib.font import Font_SimSun
 FONT = ImageFont.truetype(font=str(Font_SimSun), size=15)
 

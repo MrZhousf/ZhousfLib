@@ -2,9 +2,10 @@
 # @Author  : zhousf
 # @Function: lmdb (Lightning Memory-Mapped Database) 快如闪电的内存映射数据库
 # pip install lmdb
+from pathlib import Path
+
 import pickle
 import lmdb
-from pathlib import Path
 
 """
 实例化数据库
