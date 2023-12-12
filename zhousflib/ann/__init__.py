@@ -4,6 +4,74 @@
 # @Function: 人工神经网络
 import torch
 
+"""
+############## 【安装CUDA】 ##############
+CUDA下载：https://developer.nvidia.com/cuda-toolkit-archive
+推荐版本：CUDA Toolkit 11.7
+【windows】
+新建系统环境变量：CUDA_PATH=C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v11.7
+新建系统环境变量：CUDA_PATH_V11_7=C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v11.7
+验证：在cmd中运行 nvcc -V
+
+
+############## 【安装cuDNN】 ##############
+cudnn下载：https://developer.nvidia.com/rdp/cudnn-archive
+推荐版本：cuDNN v8.9.0 for CUDA11.x
+【windows】
+将目录下的bin、lib（lib选择x64）、include文件夹复制到C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/11.7目录中
+添加系统环境变量：Path=C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v11.7.0/bin
+添加系统环境变量：Path=C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v11.7/libnvvp
+验证：
+在cmd中运行 C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v11.7/extras/demo_suite/deviceQuery.exe
+显示Result = PASS则成功
+
+
+############## 【安装tensorRT】 ##############
+官方文档：https://docs.nvidia.com/deeplearning/tensorrt/archives/tensorrt-861/quick-start-guide/index.html
+tensorrt下载：https://developer.nvidia.com/nvidia-tensorrt-8x-download
+【windows】
+将目录下的bin、lib（lib选择x64）、include文件夹复制到C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/11.7目录中
+添加系统环境变量：Path=C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v11.7/bin
+添加系统环境变量：Path=C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v11.7/libnvvp
+添加系统环境变量：Path=C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v11.7/include
+添加系统环境变量：Path=C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v11.7/lib/x64
+设置完后重启电脑
+python -m pip install TensorRT-8.6.1.6/python/tensorrt-8.6.1-cp39-none-linux_x86_64.whl
+pip install TensorRT-8.6.1.6/uff/uff-0.6.9-py2.py3-none-any.whl
+pip install TensorRT-8.6.1.6/graphsurgeon/graphsurgeon-0.4.6-py2.py3-none-any.whl
+pip install TensorRT-8.6.1.6/onnx_graphsurgeon/onnx_graphsurgeon-0.3.12-py2.py3-none-any.whl
+【linux】
+解压：tar -zxvf TensorRT-8.6.1.6.Linux.x86_64-gnu.cuda-11.7.tar.gz
+cd TensorRT-8.6.1.6/python
+python -m pip install tensorrt-8.6.1-cp39-none-linux_x86_64.whl
+配置环境变量
+vim ~/.bashrc
+export LD_LIBRARY_PATH=/root/zhousf/tensorrt/TensorRT-8.6.1.6/lib:$LD_LIBRARY_PATH
+source ~/.bashrc
+验证：
+import tensorrt as trt
+print(trt.__version__)
+
+
+############## 【安装pycuda】 ##############
+pip install pycuda==2022.1
+验证：
+import pycuda.driver as cuda
+import pycuda.autoinit
+cuda.init()
+print("CUDA device count:", cuda.Device.count())
+
+报错：PyCUDA The context stack was not empty upon module cleanup 解决方法：import pycuda.autoinit
+报错：pycuda._driver.LogicError: cuMemcpyHtoDAsync failed: invalid argument  解决方法：数据没有格式化为int类型，to_numpy(data.int())
+当预测结果都是0时，可能是trt多线程的问题
+解决方法： 
+    import pycuda.autoinit
+    self.cfx = cuda.Device(0).make_context()
+    self.cfx.push()
+    推理代码...
+    self.cfx.pop()
+"""
+
 
 def check_cuda():
     assert torch.cuda.is_available(), 'torch.cuda is not available, please check device_id.'
