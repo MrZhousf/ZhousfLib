@@ -157,7 +157,13 @@ def convert_bert_demo():
 
 
 if __name__ == "__main__":
+    """
+    script转换示例
+    """
     convert_bert_demo()
+    """
+    script加载示例
+    """
     # model, tokenizer, state_dict = load_script_model(Path(r"F:\torch\script"))
     # fc_weight = get_state_dict_v(state_dict, "fc.weight")
     # print(fc_weight)
