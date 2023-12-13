@@ -12,6 +12,14 @@ CUDA下载：https://developer.nvidia.com/cuda-toolkit-archive
 新建系统环境变量：CUDA_PATH=C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v11.7
 新建系统环境变量：CUDA_PATH_V11_7=C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v11.7
 验证：在cmd中运行 nvcc -V
+【linux】
+vim ~/.bashrc
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/lib64
+export PATH=$PATH:/usr/local/cuda/bin
+export CUDA_HOME=$CUDA_HOME:/usr/local/cuda
+source ~/.bashrc
+验证：
+nvcc -V
 
 
 ############## 【安装cuDNN】 ##############
@@ -41,11 +49,13 @@ pip install TensorRT-8.6.1.6/uff/uff-0.6.9-py2.py3-none-any.whl
 pip install TensorRT-8.6.1.6/graphsurgeon/graphsurgeon-0.4.6-py2.py3-none-any.whl
 pip install TensorRT-8.6.1.6/onnx_graphsurgeon/onnx_graphsurgeon-0.3.12-py2.py3-none-any.whl
 【linux】
-解压：tar -zxvf TensorRT-8.6.1.6.Linux.x86_64-gnu.cuda-11.7.tar.gz
+解压：tar -zxvf TensorRT-8.6.1.6.Linux.x86_64-gnu.cuda-11.8.tar.gz
 cd TensorRT-8.6.1.6/python
 python -m pip install tensorrt-8.6.1-cp39-none-linux_x86_64.whl
 配置环境变量
 vim ~/.bashrc
+export PATH=/root/zhousf/tensorrt/TensorRT-8.6.1.6/bin:$PATH
+export LIBRARY_PATH=/root/zhousf/tensorrt/TensorRT-8.6.1.6/lib:$LIBRARY_PATH
 export LD_LIBRARY_PATH=/root/zhousf/tensorrt/TensorRT-8.6.1.6/lib:$LD_LIBRARY_PATH
 source ~/.bashrc
 验证：
@@ -54,7 +64,16 @@ print(trt.__version__)
 
 
 ############## 【安装pycuda】 ##############
-pip install pycuda==2022.1
+先安装cuda
+安装文档：https://wiki.tiker.net/PyCuda/Installation/
+python -m pip install pycuda==2022.1
+若安装失败可以采用conda安装：conda install pycuda
+若windows安装失败可以采用下载文件方式：https://www.lfd.uci.edu/~gohlke/pythonlibs/#pycuda
+下面是下载源码编译方式：https://pypi.org/project/pycuda/#files
+tar -zxvf pycuda-2023.1.tar.gz
+cd pycuda-2023.1
+python setup.py build
+python setup.py install
 验证：
 import pycuda.driver as cuda
 import pycuda.autoinit

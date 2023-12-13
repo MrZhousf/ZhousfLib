@@ -7,8 +7,8 @@ from pathlib import Path
 
 import torch
 import onnxruntime
-from transformers import AutoModel, AutoConfig, AutoTokenizer
 
+from zhousflib.ann import transformers_util
 from zhousflib.ann import check_cuda, check_device_id, get_device
 
 """
@@ -20,9 +20,9 @@ onnx对应cuda的版本：https://onnxruntime.ai/docs/execution-providers/CUDA-E
 ############## 【安装torch】 ##############
 选择版本：https://pytorch.org/get-started/locally/
 【cpu】
-pip install torch==1.13.1+cpu torchvision==0.13.1+cpu torchaudio==0.13.1 --extra-index-url https://download.pytorch.org/whl/cpu
+pip install torch==1.13.1+cpu torchvision==0.14.1+cpu torchaudio==0.13.1 --extra-index-url https://download.pytorch.org/whl/cpu
 【gpu】
-pip install torch==1.13.1+cu117 torchvision==0.13.1+cu117 torchaudio==0.13.1 --extra-index-url https://download.pytorch.org/whl/cu117
+pip install torch==1.13.1+cu117 torchvision==0.14.1+cu117 torchaudio==0.13.1 --extra-index-url https://download.pytorch.org/whl/cu117
 验证：
 import torch
 print(torch.__version__)
@@ -83,7 +83,7 @@ def load_onnx(model_dir: Path, device_id: int = -1, autoload_weights=True, autol
     if autoload_weights:
         state_dict = load_weights(model_dir=model_dir, device_id=device_id)
     if autoload_tokenizer:
-        tokenizer = load_tokenizer(model_dir=model_dir)
+        tokenizer = transformers_util.load_tokenizer(model_dir=model_dir)
     return onnx_session, tokenizer, state_dict
 
 
@@ -104,21 +104,6 @@ def load_weights(model_dir: Path, device_id: int = -1):
         return None
 
 
-def load_tokenizer(model_dir: Path):
-    """
-    加载tokenizer
-    :param model_dir: 模型目录
-    :return:
-    """
-    tokenizer = None
-    try:
-        # 加载tokenizer
-        tokenizer = AutoTokenizer.from_pretrained(model_dir)
-    except Exception as e:
-        pass
-    return tokenizer
-
-
 def convert_onnx(model_dir: Path, export_dir: Path, device_id: int = -1, example_inputs=None, module: torch.nn.Module = None, **kwargs):
     """
     导出onnx
@@ -134,8 +119,8 @@ def convert_onnx(model_dir: Path, export_dir: Path, device_id: int = -1, example
     if not export_dir.exists():
         export_dir.mkdir(parents=True)
     if module is None:
-        config = AutoConfig.from_pretrained(pretrained_model_name_or_path=model_dir)
-        model = AutoModel.from_pretrained(model_dir, config=config)
+        config = transformers_util.load_config(model_dir=model_dir)
+        model = transformers_util.load_model(model_dir=model_dir, config=config)
     else:
         model = module
     # 权重文件，这个是给预测的后处理模块初始化权重文件做准备
@@ -150,11 +135,7 @@ def convert_onnx(model_dir: Path, export_dir: Path, device_id: int = -1, example
     model.eval()
     torch.onnx.export(model, example_inputs, str(export_dir.joinpath("model.onnx")), **kwargs)
     # tokenizer文件，这个是给预测的input data做准备
-    try:
-        tokenizer = AutoTokenizer.from_pretrained(model_dir)
-        tokenizer.save_pretrained(export_dir)
-    except Exception as e:
-        pass
+    transformers_util.load_tokenizer(model_dir=model_dir)
     print("done.")
 
 
@@ -189,27 +170,10 @@ def convert_bert_demo():
     """
     通用导出示例
     """
-    convert_onnx(module=torch.nn.Module(),
-                 model_dir=Path(r"F:\torch\train_model"),
-                 export_dir=Path(r"F:\torch\onnx2"),
-                 device="cpu", example_inputs=(example_inputs_demo(device_id=-1), ),
-                 verbose=True,
-                 export_params=True,
-                 opset_version=10,
-                 input_names=['input_ids', 'token_type_ids', 'attention_mask'],
-                 output_names=['output'],
-                 dynamic_axes={'input_ids': {0: 'batch_size'},
-                               'token_type_ids': {0: 'batch_size'},
-                               'attention_mask': {0: 'batch_size'},
-                               'output': {0: 'batch_size'}})
-    """
-    自定义导出示例（以bert导出为例）
-    """
-    # args = example_inputs_demo(device_id=-1)
-    # args = args[0], args[1], args[2],
-    # convert_onnx(model_dir=Path(r"F:\torch\train_model"),
-    #              export_dir=Path(r"F:\torch\onnx"),
-    #              example_inputs=args,
+    # convert_onnx(module=torch.nn.Module(),
+    #              model_dir=Path(r"F:\torch\train_model"),
+    #              export_dir=Path(r"F:\torch\onnx2"),
+    #              device="cpu", example_inputs=(example_inputs_demo(device_id=-1), ),
     #              verbose=True,
     #              export_params=True,
     #              opset_version=10,
@@ -219,6 +183,23 @@ def convert_bert_demo():
     #                            'token_type_ids': {0: 'batch_size'},
     #                            'attention_mask': {0: 'batch_size'},
     #                            'output': {0: 'batch_size'}})
+    """
+    自定义导出示例（以bert导出为例）
+    """
+    args = example_inputs_demo(device_id=-1)
+    args = args[0], args[1], args[2],
+    convert_onnx(model_dir=Path(r"F:\torch\train_model"),
+                 export_dir=Path(r"F:\torch\onnx"),
+                 example_inputs=args,
+                 verbose=True,
+                 export_params=True,
+                 opset_version=10,
+                 input_names=['input_ids', 'token_type_ids', 'attention_mask'],
+                 output_names=['output'],
+                 dynamic_axes={'input_ids': {0: 'batch_size'},
+                               'token_type_ids': {0: 'batch_size'},
+                               'attention_mask': {0: 'batch_size'},
+                               'output': {0: 'batch_size'}})
 
 
 if __name__ == "__main__":
