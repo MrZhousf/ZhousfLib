@@ -15,6 +15,11 @@ import tensorrt as trt
 
 from zhousflib.ann import check_device_id
 
+"""
+ERROR: INVALID_CONFIG: The engine plan file is generated on an incompatible device, 
+expecting compute 6.1 got compute 7.5, please rebuild. 
+解决方法：在线上重新进行TensorRT模型的转换(本地机器上的GPU与线上机器的GPU版本不一致，导致的加速版本不一致)
+"""
 
 try:
     # Sometimes python does not understand FileNotFoundError

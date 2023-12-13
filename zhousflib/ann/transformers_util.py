@@ -23,7 +23,7 @@ def load_model(model_dir: Path, config):
     :param config:
     :return:
     """
-    AutoModel.from_pretrained(model_dir, config=config)
+    return AutoModel.from_pretrained(model_dir, config=config)
 
 
 def load_tokenizer(model_dir: Path):
