@@ -49,6 +49,15 @@ pip install TensorRT-8.6.1.6/uff/uff-0.6.9-py2.py3-none-any.whl
 pip install TensorRT-8.6.1.6/graphsurgeon/graphsurgeon-0.4.6-py2.py3-none-any.whl
 pip install TensorRT-8.6.1.6/onnx_graphsurgeon/onnx_graphsurgeon-0.3.12-py2.py3-none-any.whl
 【linux】
+下载地址：https://developer.nvidia.com/nvidia-tensorrt-download
+1、选择deb file方式安装：
+os="ubuntuxx04"
+tag="8.x.x-cuda-x.x"
+sudo dpkg -i nv-tensorrt-local-repo-${os}-${tag}_1.0-1_amd64.deb
+sudo cp /var/nv-tensorrt-local-repo-${os}-${tag}/*-keyring.gpg /usr/share/keyrings/
+sudo apt-get update
+sudo apt-get install tensorrt
+2、选择tar file方式安装：
 解压：tar -zxvf TensorRT-8.6.1.6.Linux.x86_64-gnu.cuda-11.8.tar.gz
 cd TensorRT-8.6.1.6/python
 python -m pip install tensorrt-8.6.1-cp39-none-linux_x86_64.whl
@@ -56,7 +65,7 @@ python -m pip install tensorrt-8.6.1-cp39-none-linux_x86_64.whl
 vim ~/.bashrc
 export PATH=/root/zhousf/tensorrt/TensorRT-8.6.1.6/bin:$PATH
 export LIBRARY_PATH=/root/zhousf/tensorrt/TensorRT-8.6.1.6/lib:$LIBRARY_PATH
-export LD_LIBRARY_PATH=/root/zhousf/tensorrt/TensorRT-8.6.1.6/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/root/zhousf/tensorrt/TensorRT-8.6.1.6/targets/x86_64-linux-gnu/lib:$LD_LIBRARY_PATH
 source ~/.bashrc
 验证：
 import tensorrt as trt

@@ -44,9 +44,9 @@ import onnxruntime
 onnxruntime.get_device()
 
 
-############## 验证到处onnx是否正确 ##############
+############## 【验证导出onnx是否正确】 ##############
 可视化网络结构：https://netron.app/
-当output有if条件则会存在问题，更换opset版本（opset=10）
+当output有if条件则会存在问题，更换opset版本(opset=10)或降低torch版本(1.8.0)
 
 """
 
@@ -135,7 +135,9 @@ def convert_onnx(model_dir: Path, export_dir: Path, device_id: int = -1, example
     model.eval()
     torch.onnx.export(model, example_inputs, str(export_dir.joinpath("model.onnx")), **kwargs)
     # tokenizer文件，这个是给预测的input data做准备
-    transformers_util.load_tokenizer(model_dir=model_dir)
+    tokenizer = transformers_util.load_tokenizer(model_dir=model_dir)
+    if tokenizer is not None:
+        tokenizer.save_pretrained(export_dir)
     print("done.")
 
 
