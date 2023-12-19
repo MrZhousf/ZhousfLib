@@ -61,12 +61,14 @@ sudo apt-get install tensorrt
 解压：tar -zxvf TensorRT-8.6.1.6.Linux.x86_64-gnu.cuda-11.8.tar.gz
 cd TensorRT-8.6.1.6/python
 python -m pip install tensorrt-8.6.1-cp39-none-linux_x86_64.whl
-配置环境变量
+配置环境变量：
+建议使用(避免每次source)：vim /etc/profile
 vim ~/.bashrc
 export PATH=/root/zhousf/tensorrt/TensorRT-8.6.1.6/bin:$PATH
 export LIBRARY_PATH=/root/zhousf/tensorrt/TensorRT-8.6.1.6/lib:$LIBRARY_PATH
 export LD_LIBRARY_PATH=/root/zhousf/tensorrt/TensorRT-8.6.1.6/targets/x86_64-linux-gnu/lib:$LD_LIBRARY_PATH
 source ~/.bashrc
+建议使用：source /etc/profile
 验证：
 import tensorrt as trt
 print(trt.__version__)

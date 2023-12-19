@@ -77,8 +77,9 @@ def convert_script_model(model_dir: Path, export_dir: Path, device_id: int = -1,
     # 权重文件，这个是给预测的后处理模块初始化权重文件做准备
     for file in model_dir.glob("*.bin"):
         bin_file = file
-        shutil.copy(bin_file, export_dir)
-        break
+        if not export_dir.joinpath(bin_file.name).exists():
+            shutil.copy(bin_file, export_dir)
+            break
     if module is not None:
         assert bin_file, '.bin file is not exists, please check {0}.'.format(model_dir)
         state_dict = torch.load(bin_file, map_location=get_device(device_id))
@@ -150,8 +151,8 @@ def convert_bert_demo():
     """
     args = example_inputs_demo(device_id=-1)
     args = args[0], args[1], args[2],
-    convert_script_model(model_dir=Path(r"F:\torch\train_model"),
-                         export_dir=Path(r"F:\torch\script"),
+    convert_script_model(model_dir=Path(r"F:\torch\test"),
+                         export_dir=Path(r"F:\torch\test"),
                          device="cpu", example_inputs=args,
                          torchscript=True, use_cache=False, output_hidden_states=True, output_attentions=True)
 

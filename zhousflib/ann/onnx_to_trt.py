@@ -17,7 +17,7 @@ def check_shape(shape: dict):
             {"input_ids": [(10, 128), (10, 128), (10, 128)]}, shape.get(name))
 
 
-def convert_trt_by_command(onnx_file_path: Path, save_trt_path: Path, shape: dict):
+def convert_trt_by_command(onnx_file_path: Path, save_trt_path: Path, shape: dict, use_fp16=False):
     """
     采用trtexec工具将onnx转换成trt
     :param onnx_file_path: Path(r"model.onnx")
@@ -25,6 +25,7 @@ def convert_trt_by_command(onnx_file_path: Path, save_trt_path: Path, shape: dic
     :param shape:  {"input_ids": [(10, 128), (10, 128), (10, 128)],
                    "token_type_ids": [(10, 128), (10, 128), (10, 128)],
                    "attention_mask": [(10, 128), (10, 128), (10, 128)]}
+    :param use_fp16: 使用fp16量化精度，注意：windows下转换会有问题，原因未知，理论上fp16文件时fp32文件大小的一半
     :return:
     convert_trt_by_command(onnx_file_path=Path(r"model.onnx"), save_trt_path=model.trt"),
                        shape={"input_ids": [(10, 128), (10, 128), (10, 128)],
@@ -32,10 +33,11 @@ def convert_trt_by_command(onnx_file_path: Path, save_trt_path: Path, shape: dic
                               "attention_mask": [(10, 128), (10, 128), (10, 128)]})
     """
     """
-    --noTF32  不量化精度
-    --fp16     FP16量化精度
-    --int8     INT8量化精度
+    --noTF32 禁用TF32精度
+    --fp16   FP16量化精度
+    --int8   INT8量化精度
     --best   FP32+FP16+INT8同时使用，找一个速度最快的
+    --calib=xxx  指定int8校准缓存文件
     --minShapes  动态Shape指定(--maxShapes=input0:1x3x256x256,input1:1x3x128x128)
     --optShapes  动态Shape指定(--maxShapes=input0:1x3x256x256,input1:1x3x128x128)
     --maxShapes  动态Shape指定(--maxShapes=input0:1x3x256x256,input1:1x3x128x128)
@@ -60,15 +62,17 @@ def convert_trt_by_command(onnx_file_path: Path, save_trt_path: Path, shape: dic
         max_shapes_str += "{0}:{1},".format(names[i], "x".join([str(item) for item in max_shapes[i]]))
     command = "trtexec " \
               "--onnx={0} " \
-              "--saveEngine={1} " \
+              "--saveEngine={1}" \
               "--minShapes={2} " \
               "--optShapes={3} " \
               "--maxShapes={4} ".format(onnx_file_path, save_trt_path, min_shapes_str, opt_shapes_str, max_shapes_str)
+    if use_fp16:
+        command += "--fp16"
     os.system(command)
     print("done.")
 
 
-def convert_trt(onnx_file_path: Path, save_trt_path: Path, shape: dict, max_batch_size: int = 1):
+def convert_trt(onnx_file_path: Path, save_trt_path: Path, shape: dict, max_batch_size: int = 1, use_fp16=False):
     """
     采用OnnxParser将onnx转换成trt【推荐使用】
     :param onnx_file_path:
@@ -77,6 +81,7 @@ def convert_trt(onnx_file_path: Path, save_trt_path: Path, shape: dict, max_batc
                    "token_type_ids": [(10, 128), (10, 128), (10, 128)],
                    "attention_mask": [(10, 128), (10, 128), (10, 128)]}
     :param max_batch_size:
+    :param use_fp16: 使用fp16量化精度，注意：windows下转换会有问题，原因未知，理论上fp16文件时fp32文件大小的一半
     :return:
     """
 
@@ -92,7 +97,9 @@ def convert_trt(onnx_file_path: Path, save_trt_path: Path, shape: dict, max_batc
         builder.max_batch_size = max_batch_size
         config = builder.create_builder_config()
         config.max_workspace_size = GiB(2)
-        # config.set_flag(trt.BuilderFlag.FP16)
+        if use_fp16:
+            config.set_flag(trt.BuilderFlag.FP16)
+            config.set_flag(trt.BuilderFlag.STRICT_TYPES)
         print('Loading ONNX file from path {}...'.format(onnx_file_path))
         with open(onnx_file_path, 'rb') as model:
             print('Beginning ONNX file parsing')
@@ -119,7 +126,8 @@ if __name__ == "__main__":
     #                               "token_type_ids": [(10, 128), (10, 128), (10, 128)],
     #                               "attention_mask": [(10, 128), (10, 128), (10, 128)]})
     convert_trt(onnx_file_path=Path(r"F:\torch\onnx\model.onnx"),
-                save_trt_path=Path(r"F:\torch\onnx\model.trt"),
+                save_trt_path=Path(r"F:\torch\onnx\model_fp16.trt"),
+                use_fp16=True,
                 shape={"input_ids": [(10, 128), (10, 128), (10, 128)],
                        "token_type_ids": [(10, 128), (10, 128), (10, 128)],
                        "attention_mask": [(10, 128), (10, 128), (10, 128)]})
