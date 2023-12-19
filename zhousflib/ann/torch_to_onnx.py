@@ -126,8 +126,9 @@ def convert_onnx(model_dir: Path, export_dir: Path, device_id: int = -1, example
     # 权重文件，这个是给预测的后处理模块初始化权重文件做准备
     for file in model_dir.glob("*.bin"):
         bin_file = file
-        shutil.copy(bin_file, export_dir)
-        break
+        if not export_dir.joinpath(bin_file.name).exists():
+            shutil.copy(bin_file, export_dir)
+            break
     if module is not None:
         assert bin_file, '.bin file is not exists, please check {0}.'.format(model_dir)
         state_dict = torch.load(bin_file, map_location=get_device(device_id))
@@ -215,10 +216,10 @@ if __name__ == "__main__":
     # ort_session, _, _ = load_onnx(model_dir=Path(r"F:\torch\onnx"), device_id=0)
     # ort_input = ort_session.get_inputs()
     # args = example_inputs_demo()
-    # ort_inputs = {ort_input[0].name: to_numpy(args[0]),
-    #               ort_input[1].name: to_numpy(args[1]),
-    #               ort_input[2].name: to_numpy(args[2])}
+    # feed = {}
+    # for i, input_ in enumerate(args):
+    #     feed[ort_input.get_inputs()[i].name] = to_numpy(args[i])
     # options = onnxruntime.RunOptions()
-    # ort_outs = ort_session.run(None, ort_inputs, run_options=options)
+    # ort_outs = ort_session.run(None, feed, run_options=options)
     # print(ort_outs)
     pass
