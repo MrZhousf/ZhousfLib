@@ -128,7 +128,7 @@ class FastInfer(object):
     @staticmethod
     def demo():
         import torch
-        from zhousflib.ann import torch_to_onnx
+        from zhousflib.ann.torch import torch_to_onnx
         fast_infer = FastInfer(model_dir=Path(r"F:\torch\test"), device_id=0)
         fast_infer.use_tensorrt_backend(from_platform="torch",
                                         module=torch.nn.Module(),

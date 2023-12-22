@@ -65,7 +65,7 @@ class BackendONNX(Backend):
             print("onnx文件存在：{0}.".format(target_files[0]))
 
         if kwargs.get("autoload", True):
-            from zhousflib.ann import torch_to_onnx
+            from zhousflib.ann.torch import torch_to_onnx
             self.model, _, _ = torch_to_onnx.load_onnx(self.model_dir, device_id=self.device_id, autoload_weights=False, autoload_tokenizer=False)
         print("加载onnx成功：{0}.".format(target_files[0]))
         return target_files[0]

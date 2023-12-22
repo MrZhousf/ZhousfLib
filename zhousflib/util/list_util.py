@@ -2,6 +2,7 @@
 # Author:  zhousf
 # Description:  list交集、并集、差集运算
 import random
+from math import ceil
 from collections import Counter
 
 from zhousflib.util import string_util
@@ -184,3 +185,12 @@ def delete_same_value(data_list: list, same_value_limit=1):
         for i in range(counter_.get(key)):
             data_list.append(key)
     return data_list
+
+
+def chunk_list(data: list, chunk_size=5) -> list:
+    """
+    将数组按照每chunk_size个一组
+    """
+    if chunk_size <= 0:
+        return data
+    return [data[i * chunk_size:(i+1)*chunk_size] for i in range(0, ceil(len(data) / chunk_size))]

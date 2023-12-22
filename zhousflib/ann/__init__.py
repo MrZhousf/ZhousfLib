@@ -2,7 +2,6 @@
 # @Author  : zhousf
 # @Date    : 2023/11/27 
 # @Function: 人工神经网络
-import torch
 
 """
 ############## 【安装CUDA】 ##############
@@ -27,7 +26,7 @@ cudnn下载：https://developer.nvidia.com/rdp/cudnn-archive
 推荐版本：cuDNN v8.9.0 for CUDA11.x
 【windows】
 将目录下的bin、lib（lib选择x64）、include文件夹复制到C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/11.7目录中
-添加系统环境变量：Path=C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v11.7.0/bin
+添加系统环境变量：Path=C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v11.7/bin
 添加系统环境变量：Path=C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v11.7/libnvvp
 验证：
 在cmd中运行 C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v11.7/extras/demo_suite/deviceQuery.exe
@@ -100,11 +99,50 @@ print("CUDA device count:", cuda.Device.count())
     self.cfx.push()
     推理代码...
     self.cfx.pop()
+
+
+############## 【安装torch】 ##############
+选择版本：https://pytorch.org/get-started/locally/
+【cpu】
+pip install torch==1.13.1+cpu torchvision==0.14.1+cpu torchaudio==0.13.1 --extra-index-url https://download.pytorch.org/whl/cpu
+【gpu】
+pip install torch==1.13.1+cu117 torchvision==0.14.1+cu117 torchaudio==0.13.1 --extra-index-url https://download.pytorch.org/whl/cu117
+验证：
+import torch
+print(torch.__version__)
+
+
+############## 【安装transformers(from HuggingFace)】 ##############
+# 注意版本要一致，不然会报错：Unexpected key(s) in state_dict: "bert.embeddings.position_ids".
+pip install transformers==4.30.2 -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
+
+
+【onnx && cuda的版本对应关系】
+onnx对应cuda的版本：https://onnxruntime.ai/docs/execution-providers/CUDA-ExecutionProvider.html#requirements
+注意onnxruntime与opset版本的对应关系
+
+
+############## 【安装onnxruntime】 ##############
+选择版本：https://onnxruntime.ai/docs/execution-providers/CUDA-ExecutionProvider.html#requirements
+【cpu】
+pip install onnxruntime==1.13.1 -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
+【gpu】
+pip install onnxruntime-gpu==1.13.1 -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
+验证：
+import onnxruntime
+onnxruntime.get_device()
+
+
+############## 【验证导出onnx是否正确】 ##############
+可视化网络结构：https://netron.app/
+当output有if条件则会存在问题，更换opset版本(opset=10)或降低torch版本(1.8.0)
+
+
 """
 
 
-def check_cuda():
-    assert torch.cuda.is_available(), 'torch.cuda is not available, please check device_id.'
+def to_numpy(tensor):
+    return tensor.detach().cpu().numpy() if tensor.requires_grad else tensor.cpu().numpy()
 
 
 def check_device_id(device_id: int = -1):
@@ -114,21 +152,3 @@ def check_device_id(device_id: int = -1):
     """
     assert device_id >= -1, 'Expected device_id >= 1, but device_id={0}.'.format(device_id)
 
-
-def get_device(device_id: int = -1):
-    """
-    :param device_id: cpu上运行：-1 | gpu上运行：0 or 1 or 2...
-    :return:
-    """
-    check_device_id(device_id)
-    if device_id == -1:
-        map_location = torch.device('cpu')
-    else:
-        check_cuda()
-        map_location = torch.device("cuda:{0}".format(device_id))
-    """
-    Map tensors from GPU 1 to GPU 0
-    map_location={'cuda:1': 'cuda:0'}
-    https://pytorch.org/docs/stable/generated/torch.load.html
-    """
-    return map_location

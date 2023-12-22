@@ -5,7 +5,6 @@
 
 import os
 os.environ["CUDA_MODULE_LOADING"] = "LAZY"
-import copy
 from pathlib import Path
 
 import numpy as np
@@ -56,7 +55,6 @@ class RTInfer(object):
             runtime = trt.Runtime(trt.Logger(trt.Logger.WARNING))
             self.engine = runtime.deserialize_cuda_engine(f.read())
             self.context = self.engine.create_execution_context()
-            self.stream = cuda.Stream()
 
     @staticmethod
     def allocate_buffers(engine):
@@ -115,10 +113,11 @@ class RTInfer(object):
         # Return only the host outputs.
         return [out.host for out in outputs]
 
-    def infer(self, input_arr: np.asarray):
+    def infer(self, input_arr: np.asarray, batch_size: int = None):
         """
         推理
         :param input_arr: input_arr=np.asarray([to_numpy(args[0].int()), to_numpy(args[1].int()), to_numpy(args[2].int())])
+        :param batch_size:
         :return:
         """
         self.context.active_optimization_profile = 0
@@ -127,14 +126,17 @@ class RTInfer(object):
         inputs, outputs, bindings, stream = self.allocate_buffers(self.engine)
         for i, item in enumerate(input_arr):
             inputs[i].host = item
-        return self.do_inference_v2(self.context, bindings=bindings, inputs=inputs, outputs=outputs, stream=stream)
+        if batch_size:
+            return self.do_inference(self.context, bindings=bindings, inputs=inputs, outputs=outputs, stream=stream, batch_size=batch_size)
+        else:
+            return self.do_inference_v2(self.context, bindings=bindings, inputs=inputs, outputs=outputs, stream=stream)
 
 
 if __name__ == "__main__":
-    from zhousflib.ann.torch_to_onnx import to_numpy, example_inputs_demo
-    args = example_inputs_demo()
+    from zhousflib.ann import to_numpy
+    from zhousflib.ann.torch.torch_to_onnx import example_inputs_demo
+    args = example_inputs_demo(input_size=32)
     batch = np.asarray([to_numpy(args[0].int()), to_numpy(args[1].int()), to_numpy(args[2].int())])
-    rt_engine = RTInfer(trt_file_path=Path(r"F:\torch\onnx\model.trt"), device_id=0)
+    rt_engine = RTInfer(trt_file_path=Path(r"F:\torch\onnx\model_fp32.trt"), device_id=0, use_stack=True)
     data = rt_engine.infer(input_arr=batch)
-    data = copy.deepcopy(data)
     print(data)

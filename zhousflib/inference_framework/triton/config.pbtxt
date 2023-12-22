@@ -21,8 +21,14 @@ input: [
 output: [
   {
     name: "output",
-    data_type: TYPE_FP32,
+    data_type: TYPE_FP16,
     dims: [ -1 ]
+  }
+dynamic_batching { }
+instance_group [
+  {
+    count: 4
+    kind: KIND_GPU
   }
 ]
 
