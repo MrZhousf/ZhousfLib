@@ -38,8 +38,8 @@ def convert_trt_by_command(onnx_file_path: Path, save_trt_path: Path, shape: dic
     --int8   INT8量化精度
     --best   FP32+FP16+INT8同时使用，找一个速度最快的
     --calib=xxx  指定int8校准缓存文件
-    --minShapes  动态Shape指定(--maxShapes=input0:1x3x256x256,input1:1x3x128x128)
-    --optShapes  动态Shape指定(--maxShapes=input0:1x3x256x256,input1:1x3x128x128)
+    --minShapes  动态Shape指定(--minShapes=input0:1x3x256x256,input1:1x3x128x128)
+    --optShapes  动态Shape指定(--optShapes=input0:1x3x256x256,input1:1x3x128x128)
     --maxShapes  动态Shape指定(--maxShapes=input0:1x3x256x256,input1:1x3x128x128)
     --inputIOFormats  指定模型输入精度与数据排布格式，默认fp32:chw(--inputIOFormats=fp16:chw)
     --outputIOFormats 指定模型输输出精度与数据排布格式，默认fp32:chw(--outputIOFormats=fp16:chw)
@@ -126,10 +126,10 @@ if __name__ == "__main__":
     #                               "token_type_ids": [(10, 128), (10, 128), (10, 128)],
     #                               "attention_mask": [(10, 128), (10, 128), (10, 128)]})
     convert_trt(onnx_file_path=Path(r"F:\torch\onnx\model.onnx"),
-                save_trt_path=Path(r"F:\torch\onnx\model_fp16.trt"),
-                use_fp16=True,
-                shape={"input_ids": [(10, 128), (10, 128), (10, 128)],
-                       "token_type_ids": [(10, 128), (10, 128), (10, 128)],
-                       "attention_mask": [(10, 128), (10, 128), (10, 128)]})
+                save_trt_path=Path(r"F:\torch\onnx\model_fp32.trt"),
+                use_fp16=False,
+                shape={"input_ids": [(32, 128), (32, 128), (32, 128)],
+                       "token_type_ids": [(32, 128), (32, 128), (32, 128)],
+                       "attention_mask": [(32, 128), (32, 128), (32, 128)]})
     pass
 

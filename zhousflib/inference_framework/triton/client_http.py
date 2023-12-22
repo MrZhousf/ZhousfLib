@@ -4,6 +4,8 @@
 # @Function:
 import time
 
+from gevent import monkey
+monkey.patch_all()
 import numpy as np
 import gevent.ssl
 import tritonclient.http as httpclient
@@ -14,6 +16,9 @@ from tritonclient.utils import InferenceServerException
 ############## 【安装 triton client】 ##############
 文档：https://github.com/triton-inference-server/client
 参考：https://github.com/triton-inference-server/client/blob/main/src/python/examples/simple_http_async_infer_client.py
+pip install tritonclient
+pip install geventhttpclient
+or
 pip install tritonclient[all]
 sudo apt update
 sudo apt install libb64-dev
@@ -161,7 +166,7 @@ class ClientHttp(object):
                                      inputs=[client.build_input(name="input_ids", data=data[0], datatype="INT64"),
                                              client.build_input(name="token_type_ids", data=data[1], datatype="INT64"),
                                              client.build_input(name="attention_mask", data=data[2], datatype="INT64")],
-                                     outputs=[client.build_output(name="output")])
+                                     outputs=[client.build_output(name="output", binary_data=True)])
             print(i, result.as_numpy("output"))
         print("平均推理耗时：{0:.5f}".format((time.time()-start)/infer_count))
 
@@ -179,7 +184,7 @@ class ClientHttp(object):
                                  inputs=[client.build_input(name="input_ids", data=data[0], datatype="INT64"),
                                          client.build_input(name="token_type_ids", data=data[1], datatype="INT64"),
                                          client.build_input(name="attention_mask", data=data[2], datatype="INT64")],
-                                 outputs=[client.build_output(name="output")])
+                                 outputs=[client.build_output(name="output", binary_data=True)])
             )
         res_output = []
         for async_request in async_requests:
@@ -193,10 +198,11 @@ class ClientHttp(object):
 
 
 if __name__ == "__main__":
-    from zhousflib.ann.torch_to_onnx import to_numpy, example_inputs_demo
+    from zhousflib.ann import to_numpy
+    from zhousflib.ann.torch.torch_to_onnx import example_inputs_demo
     args = example_inputs_demo()
     data_arr = np.asarray([to_numpy(args[0].int()), to_numpy(args[1].int()), to_numpy(args[2].int())], dtype=np.int64)
-    client = ClientHttp(url="127.0.0.1:5005", concurrency=1)
+    client = ClientHttp(url="127.0.0.1:5005", concurrency=100)
     """
     同步请求demo
     """

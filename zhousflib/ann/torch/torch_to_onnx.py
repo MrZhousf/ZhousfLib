@@ -8,47 +8,8 @@ from pathlib import Path
 import torch
 import onnxruntime
 
-from zhousflib.ann import transformers_util
-from zhousflib.ann import check_cuda, check_device_id, get_device
-
-"""
-【onnx && cuda的版本对应关系】
-onnx对应cuda的版本：https://onnxruntime.ai/docs/execution-providers/CUDA-ExecutionProvider.html#requirements
-注意onnxruntime与opset版本的对应关系
-
-
-############## 【安装torch】 ##############
-选择版本：https://pytorch.org/get-started/locally/
-【cpu】
-pip install torch==1.13.1+cpu torchvision==0.14.1+cpu torchaudio==0.13.1 --extra-index-url https://download.pytorch.org/whl/cpu
-【gpu】
-pip install torch==1.13.1+cu117 torchvision==0.14.1+cu117 torchaudio==0.13.1 --extra-index-url https://download.pytorch.org/whl/cu117
-验证：
-import torch
-print(torch.__version__)
-
-
-############## 【安装transformers(from HuggingFace)】 ##############
-# 注意版本要一致，不然会报错：Unexpected key(s) in state_dict: "bert.embeddings.position_ids".
-pip install transformers==4.30.2 -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
-
-
-############## 【安装onnxruntime】 ##############
-选择版本：https://onnxruntime.ai/docs/execution-providers/CUDA-ExecutionProvider.html#requirements
-【cpu】
-pip install onnxruntime==1.13.1 -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
-【gpu】
-pip install onnxruntime-gpu==1.13.1 -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
-验证：
-import onnxruntime
-onnxruntime.get_device()
-
-
-############## 【验证导出onnx是否正确】 ##############
-可视化网络结构：https://netron.app/
-当output有if条件则会存在问题，更换opset版本(opset=10)或降低torch版本(1.8.0)
-
-"""
+from zhousflib.ann import transformers
+from zhousflib.ann.torch import check_cuda, get_device, check_device_id
 
 
 def load_onnx(model_dir: Path, device_id: int = -1, autoload_weights=True, autoload_tokenizer=True):
@@ -83,7 +44,7 @@ def load_onnx(model_dir: Path, device_id: int = -1, autoload_weights=True, autol
     if autoload_weights:
         state_dict = load_weights(model_dir=model_dir, device_id=device_id)
     if autoload_tokenizer:
-        tokenizer = transformers_util.load_tokenizer(model_dir=model_dir)
+        tokenizer = transformers.load_tokenizer(model_dir=model_dir)
     return onnx_session, tokenizer, state_dict
 
 
@@ -119,8 +80,8 @@ def convert_onnx(model_dir: Path, export_dir: Path, device_id: int = -1, example
     if not export_dir.exists():
         export_dir.mkdir(parents=True)
     if module is None:
-        config = transformers_util.load_config(model_dir=model_dir)
-        model = transformers_util.load_model(model_dir=model_dir, config=config)
+        config = transformers.load_config(model_dir=model_dir)
+        model = transformers.load_model(model_dir=model_dir, config=config)
     else:
         model = module
     # 权重文件，这个是给预测的后处理模块初始化权重文件做准备
@@ -136,7 +97,7 @@ def convert_onnx(model_dir: Path, export_dir: Path, device_id: int = -1, example
     model.eval()
     torch.onnx.export(model, example_inputs, str(export_dir.joinpath("model.onnx")), **kwargs)
     # tokenizer文件，这个是给预测的input data做准备
-    tokenizer = transformers_util.load_tokenizer(model_dir=model_dir)
+    tokenizer = transformers.load_tokenizer(model_dir=model_dir)
     if tokenizer is not None:
         tokenizer.save_pretrained(export_dir)
     print("done.")
@@ -159,10 +120,6 @@ def example_inputs_demo(device_id: int = -1, input_size=10, batch_size=128):
     else:
         check_cuda()
         return [ids.cuda(device_id), seq_len.cuda(device_id), mask.cuda(device_id)]
-
-
-def to_numpy(tensor):
-    return tensor.detach().cpu().numpy() if tensor.requires_grad else tensor.cpu().numpy()
 
 
 def convert_bert_demo():

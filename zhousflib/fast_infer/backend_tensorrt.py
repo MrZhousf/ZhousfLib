@@ -46,7 +46,7 @@ class BackendTensorRT(Backend):
                 self.backend.build(from_platform=from_platform, module=module, dynamic_axes=dynamic_axes,
                                           opset_version=opset_version, example_inputs=example_inputs, **kwargs)
             assert shape is not None, "导出trt时，shape不能为空."
-            from zhousflib.ann import onnx_to_trt
+            from zhousflib.ann.onnx import onnx_to_trt
             onnx_file_path = self.model_dir.joinpath("model.onnx")
             save_trt_path = self.model_dir.joinpath("model.trt")
             onnx_to_trt.convert_trt(onnx_file_path=onnx_file_path, save_trt_path=save_trt_path, shape=shape)
@@ -56,9 +56,9 @@ class BackendTensorRT(Backend):
             print("tensorrt文件存在：{0}.".format(target_files[0]))
 
         if kwargs.get("autoload", True):
-            from zhousflib.ann import tensorrt_infer
+            from zhousflib.ann.tensorrt import tensorrt_infer
             self.model = tensorrt_infer.RTInfer(trt_file_path=self.model_dir.joinpath("model.trt"),
-                                                    device_id=self.device_id, use_stack=True)
+                                                device_id=self.device_id, use_stack=True)
             print("加载tensorrt成功：{0}.".format(target_files[0]))
         return target_files[0]
 

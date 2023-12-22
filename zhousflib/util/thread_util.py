@@ -55,11 +55,12 @@ def test_async():
     thread_1 = MultiThread(name="thread_1", func=my_func, func_arg="dddd1", thread_lock=None)
     thread_2 = MultiThread(name="thread_2", func=my_func, func_arg="32333", thread_lock=None)
     thread_1.start()
+    thread_1.join()
     thread_2.start()
+    thread_2.join()
     # 等待所有线程完成
     threads = [thread_1, thread_2]
     for t in threads:
-        t.join()
         print(t.get_result())
     print("Exiting Main Thread")
 

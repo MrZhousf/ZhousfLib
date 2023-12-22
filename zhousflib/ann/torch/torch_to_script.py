@@ -9,7 +9,7 @@ from pathlib import Path
 import torch
 from transformers import AutoModel, AutoConfig, AutoTokenizer
 
-from zhousflib.ann import check_cuda, check_device_id, get_device
+from zhousflib.ann.torch import check_cuda, check_device_id, get_device
 
 
 def load_script_model(model_dir: Path, device_id: int = -1):
