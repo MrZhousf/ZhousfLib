@@ -43,7 +43,7 @@ class BackendHttp(Backend):
         assert self.model_version is not None, "设置http后端时，model_version不能为空."
 
         concurrency = kwargs.get("concurrency", 1)
-        from zhousflib.inference_framework.triton import client_http
+        from zhousflib.infer_framework.triton import client_http
         self.model = client_http.ClientHttp(url=url, concurrency=concurrency, **kwargs)
 
     def inference(self, inputs_list: list):

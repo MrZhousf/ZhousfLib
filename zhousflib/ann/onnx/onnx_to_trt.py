@@ -126,10 +126,10 @@ if __name__ == "__main__":
     #                               "token_type_ids": [(10, 128), (10, 128), (10, 128)],
     #                               "attention_mask": [(10, 128), (10, 128), (10, 128)]})
     convert_trt(onnx_file_path=Path(r"F:\torch\onnx\model.onnx"),
-                save_trt_path=Path(r"F:\torch\onnx\model_fp32.trt"),
-                use_fp16=False,
-                shape={"input_ids": [(32, 128), (32, 128), (32, 128)],
-                       "token_type_ids": [(32, 128), (32, 128), (32, 128)],
-                       "attention_mask": [(32, 128), (32, 128), (32, 128)]})
+                save_trt_path=Path(r"F:\torch\onnx\model_32.trt"),
+                use_fp16=True,
+                shape={"input_ids": [(10, 128), (10, 128), (50, 128)],
+                       "token_type_ids": [(10, 128), (10, 128), (50, 128)],
+                       "attention_mask": [(10, 128), (10, 128), (50, 128)]})
     pass
 

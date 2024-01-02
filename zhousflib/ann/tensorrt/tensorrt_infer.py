@@ -135,8 +135,8 @@ class RTInfer(object):
 if __name__ == "__main__":
     from zhousflib.ann import to_numpy
     from zhousflib.ann.torch.torch_to_onnx import example_inputs_demo
-    args = example_inputs_demo(input_size=32)
+    args = example_inputs_demo(input_size=1)
     batch = np.asarray([to_numpy(args[0].int()), to_numpy(args[1].int()), to_numpy(args[2].int())])
-    rt_engine = RTInfer(trt_file_path=Path(r"F:\torch\onnx\model_fp32.trt"), device_id=0, use_stack=True)
+    rt_engine = RTInfer(trt_file_path=Path(r"F:\torch\onnx\model_32.trt"), device_id=0, use_stack=True)
     data = rt_engine.infer(input_arr=batch)
     print(data)

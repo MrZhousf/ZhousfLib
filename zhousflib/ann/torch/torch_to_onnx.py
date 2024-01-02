@@ -8,6 +8,7 @@ from pathlib import Path
 import torch
 import onnxruntime
 
+from zhousflib.ann import to_numpy
 from zhousflib.ann import transformers
 from zhousflib.ann.torch import check_cuda, get_device, check_device_id
 
@@ -166,17 +167,17 @@ if __name__ == "__main__":
     """
     onnx转换示例
     """
-    convert_bert_demo()
+    # convert_bert_demo()
     """
     onnx预测示例
     """
-    # ort_session, _, _ = load_onnx(model_dir=Path(r"F:\torch\onnx"), device_id=0)
-    # ort_input = ort_session.get_inputs()
-    # args = example_inputs_demo()
-    # feed = {}
-    # for i, input_ in enumerate(args):
-    #     feed[ort_input.get_inputs()[i].name] = to_numpy(args[i])
-    # options = onnxruntime.RunOptions()
-    # ort_outs = ort_session.run(None, feed, run_options=options)
-    # print(ort_outs)
-    pass
+    ort_session, _, _ = load_onnx(model_dir=Path(r"F:\torch\onnx"), device_id=0)
+    ort_input = ort_session.get_inputs()
+    args = example_inputs_demo(input_size=32)
+    feed = {}
+    for i, input_ in enumerate(args):
+        feed[ort_input.get_inputs()[i].name] = to_numpy(args[i])
+    options = onnxruntime.RunOptions()
+    ort_outs = ort_session.run(None, feed, run_options=options)
+    print(ort_outs)
+    # pass

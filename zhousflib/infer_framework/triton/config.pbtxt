@@ -24,7 +24,9 @@ output: [
     data_type: TYPE_FP16,
     dims: [ -1 ]
   }
-dynamic_batching { }
+dynamic_batching {
+    max_queue_delay_microseconds: 10
+}
 instance_group [
   {
     count: 4

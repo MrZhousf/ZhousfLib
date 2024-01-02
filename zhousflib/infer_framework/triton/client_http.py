@@ -162,13 +162,28 @@ class ClientHttp(object):
         """
         start = time.time()
         for i in range(0, infer_count):
+            start_time = time.perf_counter()
             result = self.infer_sync(model_name="cosnet_onnx", model_version="1",
                                      inputs=[client.build_input(name="input_ids", data=data[0], datatype="INT64"),
                                              client.build_input(name="token_type_ids", data=data[1], datatype="INT64"),
                                              client.build_input(name="attention_mask", data=data[2], datatype="INT64")],
                                      outputs=[client.build_output(name="output", binary_data=True)])
-            print(i, result.as_numpy("output"))
+            end_time = time.perf_counter()
+            run_time = end_time - start_time
+            print(f"单次预测的时间：{run_time}秒")
         print("平均推理耗时：{0:.5f}".format((time.time()-start)/infer_count))
+        # start = time.time()
+        # for i in range(0, infer_count):
+        #     start_time = time.perf_counter()
+        #     result = self.infer_sync(model_name="cosnet_onnx", model_version="1",
+        #                              inputs=[client.build_input(name="input_ids", data=data[0], datatype="INT64"),
+        #                                      client.build_input(name="token_type_ids", data=data[1], datatype="INT64"),
+        #                                      client.build_input(name="attention_mask", data=data[2], datatype="INT64")],
+        #                              outputs=[client.build_output(name="output", binary_data=True)])
+        #     end_time = time.perf_counter()
+        #     run_time = end_time - start_time
+        #     print(f"单次预测的时间：{run_time}秒")
+        # print("平均推理耗时：{0:.5f}".format((time.time()-start)/infer_count))
 
     def infer_async_demo(self, data, infer_count=20):
         """
@@ -178,6 +193,7 @@ class ClientHttp(object):
         :return:
         """
         async_requests = []
+        start = time.time()
         for i in range(infer_count):
             async_requests.append(
                 self.infer_async(model_name="cosnet_onnx", model_version="1",
@@ -188,27 +204,48 @@ class ClientHttp(object):
             )
         res_output = []
         for async_request in async_requests:
+            start_time = time.perf_counter()
             # Get the result from the initiated asynchronous inference request.
             # Note the call will block till the server responds.
             res_output.append(async_request.get_result())
-        start = time.time()
-        for i in range(0, len(res_output)):
-            print(i, res_output[i].as_numpy("output"))
-        print("平均推理耗时：{0:.5f}".format((time.time()-start)/infer_count))
+            end_time = time.perf_counter()
+            run_time = end_time - start_time
+            print(f"单次预测的时间：{run_time}秒")
+        print("平均推理耗时：{0:.20f}".format((time.time()-start)/infer_count))
+        # start = time.time()
+        # async_requests = []
+        # for i in range(infer_count):
+        #     async_requests.append(
+        #         self.infer_async(model_name="cosnet_tensorrt", model_version="1",
+        #                          inputs=[client.build_input(name="input_ids", data=data[0], datatype="INT32"),
+        #                                  client.build_input(name="token_type_ids", data=data[1], datatype="INT32"),
+        #                                  client.build_input(name="attention_mask", data=data[2], datatype="INT32")],
+        #                          outputs=[client.build_output(name="output", binary_data=True)])
+        #     )
+        # res_output = []
+        # for async_request in async_requests:
+        #     start_time = time.perf_counter()
+        #     # Get the result from the initiated asynchronous inference request.
+        #     # Note the call will block till the server responds.
+        #     res_output.append(async_request.get_result())
+        #     end_time = time.perf_counter()
+        #     run_time = end_time - start_time
+        #     print(f"单次预测的时间：{run_time}秒")
+        # print("平均推理耗时：{0:.20f}".format((time.time()-start)/infer_count))
 
 
 if __name__ == "__main__":
     from zhousflib.ann import to_numpy
     from zhousflib.ann.torch.torch_to_onnx import example_inputs_demo
-    args = example_inputs_demo()
+    args = example_inputs_demo(input_size=1)
     data_arr = np.asarray([to_numpy(args[0].int()), to_numpy(args[1].int()), to_numpy(args[2].int())], dtype=np.int64)
     client = ClientHttp(url="127.0.0.1:5005", concurrency=100)
     """
     同步请求demo
     """
-    # client.infer_sync_demo(data=data_arr, infer_count=20)
+    client.infer_sync_demo(data=data_arr, infer_count=500)
     """
     异步请求demo
     """
-    client.infer_async_demo(data=data_arr, infer_count=20)
+    # client.infer_async_demo(data=data_arr, infer_count=10)
     pass

@@ -2,9 +2,25 @@
 # @Author  : zhousf
 # @Date    : 2023/6/6 
 # @Function:
-
 # Note: To use the 'upload' functionality of this file, you must:
-#   $ pipenv install twine --dev
+# $ pipenv install twine --dev
+
+"""
+windows: C:\Users\用户名
+mac：用户下面
+
+在用户录下创建.pypirc文件
+
+[distutils]
+  index-servers =
+    pypi
+    PROJECT_NAME
+
+[pypi]
+  username = __token__
+  password = pypi-AgEIcHlwaS5vcmcCJDM0NGRiMjExLTBlOGQtNGExYy1hNWI1LTU2MWM2ODFlZjA0YwACElsxLFsiemhvdXNmLWxpYiJdXQACLFsyLFsiYzVlZmIzMjQtZmVmZC00MTcwLTgwNTEtOGUxNTk3MzdhY2M1Il1dAAAGIMKt_-KVuMRnh6w5xZK1EG5dNuSL6OXUtewSYJnScNJE
+
+"""
 
 import io
 import os
@@ -20,7 +36,7 @@ URL = 'https://github.com/MrZhousf/ZhousfLib'
 EMAIL = '442553199@qq.com'
 AUTHOR = 'zhousf'
 REQUIRES_PYTHON = '>=3.6.13'
-VERSION = '1.3.9'
+VERSION = '1.4.5'
 PACKAGE_DATA = {'': ['*.yaml', '*.ttf', '*.txt', '*.md']}
 
 
