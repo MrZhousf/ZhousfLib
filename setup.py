@@ -5,10 +5,17 @@
 # Note: To use the 'upload' functionality of this file, you must:
 # $ pipenv install twine --dev
 
-"""
-windows: C:\Users\用户名
-mac：用户下面
+import io
+import os
+import sys
+from shutil import rmtree
 
+from setuptools import find_packages, setup, Command
+
+
+"""
+windows: C:\\Users\\用户名
+mac：用户下面
 在用户录下创建.pypirc文件
 
 [distutils]
@@ -21,13 +28,6 @@ mac：用户下面
   password =
 """
 
-import io
-import os
-import sys
-from shutil import rmtree
-
-from setuptools import find_packages, setup, Command
-
 # 打包：python setup.py upload
 NAME = 'zhousf-lib'
 DESCRIPTION = 'a python library of zhousf'
@@ -35,7 +35,7 @@ URL = 'https://github.com/MrZhousf/ZhousfLib'
 EMAIL = '442553199@qq.com'
 AUTHOR = 'zhousf'
 REQUIRES_PYTHON = '>=3.6.13'
-VERSION = '1.4.5'
+VERSION = '1.4.7'
 PACKAGE_DATA = {'': ['*.yaml', '*.ttf', '*.txt', '*.md']}
 
 
@@ -105,11 +105,11 @@ class UploadCommand(Command):
         os.system('{0} setup.py sdist bdist_wheel --universal'.format(sys.executable))
 
         self.status('Uploading the package to PyPI via Twine…')
-        os.system('twine upload dist/*')
+        os.system('twine upload dist/* --verbose')
 
-        self.status('Pushing git tags…')
-        os.system('git tag v{0}'.format(about['__version__']))
-        os.system('git push --tags')
+        # self.status('Pushing git tags…')
+        # os.system('git tag v{0}'.format(about['__version__']))
+        # os.system('git push --tags')
 
         sys.exit()
 

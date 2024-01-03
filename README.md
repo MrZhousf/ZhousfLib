@@ -11,8 +11,23 @@ python常用工具库：coco数据集、labelme数据集、segmentation数据集
 
 ### ANN转换
 
-* [X]  ann/torch_to_onnx：torch保存/加载onnx
-* [X]  ann/torch_to_script：torch保存/加载script
+* [X]  ann/onnx/onnx_to_trt：onnx转tensorRT
+* [X]  ann/torch/torch_to_onnx：torch转onnx/加载onnx
+* [X]  ann/torch/torch_to_script：torch转script/加载script
+* [X]  ann/transformers：加载tokenizer
+* [X]  ann/tensorrt/tensorrt_infer：tensorRT推理
+
+### ML
+
+* [X]  ml/feature_vector：特征向量表示器
+* [X]  ml/model_cluster：kmeans聚类
+* [X]  ml/model_lr：线性回归
+* [X]  ml/model_gbdt：GBDT
+
+### 模型推理框架
+
+* [X]  infer_framework/fast_infer/fast_infer：快速推理器
+* [X]  infer_framework/triton/client_http：triton
 
 ### 数据库
 
@@ -22,9 +37,10 @@ python常用工具库：coco数据集、labelme数据集、segmentation数据集
 
 * [X]  decorator：异常捕获，AOP
 
-### 文件下载
+### 文件操作
 
 * [X]  download：文件批量异步下载
+* [X]  delete_file：文件删除
 
 ### 字体
 
