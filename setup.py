@@ -18,8 +18,7 @@ mac：用户下面
 
 [pypi]
   username = __token__
-  password = pypi-AgEIcHlwaS5vcmcCJDM0NGRiMjExLTBlOGQtNGExYy1hNWI1LTU2MWM2ODFlZjA0YwACElsxLFsiemhvdXNmLWxpYiJdXQACLFsyLFsiYzVlZmIzMjQtZmVmZC00MTcwLTgwNTEtOGUxNTk3MzdhY2M1Il1dAAAGIMKt_-KVuMRnh6w5xZK1EG5dNuSL6OXUtewSYJnScNJE
-
+  password =
 """
 
 import io
