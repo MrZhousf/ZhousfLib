@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
-# @Author  : zhousf
-# @Function: 即将废弃，建议使用zhousflib.image
+# -*- coding:utf-8 -*-
+# Author:  zhousf
+# Description:
 import cv2
 import numpy as np
 from pathlib import Path
@@ -8,59 +8,26 @@ from pathlib import Path
 from zhousflib.decorator import interceptor_util
 
 
-def read(img_path: Path):
+def get_binary(image_path: Path, **kwargs):
     """
-    读图片-兼容图片路径包含中文
-    :param img_path:
-    :return: np.ndarray
-    """
-    img = cv2.imdecode(np.fromfile(str(img_path), dtype=np.uint8), cv2.IMREAD_COLOR)
-    return img
-
-
-def write(image: np.ndarray, img_write_path: Path):
-    """
-    写图片-兼容图片路径包含中文
-    :param image:
-    :param img_write_path:
+    获取二值化
+    :param image_path:
+    :param kwargs: 二值化参数
     :return:
     """
-    cv2.imencode(img_write_path.suffix, image[:, :, ::-1])[1].tofile(str(img_write_path))
-
-
-def max_connectivity_domain(mask_arr: np.array, connectivity=4) -> np.array:
-    """
-    返回掩码中最大的连通域
-    :param mask_arr: 二维数组，掩码中0表示背景，1表示目标
-    :param connectivity: 4|8 4邻接还是8邻接
-    :return:
-    """
-    # 掩码标识转换
-    arr_mask = np.where(mask_arr == 1, 255, 0)
-    # 掩码类型转换
-    arr_mask = arr_mask.astype(dtype=np.uint8)
-    """
-    connectivity：可选值为4或8，也就是使用4连通还是8连通
-    num：所有连通域的数目
-    labels：图像上每一像素的标记，用数字1、2、3…表示（不同的数字表示不同的连通域）
-    stats：每一个标记的统计信息，是一个5列的矩阵，每一行对应每个连通区域的外接矩形的x、y、width、height和面积，示例：0 0 720 720 291805
-    centroids：连通域的中心点
-    """
-    nums, labels, stats, centroids = cv2.connectedComponentsWithStats(arr_mask, connectivity=connectivity)
-    background = 0
-    for row in range(stats.shape[0]):
-        if stats[row, :][0] == 0 and stats[row, :][1] == 0:
-            background = row
-    # 删除背景后的连通域列表
-    stats_no_bg = np.delete(stats, background, axis=0)
-    if len(stats_no_bg) == 0:
-        return stats_no_bg
-    # 获取连通域最大的索引
-    max_idx = stats_no_bg[:, 4].argmax()
-    max_region = np.where(labels == max_idx + 1, 1, 0)
-    # 保存
-    # cv2.imwrite(r'vis.jpg', max_region * 255)
-    return max_region
+    assert image_path.exists(), "image file is not exists: {0}".format(image_path)
+    img = cv2.imread(str(image_path), cv2.IMREAD_GRAYSCALE)
+    assert img is not None, "image is None"
+    if len(kwargs) > 0:
+        binary = cv2.adaptiveThreshold(src=img, **kwargs)
+    else:
+        binary = cv2.adaptiveThreshold(src=img,
+                                       maxValue=255,  # 大于阈值后设定的值
+                                       adaptiveMethod=cv2.ADAPTIVE_THRESH_MEAN_C,  # 自适应方法
+                                       thresholdType=cv2.THRESH_BINARY,  # 同全局阈值法中的参数一样
+                                       blockSize=11,  # 方阵（区域）大小
+                                       C=15)  # 常数项
+    return binary
 
 
 def rotate(image, angle, show=False):
@@ -119,6 +86,11 @@ def _show(chain):
         cv2.waitKey(0)
         cv2.destroyAllWindows()
     return image
+
+
+"""
+以下函数为示例函数
+"""
 
 
 @interceptor_util.intercept(before=_read, after=_show)

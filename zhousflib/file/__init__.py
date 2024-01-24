@@ -2,8 +2,11 @@
 # @Author  : zhousf
 # @Date    : 2023/11/1 
 # @Function:
-import shutil
+import base64
+import hashlib
 from pathlib import Path
+
+import shutil
 
 
 def overwrite_folder(from_dir: Path, to_dir: Path):
@@ -17,3 +20,28 @@ def overwrite_folder(from_dir: Path, to_dir: Path):
         shutil.copy(file, to_dir.joinpath(file.parent.name))
         print(file)
     pass
+
+
+def md5(file_path: Path):
+    """
+    文件转md5
+    :param file_path: 文件路径
+    """
+    with file_path.open('rb') as f:
+        return hashlib.md5(f.read()).hexdigest()
+
+
+def get_base64(file_path: Path, contain_file_name=False, split_char=","):
+    """
+    文件转base64
+    :param file_path: 文件路径
+    :param contain_file_name: 是否包含文件名称
+    :param split_char: 分隔符
+    :return: 'a.jpg,iVBORw0KGgoAAAANSUhEUgAABNcAAANtCAYAAACzHZ25AAA.....'
+    """
+    with file_path.open('rb') as infile:
+        s = infile.read()
+    base64_str = base64.b64encode(s).decode("utf-8")
+    if contain_file_name:
+        base64_str = file_path.name + split_char + base64_str
+    return base64_str

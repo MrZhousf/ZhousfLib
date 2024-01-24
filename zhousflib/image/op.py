@@ -1,9 +1,6 @@
 # -*- coding:utf-8 -*-
 # Author:  zhousf
-# Description: 即将废弃，建议使用zhousflib.image
-import imghdr
-import base64
-import hashlib
+# Description: 最大连通域计算、删除图片边缘的像素块
 from pathlib import Path
 
 import cv2
@@ -16,49 +13,39 @@ from zhousflib.util import pil_util
 from zhousflib.image.cv import get_binary
 
 
-def get_file_base64(file_path: Path, contain_file_name=False, split_char=","):
+def max_connectivity_domain(mask_arr: np.array, connectivity=4) -> np.array:
     """
-    图片转base64
-    :param file_path: 图片路径
-    :param contain_file_name: 是否包含文件名称
-    :param split_char: 分隔符
-    :return: 'a.jpg,iVBORw0KGgoAAAANSUhEUgAABNcAAANtCAYAAACzHZ25AAA.....'
+    返回掩码中最大的连通域
+    :param mask_arr: 二维数组，掩码中0表示背景，1表示目标
+    :param connectivity: 4|8 4邻接还是8邻接
+    :return:
     """
-    with file_path.open('rb') as infile:
-        s = infile.read()
-    base64_str = base64.b64encode(s).decode("utf-8")
-    if contain_file_name:
-        base64_str = file_path.name + split_char + base64_str
-    return base64_str
-
-
-def md5(file_path: Path):
-    with file_path.open('rb') as f:
-        return hashlib.md5(f.read()).hexdigest()
-
-
-def rename_image_with_md5(src_dir: Path, dst_dir: Path):
-    if not dst_dir.exists():
-        dst_dir.mkdir()
-    count = 0
-    repeat = 0
-    for file in src_dir.rglob("*.*"):
-        if not imghdr.what(str(file)):
-            continue
-        print(file.name)
-        count += 1
-        new_name = md5(file)
-        new_name += file.suffix
-        print(new_name)
-        if dst_dir.joinpath(new_name).exists():
-            repeat += 1
-            continue
-        if not dst_dir.joinpath(file.parent.name).exists():
-            dst_dir.joinpath(file.parent.name).mkdir(parents=True)
-        if not dst_dir.joinpath(file.parent.name).joinpath(new_name).exists():
-            file.rename(dst_dir.joinpath(file.parent.name).joinpath(new_name))
-    print("count=", count)
-    print("repeat=", repeat)
+    # 掩码标识转换
+    arr_mask = np.where(mask_arr == 1, 255, 0)
+    # 掩码类型转换
+    arr_mask = arr_mask.astype(dtype=np.uint8)
+    """
+    connectivity：可选值为4或8，也就是使用4连通还是8连通
+    num：所有连通域的数目
+    labels：图像上每一像素的标记，用数字1、2、3…表示（不同的数字表示不同的连通域）
+    stats：每一个标记的统计信息，是一个5列的矩阵，每一行对应每个连通区域的外接矩形的x、y、width、height和面积，示例：0 0 720 720 291805
+    centroids：连通域的中心点
+    """
+    nums, labels, stats, centroids = cv2.connectedComponentsWithStats(arr_mask, connectivity=connectivity)
+    background = 0
+    for row in range(stats.shape[0]):
+        if stats[row, :][0] == 0 and stats[row, :][1] == 0:
+            background = row
+    # 删除背景后的连通域列表
+    stats_no_bg = np.delete(stats, background, axis=0)
+    if len(stats_no_bg) == 0:
+        return stats_no_bg
+    # 获取连通域最大的索引
+    max_idx = stats_no_bg[:, 4].argmax()
+    max_region = np.where(labels == max_idx + 1, 1, 0)
+    # 保存
+    # cv2.imwrite(r'vis.jpg', max_region * 255)
+    return max_region
 
 
 def filter_pixels_at_edges(image_path: Path, save_image_path: Path = None, distance_at_edges=20, show=False, **kwargs):

@@ -4,6 +4,7 @@
 # @Function:
 # Note: To use the 'upload' functionality of this file, you must:
 # $ pipenv install twine --dev
+# $ pip install twine
 
 import io
 import os
@@ -35,7 +36,7 @@ URL = 'https://github.com/MrZhousf/ZhousfLib'
 EMAIL = '442553199@qq.com'
 AUTHOR = 'zhousf'
 REQUIRES_PYTHON = '>=3.6.13'
-VERSION = '1.4.7'
+VERSION = '1.4.8'
 PACKAGE_DATA = {'': ['*.yaml', '*.ttf', '*.txt', '*.md']}
 
 
