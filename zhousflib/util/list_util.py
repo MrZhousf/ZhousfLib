@@ -128,7 +128,8 @@ def sort(data: list, index: int = 0, reverse=False):
     :param reverse: 是否倒序
     :return:
     """
-    return sorted(data, key=lambda v: v[index], reverse=reverse)
+    data = sorted(data, key=lambda v: v[index], reverse=reverse)
+    return data
 
 
 def get_min_number(what: list):
