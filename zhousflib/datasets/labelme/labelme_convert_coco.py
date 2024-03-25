@@ -7,7 +7,7 @@ import shutil
 import colorsys
 from pathlib import Path
 
-from zhousflib.util.img_util import get_file_base64
+from zhousflib.image.img_util import get_file_base64
 
 
 def coco_convert_bbox(box_coco: list):

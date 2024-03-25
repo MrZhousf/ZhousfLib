@@ -48,7 +48,7 @@ def my_func(thread_name, func_arg):
     return thread_name
 
 
-def test_async():
+def test_sync():
     """
     异步
     """
@@ -65,7 +65,7 @@ def test_async():
     print("Exiting Main Thread")
 
 
-def test_sync():
+def test_async():
     """
     同步
     """

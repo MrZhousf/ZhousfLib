@@ -1,29 +1,32 @@
 # -*- coding: utf-8 -*-
 # @Author  : zhousf
-# @Date    : 2021/8/9 
+# @Date    : 2021/8/9
 # @Function: web服务配置与管理
 import os
 import time
 import random
 
 from flask import g
-from app import FLASK_APP
 from gevent import monkey
 from flask import request, Response
 from gevent.pywsgi import WSGIServer
 from werkzeug.exceptions import HTTPException
-
+from loguru import logger
 from zhousflib.web import response as res
-from zhousflib.web import log_util
 
 
 class WebApp(object):
+
     def __init__(self, config_app):
-        FLASK_APP.config.from_object(config_app)
         self.config_app = config_app
+        self.init_project()
+        try:
+            from app import FLASK_APP
+            FLASK_APP.config.from_object(config_app)
+        except Exception as e:
+            raise Exception(e)
         self.app = FLASK_APP
-        log_util.init_log(FLASK_APP, config_app.LOG_SERVICE_DIR)
-        self.init_config()
+        self.init_app(self.app)
 
     def save_pid(self):
         if not self.config_app.has_pid_file(self.config_app):
@@ -35,27 +38,34 @@ class WebApp(object):
 
     def start(self):
         server = WSGIServer((self.config_app.HOST, self.config_app.PORT), self.app)
-        print("http://{0}:{1}".format(self.config_app.HOST, self.config_app.PORT))
+        logger.success("http://{0}:{1}".format(self.config_app.HOST, self.config_app.PORT))
         # pid = self.save_pid()
         # print("pid: {0}".format(pid))
-        print("{0} app is starting...".format(self.config_app.ENVIRONMENT))
+        logger.success("service started: {0}".format(self.config_app.ENVIRONMENT))
         try:
             server.serve_forever()
         except Exception as e:
-            print(e)
+            logger.error(e)
             os.remove(self.config_app.PID_FILE)
 
-    def init_config(self):
-        print("create app...")
+    def init_project(self):
+        try:
+            from app import init_project
+            init_project(self.config_app)
+        except Exception as e:
+            raise Exception(e)
+
+    def init_app(self, app):
+        logger.info("create app...")
         if not self.config_app.DEBUG:
             monkey.patch_all()
-        FLASK_APP.jinja_env.auto_reload = True
-        FLASK_APP.config['MAX_CONTENT_LENGTH'] = 30 * 1024 * 1024
-        FLASK_APP.json.ensure_ascii = self.config_app.JSON_AS_ASCII
-        FLASK_APP.json.sort_keys = self.config_app.JSON_SORT_KEYS
-        FLASK_APP.json.mimetype = self.config_app.JSONIFY_MIMETYPE
+        self.app.jinja_env.auto_reload = True
+        self.app.config['MAX_CONTENT_LENGTH'] = 30 * 1024 * 1024
+        self.app.json.ensure_ascii = self.config_app.JSON_AS_ASCII
+        self.app.json.sort_keys = self.config_app.JSON_SORT_KEYS
+        self.app.json.mimetype = self.config_app.JSONIFY_MIMETYPE
 
-        @FLASK_APP.before_request
+        @app.before_request
         def before_request():
             request_id = '{0}_{1}'.format(int(round(time.time() * 1000)), self.rand(digits=5))
             req_id = request.values.get("reqId", None)
@@ -80,11 +90,14 @@ class WebApp(object):
                 return
             params = bytes.decode(params, encoding='utf-8')
             params = params.strip()
+            if hasattr(g, "logger"):
+                g.logger.title_first("request body")
             if 0 < len(params) < 10240:
+                msg += "------------ request body ------------\n"
                 msg += params + "\n"
             g.log = msg
 
-        @FLASK_APP.after_request
+        @app.after_request
         def after_request(response):
             """
             RuntimeError: Attempted implicit sequence conversion but
@@ -96,9 +109,10 @@ class WebApp(object):
             if hasattr(g, "log"):
                 msg_before += g.log
             if hasattr(g, "logger"):
-                g.logger.title_first("返回信息")
+                g.logger.title_first("response body")
             cost = round(time.time() - g.request_time, 4)
             msg_after = '[response:{0} | cost_time:{1}s]\n'.format(g.request_id, cost)
+            msg_after += "------------ response body ------------\n"
             status_code = 200
             if isinstance(response, Response) and not g.static:
                 if response.json is not None and response.content_length < 10240:
@@ -109,24 +123,23 @@ class WebApp(object):
                 if hasattr(g, "logger"):
                     if status_code in range(201, 500):
                         g.logger.log(msg_after)
-                        log_util.warning(msg_before + msg_after)
+                        logger.warning(msg_before + msg_after)
                     elif status_code in range(500, 700):
                         g.logger.log(msg_after)
-                        log_util.error(msg_before + msg_after)
+                        logger.error(msg_before + msg_after)
                     elif status_code > 1000:
                         g.logger.log_txt = g.logger.log_txt.replace("\n\n", "\n")
                         g.logger.log(msg_after)
-                        log_util.error(g.logger.log_txt)
+                        logger.error(g.logger.log_txt)
                     else:
                         g.logger.log(msg_after)
-                        log_util.info(msg_before + msg_after)
                     g.logger.save_log()
                 else:
                     if hasattr(g, "log"):
-                        log_util.error(msg_before + msg_after)
+                        logger.info(msg_before + msg_after)
             return response
 
-        @FLASK_APP.route('/')
+        @app.route('/')
         def index():
             port = ""
             host = request.host.split(":")
@@ -136,13 +149,13 @@ class WebApp(object):
                 ip = host
             return res.success_tip(status=200, result="{0}:{1}".format(ip, port))
 
-        @FLASK_APP.route('/favicon.ico')
+        @app.route('/favicon.ico')
         def get_fav():
-            return FLASK_APP.send_static_file('images/favicon.ico')
+            return self.app.send_static_file('images/favicon.ico')
 
-        @FLASK_APP.errorhandler(HTTPException)
+        @app.errorhandler(HTTPException)
         def exception(e):
-            log_util.warning(repr(e))
+            logger.warning(repr(e))
             g.status_code = e.code
             return res.failed_tip(status=e.code, result="{0}[{1}]".format(e.description, request.path))
 

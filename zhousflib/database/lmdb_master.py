@@ -44,8 +44,10 @@ class LMDB(object):
         :return:
         """
         txn = self.env.begin(write=True)
-        txn.put(key.encode(), pickle.dumps(value))
-        txn.commit()
+        res = txn.get(str(key).encode())
+        if res is None:
+            txn.put(str(key).encode(), pickle.dumps(value))
+            txn.commit()
 
     def delete(self, key: str):
         """
@@ -54,7 +56,7 @@ class LMDB(object):
         :return:
         """
         txn = self.env.begin(write=True)
-        txn.delete(key.encode())
+        txn.delete(str(key).encode())
         txn.commit()
 
     def update(self, key: str, value):
@@ -73,8 +75,16 @@ class LMDB(object):
         :return:
         """
         txn = self.env.begin()
-        res = txn.get(key.encode())
+        res = txn.get(str(key).encode())
         return None if res is None else pickle.loads(res)
+
+    def query_all(self):
+        txn = self.env.begin()
+        cur = txn.cursor()
+        result = {}
+        for key, value in cur:
+            result[str(key)] = pickle.loads(value)
+        return result
 
     def display(self):
         """
@@ -84,18 +94,18 @@ class LMDB(object):
         txn = self.env.begin()
         cur = txn.cursor()
         for key, value in cur:
-            print(key, pickle.loads(value))
+            print(str(key), pickle.loads(value))
 
     def clear_all(self):
         """
         删除所有数据
         :return:
         """
-        txn = self.env.begin()
+        txn = self.env.begin(write=True)
         cur = txn.cursor()
         for key, value in cur:
-            print(key, pickle.loads(value))
-            txn.delete(key.encode())
+            print(str(key), pickle.loads(value))
+            txn.delete(str(key).encode())
         txn.commit()
 
     def close(self):
@@ -104,4 +114,5 @@ class LMDB(object):
 
 if __name__ == '__main__':
     pass
+
 

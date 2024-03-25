@@ -173,9 +173,9 @@ def compare_mutual_info(image1: Path, image2: Path, resize: tuple = None):
 
 if __name__ == "__main__":
     # 加载测试图片
-    img1 = Path(r'C:\Users\zhousf-a\Desktop\1.png')
-    img2 = Path(r'C:\Users\zhousf-a\Desktop\1.png')
-    # img2 = Path(r'C:\Users\zhousf-a\Desktop\2.png')
+    img1 = Path(r'F:\work_documents\项目\2024清标-技术标识别\图技术标规律性检查-图片雷同性检测\数据集\验收集\图片测试集\116_A.png')
+    img2 = Path(r'F:\work_documents\项目\2024清标-技术标识别\图技术标规律性检查-图片雷同性检测\数据集\验收集\图片测试集\116_A.png')
+    # img2 = Path(r'F:\work_documents\项目\2024清标-技术标识别\图技术标规律性检查-图片雷同性检测\数据集\验收集\图片测试集\195_B.PNG')
 
     start_time = time.time()
     score_ = compare_mutual_info(img1, img2, resize=(200, 200))

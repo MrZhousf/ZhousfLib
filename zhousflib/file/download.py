@@ -32,7 +32,7 @@ class DownloadBatch(object):
     def exception_handler(request, exception):
         r = Response()
         r.status_code = 408
-        r.reason = "download failed"
+        r.reason = "download failed: {0}".format(exception)
         return r
 
     def add(self, name, url, timeout=20.0):
@@ -72,7 +72,7 @@ class DownloadBatch(object):
         :return:
         """
         result = {}
-        start = time.time()
+        # start = time.time()
         self.task_num = len(self.req_list)
         if self.task_num == 0:
             return result
@@ -97,32 +97,33 @@ class DownloadBatch(object):
                         continue
                 if response.status_code != 200:
                     result[self.file_names[i]] = (
-                        False, "{0}({1})".format(response.text, response.status_code), self.req_list[i].url)
+                        False, "{0} {1} {2}".format(self.file_names[i], response.reason, response.status_code), self.req_list[i].url)
                     continue
                 # 当信息流小于100字节，则不是文件
                 if len(response.text) <= 100:
                     result[self.file_names[i]] = (
-                        False, "{0}({1})".format(response.text, response.status_code), self.req_list[i].url)
+                        False, "{0} {1} {2}".format(self.file_names[i], response.reason, response.status_code), self.req_list[i].url)
                     continue
                 with open(save_file, "wb") as f:
                     f.write(response.content)
                     result[self.file_names[i]] = (True, save_file, self.req_list[i].url)
             except Exception as ex:
                 result[self.file_names[i]] = (
-                    False, "{0}({1})".format(response.text, response.status_code), self.req_list[i].url)
+                    False, "{0} {1} {2}".format(self.file_names[i], response.reason, response.status_code), self.req_list[i].url)
                 continue
-        end = time.time()
-        self.consume_time = end - start
+        # end = time.time()
+        # self.consume_time = end - start
         return result
 
 
 if __name__ == "__main__":
-    url = ""
-    downloader = DownloadBatch(save_dir="/home/ubuntu/Downloads")
-    downloader.add(name="1.jpg", url=url, timeout=6)
-    downloader.add(name="2.jpg", url=url, timeout=0.005)
+    url = "https://product-ai.oss-cn-zhangjiakou.aliyuncs.com/zhousf/image_similarity/images/101_A.PNG?OSSAccessKeyId=LTAI5tPfQka56zxSvWkunkDo&Expires=1710928784&Signature=rU4R%2FicXHREnHRs4Ka9340yjf30%3D"
+    downloader = DownloadBatch(save_dir=r"C:\Users\zhousf-a\Desktop\download")
+    start = time.time()
+    for j in range(100):
+        downloader.add(name="101_A-{0}.PNG".format(j), url=url, timeout=30)
     results = downloader.run()
     for result in results:
         success, save_file, url = results.get(result)
-        print(result, success, save_file, url)
-    print("cost time: {0}s | 共{1}项".format(downloader.consume_time, downloader.task_num))
+        print(save_file, url)
+    print("cost time: {0}s | 共{1}项".format(time.time()-start, downloader.task_num))

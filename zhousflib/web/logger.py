@@ -6,7 +6,7 @@ from pathlib import Path
 
 from prettytable import PrettyTable
 
-from zhousflib.util import time_util
+from zhousflib.time import time_util
 
 
 def get_dir_path(dir_path, client=None, req_id=None, make_dirs=True) -> Path:
@@ -49,6 +49,7 @@ class Logger(object):
             g.logger = self
         # 日志信息-详细
         self.log_txt = day_time
+        self.title_first("日志路径")
         self.log(log_dir)
         # 日志信息-仅标题
         self.__log_txt_level = []

@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 from PIL import Image, ImageDraw, ImageFont
 
 from zhousflib.font import Font_SimSun
-from zhousflib.util import pil_util
+from zhousflib.image import pil_util
 from zhousflib.image.cv import get_binary
 
 

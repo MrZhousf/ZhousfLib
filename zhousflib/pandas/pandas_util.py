@@ -86,7 +86,8 @@ def read_excel(file_path, sheet_name=None, header=None):
             sheet_name = sheets[0]
     data_ = pd.read_excel(file_path, sheet_name=sheet_name, dtype=object, header=header)
     # 若nan则替换成空字符串
-    data_ = data_.fillna("")
+    # data_ = data_.fillna("")
+    pd.set_option('future.no_silent_downcasting', True)
     return data_
 
 

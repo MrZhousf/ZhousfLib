@@ -5,7 +5,6 @@ import re
 import time
 import datetime
 
-import cn2an
 
 CN_NUM = {'〇': '0', '一': '1', '二': '2', '三': '3', '四': '4', '五': '5', '六': '6', '七': '7', '八': '8', '九': '9',
           '零': '0', '壹': '1', '贰': '2', '叁': '3', '肆': '4', '伍': '5', '陆': '6', '柒': '7', '捌': '8', '玖': '9',
@@ -91,7 +90,7 @@ def compare_time(time1: str, time2: str):
         format_str = '%Y-%m-%d'
 
     if format_str == 'CN年CN月CN日':
-
+        import cn2an
         time1_cn = trans_cn2d(time1[:time1.index('年')]) \
                    + time1[time1.index('年'):time1.index('年') + 1] + \
                    str(cn2an.cn2an(time1[time1.index('年') + 1:time1.index('月')], 'normal')) \

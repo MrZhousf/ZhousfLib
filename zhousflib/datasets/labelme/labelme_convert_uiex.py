@@ -14,7 +14,7 @@ from pathlib import Path
 import requests
 from PIL import Image, ImageOps
 
-from zhousflib.util import pil_util
+from zhousflib.image import pil_util
 
 
 def show_normalize_box(image_file: Path, bbox: list, normalize_size: list, fill_transparent=128):
