@@ -67,12 +67,7 @@ class DownloadBatch(object):
             self.file_names.append(name)
 
     def run(self):
-        """
-
-        :return:
-        """
         result = {}
-        # start = time.time()
         self.task_num = len(self.req_list)
         if self.task_num == 0:
             return result
@@ -109,21 +104,19 @@ class DownloadBatch(object):
                     result[self.file_names[i]] = (True, save_file, self.req_list[i].url)
             except Exception as ex:
                 result[self.file_names[i]] = (
-                    False, "{0} {1} {2}".format(self.file_names[i], response.reason, response.status_code), self.req_list[i].url)
+                    False, "{0} {1} {2}".format(self.file_names[i], ex, response.status_code), self.req_list[i].url)
                 continue
-        # end = time.time()
-        # self.consume_time = end - start
         return result
 
 
 if __name__ == "__main__":
-    url = "https://product-ai.oss-cn-zhangjiakou.aliyuncs.com/zhousf/image_similarity/images/101_A.PNG?OSSAccessKeyId=LTAI5tPfQka56zxSvWkunkDo&Expires=1710928784&Signature=rU4R%2FicXHREnHRs4Ka9340yjf30%3D"
+    url = ""
     downloader = DownloadBatch(save_dir=r"C:\Users\zhousf-a\Desktop\download")
     start = time.time()
     for j in range(100):
         downloader.add(name="101_A-{0}.PNG".format(j), url=url, timeout=30)
     results = downloader.run()
-    for result in results:
-        success, save_file, url = results.get(result)
+    for result_ in results:
+        success, save_file, url = results.get(result_)
         print(save_file, url)
     print("cost time: {0}s | 共{1}项".format(time.time()-start, downloader.task_num))

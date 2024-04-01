@@ -18,8 +18,11 @@ def read(img_path: Path):
     :param img_path:
     :return: np.ndarray
     """
-    img = cv2.imdecode(np.fromfile(str(img_path), dtype=np.uint8), cv2.IMREAD_COLOR)
-    return img
+    if isinstance(img_path, str):
+        img_path = Path(img_path)
+    if isinstance(img_path, Path):
+        img_path = cv2.imdecode(np.fromfile(str(img_path), dtype=np.uint8), cv2.IMREAD_COLOR)
+    return img_path
 
 
 def write(image: np.ndarray, img_write_path: Path):

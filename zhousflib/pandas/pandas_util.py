@@ -11,9 +11,6 @@ import csv
 from pathlib import Path
 
 import pandas as pd
-import mars.dataframe as md
-
-from zhousflib.pandas import openpyxl_util
 
 
 def read_csv(file_path: str, header="infer", title=None, encoding=None, nrows=None, dtype=None, sep="\t"):
@@ -49,6 +46,7 @@ def read_csv_mars(csv_file):
     """
     if not os.path.exists(csv_file):
         raise Exception("file not exists: {}".format(csv_file))
+    import mars.dataframe as md
     return md.read_csv(csv_file, low_memory=False).execute().fetch()
 
 
@@ -102,6 +100,7 @@ def read_excel_merge_cell(file_path: Path, sheet_name=None, delete_duplicates_ra
     :param header:
     :return:
     """
+    from zhousflib.pandas import openpyxl_util
     excel_file = openpyxl_util.unmerge_and_fill_cells(excel_file=file_path, target_sheet_name=sheet_name,
                                                       delete_duplicates_rate=delete_duplicates_rate, tmp_excel=tmp_excel)
     return read_excel(str(excel_file), sheet_name=sheet_name, header=header)

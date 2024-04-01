@@ -1,10 +1,10 @@
 # -*- coding:utf-8 -*-
 # Author:  zhousf
 # Description:
-from pathlib import Path
 import os
 import shutil
 import random
+from pathlib import Path
 
 import zipfile
 
@@ -92,7 +92,7 @@ def unzip_flat_file_rename(zip_file, dst_dir):
 
 
 if __name__ == "__main__":
-    zip_file = "/Users/zhousf/Desktop/case/银行卡.zip"
-    # zip_file = "/Users/zhousf/Desktop/case/归档.zip"
-    dst_dir = "/Users/zhousf/Desktop/case/img"
-    print(unzip_flat_file_rename(zip_file, dst_dir))
+    zip_file_ = "/Users/zhousf/Desktop/case/银行卡.zip"
+    # zip_file_ = "/Users/zhousf/Desktop/case/归档.zip"
+    dst_dir_ = "/Users/zhousf/Desktop/case/img"
+    print(unzip_flat_file_rename(zip_file_, dst_dir_))

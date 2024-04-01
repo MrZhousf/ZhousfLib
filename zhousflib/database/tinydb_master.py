@@ -30,6 +30,12 @@ class Entity:
             self.doc_id = document.doc_id
         return self
 
+    def mapping(self):
+        dic = self.__dict__
+        if "doc_id" in dic:
+            dic.pop("doc_id")
+        return dic
+
 
 T = TypeVar("T", bound=Entity)
 
