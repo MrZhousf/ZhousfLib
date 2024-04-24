@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # @Author  : zhousf
-# @Function:
+# @Function: 不支持多进程
 """
 pip install tinydb
 """

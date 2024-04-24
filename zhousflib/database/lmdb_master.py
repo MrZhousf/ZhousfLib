@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 # @Author  : zhousf
 # @Function: lmdb (Lightning Memory-Mapped Database) 快如闪电的内存映射数据库
-# pip install lmdb
+# 支持多进程
+"""
+pip install lmdb
+"""
 from pathlib import Path
 
 import pickle
@@ -44,10 +47,8 @@ class LMDB(object):
         :return:
         """
         txn = self.env.begin(write=True)
-        res = txn.get(str(key).encode())
-        if res is None:
-            txn.put(str(key).encode(), pickle.dumps(value))
-            txn.commit()
+        txn.put(str(key).encode(), pickle.dumps(value))
+        txn.commit()
 
     def delete(self, key: str):
         """

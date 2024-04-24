@@ -19,14 +19,14 @@ class WebApp(object):
 
     def __init__(self, config_app):
         self.config_app = config_app
-        self.init_project()
         try:
             from app import FLASK_APP
             FLASK_APP.config.from_object(config_app)
         except Exception as e:
             raise Exception(e)
         self.app = FLASK_APP
-        self.init_app(self.app)
+        self.__init_app(self.app)
+        self.__init_project()
 
     def save_pid(self):
         if not self.config_app.has_pid_file(self.config_app):
@@ -48,14 +48,16 @@ class WebApp(object):
             logger.error(e)
             os.remove(self.config_app.PID_FILE)
 
-    def init_project(self):
+    def __init_project(self):
         try:
+            logger.info("init project...")
             from app import init_project
             init_project(self.config_app)
+            logger.info("init project: done.")
         except Exception as e:
             raise Exception(e)
 
-    def init_app(self, app):
+    def __init_app(self, app):
         logger.info("create app...")
         if not self.config_app.DEBUG:
             monkey.patch_all()
