@@ -6,6 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpathes
 from shapely import geometry
+from shapely.geometry import Polygon
 
 
 def in_poly(poly, point):
@@ -90,16 +91,27 @@ def query_box_position(boxes, point):
     return None
 
 
+def poly_area(points: list):
+    """
+    计算多边形的面积
+    :param points:
+    :return:
+    """
+    poly = Polygon(points)
+    return poly.area
+
+
 if __name__ == "__main__":
     # 判断点是否在poly内
     # poly = [(0, 0), (1, 0), (1, 1), (0, 1)]  # 多边形坐标
     # pt2 = (0.1, 0.5)  # 点坐标
     # print(in_poly(square, pt1))
     # 按照w,h对box进行网格划分
-    boxes_ = make_mesh([0, 0, 4000, 5000], 1280, 1280, show=True)
-    for box in boxes_:
-        print(box)
+    # boxes_ = make_mesh([0, 0, 4000, 5000], 1280, 1280, show=True)
+    # for box in boxes_:
+    #     print(box)
         # [(column_index, row_index, x_min, y_min, x_max, y_max)]
     # 查询点在哪个box中
     # query_box_position(boxes=boxes_, point=(1, 1))
+    print(poly_area([(0, 0), (0, 10), (10, 10), (10, 0)]))
     pass

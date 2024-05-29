@@ -18,5 +18,5 @@ class BackendOriginal(Backend):
         self.pop(kwargs, "module")
         self.model = module
 
-    def inference(self, inputs_list: list):
-        return self.model(inputs_list)
+    def inference(self, input_data, **kwargs):
+        return self.model(input_data)

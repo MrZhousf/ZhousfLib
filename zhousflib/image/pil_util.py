@@ -22,7 +22,7 @@ def four_point_convert_bbox(four_points: list):
     return x_min, y_min, x_max, y_max
 
 
-def draw_rectangle(bbox: list, image_file: Path = None, image_size: list = None, font = None,
+def draw_rectangle(bbox: list, image_file: Path = None, image_size: list = None, font=None,
                    fill_transparent=255, show=True):
     """
     绘制矩形框
@@ -58,7 +58,7 @@ def get_w_h(image_file: Path = None):
     return [image.width, image.height]
 
 
-def draw_polygon(polygon: list, image_file: Path = None, image_size: list = None, font = None,
+def draw_polygon(polygon: list, image_file=None, image_size: list = None, font=None,
                  texts: list = None, fill_transparent=255, show=True):
     """
     绘制四边形
@@ -71,6 +71,8 @@ def draw_polygon(polygon: list, image_file: Path = None, image_size: list = None
     :param show:
     :return:
     """
+    import colorsys
+    from PIL import Image, ImageDraw
     hsv_tuples = [(1.0 * x / len(polygon), 1., 1.) for x in range(len(polygon))]
     colors = list(map(lambda x: colorsys.hsv_to_rgb(*x), hsv_tuples))
     colors = list(map(lambda x: (int(x[0] * 255), int(x[1] * 255), int(x[2] * 255)), colors))
@@ -81,7 +83,10 @@ def draw_polygon(polygon: list, image_file: Path = None, image_size: list = None
         image = Image.new('RGBA', (image_size[0], image_size[1]), (255, 255, 255))
         draw = ImageDraw.ImageDraw(image)
     else:
-        image = Image.open(image_file)
+        if isinstance(image_file, Path) or isinstance(image_file, str):
+            image = Image.open(image_file)
+        else:
+            image = Image.fromarray(image_file)
         if image.mode != "RGBA":
             image = image.convert('RGBA')
         image_white = Image.new('RGBA', (image.width, image.height), (255, 255, 255, 0))
@@ -105,6 +110,8 @@ def draw_polygon(polygon: list, image_file: Path = None, image_size: list = None
         image.paste(Image.alpha_composite(image, image_white))
     if show:
         image.show()
+    if image.mode == "RGBA":
+        image = image.convert('RGB')
     return image
 
 

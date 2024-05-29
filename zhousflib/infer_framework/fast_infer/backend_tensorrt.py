@@ -62,9 +62,9 @@ class BackendTensorRT(Backend):
             print("加载tensorrt成功：{0}.".format(target_files[0]))
         return target_files[0]
 
-    def inference(self, inputs_list: list):
+    def inference(self, input_data, **kwargs):
         inputs = []
-        for i, input_ in enumerate(inputs_list):
-            inputs.append(self.to_numpy(inputs_list[i].int()))
+        for i, input_ in enumerate(input_data):
+            inputs.append(self.to_numpy(input_data[i].int()))
         result = self.model.infer(input_arr=np.asarray(inputs))
         return result[0]

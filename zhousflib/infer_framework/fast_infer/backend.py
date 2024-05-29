@@ -16,7 +16,7 @@ class Backend(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def inference(self, inputs_list: list):
+    def inference(self, input_data, **kwargs):
         pass
 
     @staticmethod
@@ -26,6 +26,11 @@ class Backend(metaclass=abc.ABCMeta):
     @staticmethod
     def get_file_by_suffix(model_dir: Path, suffix: str):
         return [file for file in model_dir.glob("*{0}".format(suffix))]
+
+    @staticmethod
+    def get_file_path_by_suffix(model_dir: Path, suffix: str):
+        files = [str(file) for file in model_dir.glob("*{0}".format(suffix))]
+        return files[0] if len(files) > 0 else files
 
     @staticmethod
     def pop(kwargs: dict, key: str):

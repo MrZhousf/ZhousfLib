@@ -54,8 +54,8 @@ class BackendTorchScript(Backend):
             print("加载torchscript成功：{0}.".format(target_files[0]))
         return target_files[0]
 
-    def inference(self, inputs_list: list):
+    def inference(self, input_data, **kwargs):
         inputs = []
-        for i, input_ in enumerate(inputs_list):
-            inputs.append(inputs_list[i].squeeze(1).to(self.device))
+        for i, input_ in enumerate(input_data):
+            inputs.append(input_data[i].squeeze(1).to(self.device))
         return self.model(inputs)

@@ -46,10 +46,10 @@ class BackendHttp(Backend):
         from zhousflib.infer_framework.triton import client_http
         self.model = client_http.ClientHttp(url=url, concurrency=concurrency, **kwargs)
 
-    def inference(self, inputs_list: list):
+    def inference(self, input_data, **kwargs):
         inputs = []
-        for i, input_ in enumerate(inputs_list):
-            inputs.append(self.to_numpy(inputs_list[i].int()))
+        for i, input_ in enumerate(input_data):
+            inputs.append(self.to_numpy(input_data[i].int()))
         # INT8|INT16|INT32|INT64|UINT8|UINT16|UINT32|UINT64|FP16|FP32|FP64
         d_type = self.http_inputs[0][1]
         if d_type == "INT16":

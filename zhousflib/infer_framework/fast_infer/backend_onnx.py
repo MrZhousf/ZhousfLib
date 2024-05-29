@@ -70,9 +70,9 @@ class BackendONNX(Backend):
         print("加载onnx成功：{0}.".format(target_files[0]))
         return target_files[0]
 
-    def inference(self, inputs_list: list):
+    def inference(self, input_data, **kwargs):
         feed = {}
-        for i, input_ in enumerate(inputs_list):
-            feed[self.model.get_inputs()[i].name] = self.to_numpy(inputs_list[i])
+        for i, input_ in enumerate(input_data):
+            feed[self.model.get_inputs()[i].name] = self.to_numpy(input_data[i])
         result = self.model.run(None, feed)
         return result[0]

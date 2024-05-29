@@ -49,12 +49,12 @@ class Logger(object):
             g.logger = self
         # 日志信息-详细
         self.log_txt = day_time
-        self.title_first("日志路径")
-        self.log(log_dir)
         # 日志信息-仅标题
         self.__log_txt_level = []
         # 耗时
         self.elapsed_time_dict = {}
+        self.title_first("日志路径")
+        self.log(log_dir)
 
     def elapsed_time(self, k: str, start: float, end: float):
         """
