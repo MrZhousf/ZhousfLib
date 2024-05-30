@@ -9,10 +9,9 @@ from pathlib import Path
 
 import numpy as np
 import pycuda.driver as cuda
-import pycuda.autoinit
 import tensorrt as trt
 
-from zhousflib.ann import check_device_id
+from zhousflib.infer_framework.ann import check_device_id
 
 """
 ERROR: INVALID_CONFIG: The engine plan file is generated on an incompatible device, 
@@ -133,8 +132,9 @@ class RTInfer(object):
 
 
 if __name__ == "__main__":
-    from zhousflib.ann import to_numpy
-    from zhousflib.ann.torch.torch_to_onnx import example_inputs_demo
+    from zhousflib.infer_framework.ann import to_numpy
+    from zhousflib.infer_framework.ann.torch.torch_to_onnx import example_inputs_demo
+    from zhousflib.infer_framework.ann.tensorrt.tensorrt_infer import RTInfer
     args = example_inputs_demo(input_size=1)
     batch = np.asarray([to_numpy(args[0].int()), to_numpy(args[1].int()), to_numpy(args[2].int())])
     rt_engine = RTInfer(trt_file_path=Path(r"F:\torch\onnx\model_32.trt"), device_id=0, use_stack=True)

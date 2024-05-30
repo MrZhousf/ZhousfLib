@@ -8,9 +8,9 @@ from pathlib import Path
 import torch
 import onnxruntime
 
-from zhousflib.ann import to_numpy
-from zhousflib.ann import transformers
-from zhousflib.ann.torch import check_cuda, get_device, check_device_id
+from zhousflib.infer_framework.ann import to_numpy
+from zhousflib.infer_framework.ann import transformers
+from zhousflib.infer_framework.ann.torch import check_cuda, get_device, check_device_id
 
 
 def load_onnx(model_dir: Path, device_id: int = -1, autoload_weights=True, autoload_tokenizer=True):
@@ -131,27 +131,10 @@ def convert_bert_demo():
     """
     通用导出示例
     """
-    # convert_onnx(module=torch.nn.Module(),
-    #              model_dir=Path(r"F:\torch\train_model"),
-    #              export_dir=Path(r"F:\torch\onnx2"),
-    #              device="cpu", example_inputs=(example_inputs_demo(device_id=-1), ),
-    #              verbose=True,
-    #              export_params=True,
-    #              opset_version=10,
-    #              input_names=['input_ids', 'token_type_ids', 'attention_mask'],
-    #              output_names=['output'],
-    #              dynamic_axes={'input_ids': {0: 'batch_size'},
-    #                            'token_type_ids': {0: 'batch_size'},
-    #                            'attention_mask': {0: 'batch_size'},
-    #                            'output': {0: 'batch_size'}})
-    """
-    自定义导出示例（以bert导出为例）
-    """
-    args = example_inputs_demo(device_id=-1)
-    args = args[0], args[1], args[2],
-    convert_onnx(model_dir=Path(r"F:\torch\train_model"),
-                 export_dir=Path(r"F:\torch\onnx"),
-                 example_inputs=args,
+    convert_onnx(module=torch.nn.Module(),
+                 model_dir=Path(r"F:\torch\train_model"),
+                 export_dir=Path(r"F:\torch\onnx2"),
+                 device="cpu", example_inputs=(example_inputs_demo(device_id=-1), ),
                  verbose=True,
                  export_params=True,
                  opset_version=10,
@@ -161,6 +144,23 @@ def convert_bert_demo():
                                'token_type_ids': {0: 'batch_size'},
                                'attention_mask': {0: 'batch_size'},
                                'output': {0: 'batch_size'}})
+    """
+    自定义导出示例（以bert导出为例）
+    """
+    # args = example_inputs_demo(device_id=-1)
+    # args = args[0], args[1], args[2],
+    # convert_onnx(model_dir=Path(r"F:\torch\train_model"),
+    #              export_dir=Path(r"F:\torch\onnx"),
+    #              example_inputs=args,
+    #              verbose=True,
+    #              export_params=True,
+    #              opset_version=10,
+    #              input_names=['input_ids', 'token_type_ids', 'attention_mask'],
+    #              output_names=['output'],
+    #              dynamic_axes={'input_ids': {0: 'batch_size'},
+    #                            'token_type_ids': {0: 'batch_size'},
+    #                            'attention_mask': {0: 'batch_size'},
+    #                            'output': {0: 'batch_size'}})
 
 
 if __name__ == "__main__":

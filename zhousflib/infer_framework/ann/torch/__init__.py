@@ -4,7 +4,7 @@
 # @Function:
 import torch
 
-from zhousflib.ann import check_device_id
+from zhousflib.infer_framework.ann import check_device_id
 
 
 """

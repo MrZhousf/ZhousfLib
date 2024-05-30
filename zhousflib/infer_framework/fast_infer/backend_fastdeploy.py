@@ -71,14 +71,14 @@ class BackendFastDeploy(Backend):
         self.plugin = self.plugins.get(kwargs.get("plugin"), None)
         if self.plugin is None:
             raise Exception("Plugin not found: {0}".format(self.plugin))
-        runtime_option = kwargs.get("runtime_option", fd.RuntimeOption())
+        runtime_option = kwargs.get("runtime_option", None)
+        if runtime_option is None:
+            runtime_option = fd.RuntimeOption()
+            runtime_option.use_paddle_backend()
         if self.device_id >= 0:
             runtime_option.use_gpu(device_id=self.device_id)
         else:
             runtime_option.use_cpu()
-        fd_backend = kwargs.get("fd_backend", None)
-        if fd_backend is None:
-            runtime_option.use_paddle_backend()
         model_format = kwargs.get("model_format")
         if self.model_dir is not None:
             union = [
@@ -258,6 +258,8 @@ class BackendFastDeploy(Backend):
                 texts = []
                 scores = []
                 for i, bbox in enumerate(result.boxes):
+                    if len(bbox) == 0:
+                        continue
                     bbox_arr = numpy.asarray(bbox)
                     boxes.append(bbox_arr)
                     texts.append(result.text[i])
@@ -291,6 +293,7 @@ class BackendFastDeploy(Backend):
         if isinstance(input_data, Path):
             kwargs["image_path"] = input_data
         image_arr = read(input_data)
-        infer_res = self.model.predict(image_arr)
+        model = self.model.clone() if self.model.runtime_option.backend.name != "ORT" else self.model
+        infer_res = model.predict(image_arr)
         res = self.post_process(infer_res, image_arr, **kwargs)
         return res

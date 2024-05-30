@@ -235,8 +235,8 @@ class ClientHttp(object):
 
 
 if __name__ == "__main__":
-    from zhousflib.ann import to_numpy
-    from zhousflib.ann.torch.torch_to_onnx import example_inputs_demo
+    from zhousflib.infer_framework.ann import to_numpy
+    from zhousflib.infer_framework.ann.torch.torch_to_onnx import example_inputs_demo
     args = example_inputs_demo(input_size=1)
     data_arr = np.asarray([to_numpy(args[0].int()), to_numpy(args[1].int()), to_numpy(args[2].int())], dtype=np.int64)
     client = ClientHttp(url="127.0.0.1:5005", concurrency=100)

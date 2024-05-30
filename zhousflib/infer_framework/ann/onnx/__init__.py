@@ -25,6 +25,7 @@ onnxruntime.get_device()
 当output有if条件则会存在问题，更换opset版本(opset=10)或降低torch版本(1.8.0)
 """
 
+
 def load_onnx(**kwargs):
     """
     加载onnx模型

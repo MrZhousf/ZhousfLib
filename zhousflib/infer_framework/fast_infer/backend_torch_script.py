@@ -38,7 +38,7 @@ class BackendTorchScript(Backend):
             assert example_inputs, "导出torchScript时，example_inputs不能为空."
             assert module, "导出torchScript时，module不能为空."
             print("torchScript文件不存在，正在导出torchScript...")
-            from zhousflib.ann.torch import torch_to_script
+            from zhousflib.infer_framework.ann.torch import torch_to_script
             torch_to_script.convert_script_model(module=module, model_dir=self.model_dir, export_dir=self.model_dir,
                                                  device_id=self.device_id, example_inputs=example_inputs)
             target_files_ = self.get_file_by_suffix(model_dir=self.model_dir, suffix=".pt")
@@ -49,7 +49,7 @@ class BackendTorchScript(Backend):
             print("torchScript文件存在：{0}.".format(target_files[0]))
 
         if kwargs.get("autoload", True):
-            from zhousflib.ann.torch import torch_to_script
+            from zhousflib.infer_framework.ann.torch import torch_to_script
             self.model, _, _ = torch_to_script.load_script_model(self.model_dir, device_id=self.device_id)
             print("加载torchscript成功：{0}.".format(target_files[0]))
         return target_files[0]

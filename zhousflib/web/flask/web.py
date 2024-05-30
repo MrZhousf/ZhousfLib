@@ -12,7 +12,7 @@ from flask import request, Response
 from gevent.pywsgi import WSGIServer
 from werkzeug.exceptions import HTTPException
 from loguru import logger
-from zhousflib.web import response as res
+from zhousflib.web.flask import response as res
 
 
 class WebApp(object):
