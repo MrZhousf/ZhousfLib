@@ -2,7 +2,7 @@
 # @Author  : zhousf
 # @Date    : 2023/12/19 
 # @Function:
-from backend import Backend
+from zhousflib.infer_framework.fast_infer.backend import Backend
 
 
 class BackendOriginal(Backend):

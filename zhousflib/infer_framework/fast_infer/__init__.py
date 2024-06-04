@@ -34,7 +34,7 @@ class FastInfer:
                           http_inputs=[("input_ids", "INT64"), ("token_type_ids", "INT64"), ("attention_mask", "INT64")],
                           http_outputs=["output"])
         """
-        from backend_http import BackendHttp
+        from zhousflib.infer_framework.fast_infer.backend_http import BackendHttp
         self.backend = BackendHttp(model_dir=self.model_dir, device_id=self.device_id)
         self.model = self.backend.model
         return self.backend.build(url=url, model_name=model_name, model_version=model_version, http_inputs=http_inputs, http_outputs=http_outputs, **kwargs)
@@ -48,7 +48,7 @@ class FastInfer:
         example:
         .use_original_backend(module=torch.nn.Module())
         """
-        from backend_original import BackendOriginal
+        from zhousflib.infer_framework.fast_infer.backend_original import BackendOriginal
         self.backend = BackendOriginal(model_dir=self.model_dir, device_id=self.device_id)
         self.model = self.backend.model
         return self.backend.build(module=module, **kwargs)
@@ -72,7 +72,7 @@ class FastInfer:
                                         'attention_mask': {0: 'batch_size'},
                                         'output': {0: 'batch_size'}})
         """
-        from backend_onnx import BackendONNX
+        from zhousflib.infer_framework.fast_infer.backend_onnx import BackendONNX
         self.backend = BackendONNX(model_dir=self.model_dir, device_id=self.device_id)
         self.model = self.backend.model
         return self.backend.build(from_platform=from_platform, module=module, dynamic_axes=dynamic_axes, opset_version=opset_version, example_inputs=example_inputs, **kwargs)
@@ -106,7 +106,7 @@ class FastInfer:
                                      "token_type_ids": [(10, 128), (10, 128), (10, 128)],
                                      "attention_mask": [(10, 128), (10, 128), (10, 128)]})
         """
-        from backend_tensorrt import BackendTensorRT
+        from zhousflib.infer_framework.fast_infer.backend_tensorrt import BackendTensorRT
         self.backend = BackendTensorRT(model_dir=self.model_dir, device_id=self.device_id)
         self.model = self.backend.model
         return self.backend.build(from_platform=from_platform, module=module, dynamic_axes=dynamic_axes,
@@ -122,7 +122,7 @@ class FastInfer:
         example:
         .use_torch_script_backend(module=torch.nn.Module(), example_inputs=example_inputs)
         """
-        from backend_torch_script import BackendTorchScript
+        from zhousflib.infer_framework.fast_infer.backend_torch_script import BackendTorchScript
         self.backend = BackendTorchScript(model_dir=self.model_dir, device_id=self.device_id)
         self.model = self.backend.model
         return self.backend.build(module=module, example_inputs=example_inputs, **kwargs)
@@ -134,8 +134,7 @@ class FastInfer:
         :return:
         example:
         """
-
-        from backend_fastdeploy import BackendFastDeploy
+        from zhousflib.infer_framework.fast_infer.backend_fastdeploy import BackendFastDeploy
         self.backend = BackendFastDeploy(model_dir=self.model_dir, device_id=self.device_id)
         self.model = self.backend.model
         return self.backend.build(**kwargs)
@@ -246,8 +245,8 @@ def demo_ocr():
 
 
 if __name__ == "__main__":
-    # demo_ocr()
+    demo_ocr()
     # demo_classification()
-    demo_detection()
+    # demo_detection()
     # demo_segmentation()
     pass

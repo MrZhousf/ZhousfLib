@@ -4,7 +4,7 @@
 # @Function:
 import numpy as np
 
-from backend import Backend
+from zhousflib.infer_framework.fast_infer.backend import Backend
 
 
 class BackendHttp(Backend):

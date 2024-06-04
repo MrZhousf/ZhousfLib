@@ -4,7 +4,7 @@
 # @Function:
 import torch
 
-from backend import Backend
+from zhousflib.infer_framework.fast_infer.backend import Backend
 
 
 class BackendTorchScript(Backend):

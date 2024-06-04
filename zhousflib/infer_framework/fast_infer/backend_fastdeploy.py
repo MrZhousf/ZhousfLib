@@ -18,13 +18,13 @@ from fastdeploy.libs.fastdeploy_main.vision import (
     OCRResult
 )
 
-from backend import Backend
 from zhousflib.image import read
 from zhousflib.image import op
 from zhousflib.image import pil_util
 from zhousflib.util import ocr_vis_util
 from zhousflib.font import Font_SimSun
 from zhousflib.image import write
+from zhousflib.infer_framework.fast_infer.backend import Backend
 
 
 class BackendFastDeploy(Backend):
@@ -293,7 +293,6 @@ class BackendFastDeploy(Backend):
         if isinstance(input_data, Path):
             kwargs["image_path"] = input_data
         image_arr = read(input_data)
-        model = self.model.clone() if self.model.runtime_option.backend.name != "ORT" else self.model
-        infer_res = model.predict(image_arr)
+        infer_res = self.model.predict(image_arr)
         res = self.post_process(infer_res, image_arr, **kwargs)
         return res
