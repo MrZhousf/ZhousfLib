@@ -274,7 +274,7 @@ class BackendFastDeploy(Backend):
                     drop_score=0.5,
                     font_path=str(Font_SimSun))
                 if vis_image_file is not None:
-                    write(image=draw_img[:, :, ::-1], img_write_path=vis_image_file)
+                    write(image=draw_img, img_write_path=vis_image_file)
                 if vis_show:
                     draw_img = Image.fromarray(draw_img)
                     draw_img.show()

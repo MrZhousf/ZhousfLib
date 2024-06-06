@@ -219,6 +219,8 @@ def draw_ocr_box_txt(image,
                      scores=None,
                      drop_score=0.5,
                      font_path="./doc/simfang.ttf"):
+    if image.mode != "RGB":
+        image = image.convert('RGB')
     maxheight = max([i[2][1] for i in boxes])
     h, w = image.height, image.width
     # true : 图片方向有角度

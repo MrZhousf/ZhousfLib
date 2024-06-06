@@ -240,7 +240,7 @@ def demo_ocr():
     vis_image_file = image_file.with_stem("{0}_ocr_vis".format(image_file.stem))
     res = fast_ocr.infer(input_data=image_file,
                          vis_image_file=vis_image_file,
-                         vis_show=True)
+                         vis_show=False)
     print(res)
 
 
