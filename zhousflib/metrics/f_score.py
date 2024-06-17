@@ -46,7 +46,11 @@ class FBetaScore(object):
         FN 预测为0，实际为1，预测错误
         TN 预测为0，实际为0，预测正确
         """
-        self.tn, self.fp, self.fn, self.tp = confusion_matrix_compute(y_true=y_true, y_pred=y_pre).ravel()
+        number = confusion_matrix_compute(y_true=y_true, y_pred=y_pre).ravel()
+        if len(number) == 1:
+            self.tn, self.fp, self.fn, self.tp = 0, 0, 0, number[0]
+        else:
+            self.tn, self.fp, self.fn, self.tp = number
         return self.tn, self.fp, self.fn, self.tp
 
     def f_beta_score_compute(self, f_beta: list, y_true: list = None, y_pre: list = None):

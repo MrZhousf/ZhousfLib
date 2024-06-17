@@ -260,7 +260,10 @@ def draw_ocr_box_txt(image,
             font = ImageFont.truetype(font_path, font_size, encoding="utf-8")
             cur_y = box[0][1]
             for c in txt:
-                char_size = font.getsize(c)
+                if hasattr(font, "getsize"):
+                    char_size = font.getsize(c)
+                else:
+                    char_size = font.getbbox(c)
                 draw_right.text(
                     (box[0][0] + 3, cur_y), c, fill=(0, 0, 0), font=dynamic_font(text=c, font_size=font_size))
                 cur_y += char_size[1]

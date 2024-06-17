@@ -54,7 +54,6 @@ class Logger:
             diagnose=False,  # 诊断
             compression="zip"  # 文件压缩
         )
-        # self.init_config()
 
     def init_config(self):
         logger_names = ("uvicorn.asgi", "uvicorn.access", "uvicorn.error", "uvicorn",

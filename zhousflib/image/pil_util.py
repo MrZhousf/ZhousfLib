@@ -2,9 +2,9 @@
 # @Author  : zhousf
 # @Function:
 import numpy
-import colorsys
 from pathlib import Path
 
+import colorsys
 from PIL import Image, ImageDraw
 
 
@@ -71,8 +71,6 @@ def draw_polygon(polygon: list, image_file=None, image_size: list = None, font=N
     :param show:
     :return:
     """
-    import colorsys
-    from PIL import Image, ImageDraw
     hsv_tuples = [(1.0 * x / len(polygon), 1., 1.) for x in range(len(polygon))]
     colors = list(map(lambda x: colorsys.hsv_to_rgb(*x), hsv_tuples))
     colors = list(map(lambda x: (int(x[0] * 255), int(x[1] * 255), int(x[2] * 255)), colors))
