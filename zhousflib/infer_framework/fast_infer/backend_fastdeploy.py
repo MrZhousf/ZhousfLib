@@ -56,6 +56,7 @@ class BackendFastDeploy(Backend):
         self.plugin = None
         self.model = None
         self.label_list = []
+        self.clone_model = False
         super().__init__(*args)
         self.plugins = self.__register_plugin()
 
@@ -121,6 +122,16 @@ class BackendFastDeploy(Backend):
                 cls_model = kwargs.get("cls_model", None)
                 rec_model = kwargs.get("rec_model", None)
                 self.model = self.plugin(det_model, cls_model, rec_model)
+
+        if hasattr(self.model, "runtime_option"):
+            opt = self.model.runtime_option
+            if hasattr(opt, "backend"):
+                backend_ = opt.backend
+                if hasattr(backend_, "name"):
+                    if backend_.name != "ORT":
+                        if kwargs.get("clone_model", False):
+                            self.clone_model = True
+
         if self.model_dir is not None:
             # init label list
             config_file = self.get_file_path_by_suffix(model_dir=self.model_dir, suffix=".yaml")
@@ -314,6 +325,7 @@ class BackendFastDeploy(Backend):
         if isinstance(input_data, Path):
             kwargs["image_path"] = input_data
         image_arr = read(input_data)
-        infer_res = self.model.predict(image_arr)
+        model = self.model.clone() if self.clone_model else self.model
+        infer_res = model.predict(image_arr)
         res = self.post_process(infer_res, image_arr, **kwargs)
         return res

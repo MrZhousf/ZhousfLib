@@ -163,21 +163,21 @@ def demo_bert():
 
 def demo_classification():
     # classification
-    import fastdeploy
-    model_dir = Path(r"D:\workspace\ZhousfLib\model\PPLCNet_x1_0_infer-v9")
-    fast = FastInfer(model_dir=model_dir, device_id=0)
-    runtime_option = fastdeploy.RuntimeOption()
-    runtime_option.use_ort_backend()
-    fast.use_fastdeploy_backend(plugin="fd.vision.classification.PaddleClasModel", runtime_option=runtime_option)
-    result = fast.infer(input_data=model_dir.joinpath("test.png"))
-    print(result)
+    # import fastdeploy
+    # model_dir = Path(r"D:\workspace\ZhousfLib\model\PPLCNet_x1_0_infer-v9")
+    # fast = FastInfer(model_dir=model_dir, device_id=0)
+    # runtime_option = fastdeploy.RuntimeOption()
+    # runtime_option.use_ort_backend()
+    # fast.use_fastdeploy_backend(plugin="fd.vision.classification.PaddleClasModel", runtime_option=runtime_option)
+    # result = fast.infer(input_data=model_dir.joinpath("test.png"))
+    # print(result)
 
     # extract image feature
-    # model_dir = Path(r"D:\workspace\ZhousfLib\model\general_PPLCNetV2_base_pretrained_v1.0")
-    # fast = FastInfer(model_dir=model_dir, device_id=-1)
-    # fast.use_fastdeploy_backend(plugin="fd.vision.classification.PPShiTuV2Recognizer")
-    # result = fast.infer(input_data=model_dir.joinpath("test.jpg"))
-    # print(result.feature)
+    model_dir = Path(r"D:\workspace\ZhousfLib\model\general_PPLCNetV2_base_pretrained_v1.0")
+    fast = FastInfer(model_dir=model_dir, device_id=-1)
+    fast.use_fastdeploy_backend(plugin="fd.vision.classification.PPShiTuV2Recognizer", clone_model=True)
+    result = fast.infer(input_data=model_dir.joinpath("test.jpg"))
+    print(result.feature)
 
 
 def demo_detection():
