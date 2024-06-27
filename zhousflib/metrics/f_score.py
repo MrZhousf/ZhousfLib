@@ -41,10 +41,12 @@ class FBetaScore(object):
     def confusion_matrix(self, y_true: list, y_pre: list):
         """
         1为正例，0为负例
-        TP 预测为1，实际为1，预测正确
-        FP 预测为1，实际为0，预测错误
-        FN 预测为0，实际为1，预测错误
-        TN 预测为0，实际为0，预测正确
+        -------------
+        TP 预测为1，实际为1，正样本预测正确
+        FN 预测为0，实际为1，正样本预测错误
+        -------------
+        FP 预测为1，实际为0，负样本预测错误
+        TN 预测为0，实际为0，负样本预测正确
         """
         number = confusion_matrix_compute(y_true=y_true, y_pred=y_pre).ravel()
         if len(number) == 1:

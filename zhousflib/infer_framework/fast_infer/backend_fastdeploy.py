@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 # @Author  : zhousf
-# @Date    : 2023/12/19 
 # @Function:
 from pathlib import Path
 from typing import Optional
@@ -25,6 +24,28 @@ from zhousflib.util import ocr_vis_util
 from zhousflib.font import Font_SimSun
 from zhousflib.image import write
 from zhousflib.infer_framework.fast_infer.backend import Backend
+"""
+https://www.paddlepaddle.org.cn/install/quick?docurl=/documentation/docs/zh/install/pip/linux-pip.html
+
+version base on cpu
+pip install fastdeploy-python -f https://www.paddlepaddle.org.cn/whl/fastdeploy.html
+
+version base on gpu
+pip install fastdeploy-gpu-python -f https://www.paddlepaddle.org.cn/whl/fastdeploy.html
+conda config --add channels conda-forge && conda install cudatoolkit=11.2 cudnn=8.2
+
+[question]
+ImportError: libcudart.so.11.0: cannot open shared object file: No such file or directory
+[solution]
+cd $CONDA_PREFIX
+mkdir -p ./etc/conda/activate.d
+touch ./etc/conda/activate.d/env_vars.sh
+
+[question]
+ImportError: libGL.so.1: cannot open shared object file: No such file or directory
+[solution]
+pip install opencv-python-headless -i https://pypi.tuna.tsinghua.edu.cn/simple
+"""
 
 
 class BackendFastDeploy(Backend):

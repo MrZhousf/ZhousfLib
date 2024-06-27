@@ -131,7 +131,7 @@ def compare_hist(image1: Path, image2: Path, resize: tuple = None):
     return cv2.compareHist(hist1, hist2, cv2.HISTCMP_CORREL)
 
 
-def compare_dhash(image1: Path, image2: Path, hash_size=8, resize: tuple = None):
+def compare_dhash(image1: Path, image2: Path, hash_size=8, resize: tuple[int, int] = None):
     """
     感知hash
     :param image1:
@@ -173,9 +173,8 @@ def compare_mutual_info(image1: Path, image2: Path, resize: tuple = None):
 
 if __name__ == "__main__":
     # 加载测试图片
-    img1 = Path(r'F:\work_documents\项目\2024清标-技术标识别\图技术标规律性检查-图片雷同性检测\数据集\验收集\图片测试集\116_A.png')
-    img2 = Path(r'F:\work_documents\项目\2024清标-技术标识别\图技术标规律性检查-图片雷同性检测\数据集\验收集\图片测试集\116_A.png')
-    # img2 = Path(r'F:\work_documents\项目\2024清标-技术标识别\图技术标规律性检查-图片雷同性检测\数据集\验收集\图片测试集\195_B.PNG')
+    img1 = Path(r'C:\Users\zhousf-a\Desktop\data\1_difficult_sample\29_0.82\0b01f464653b924947aac1e1ba9b98f0.jpg')
+    img2 = Path(r'C:\Users\zhousf-a\Desktop\data\1_difficult_sample\29_0.82\014b12e54e01cdd23a2c205a73d25e40.jpg')
 
     start_time = time.time()
     score_ = compare_mutual_info(img1, img2, resize=(200, 200))

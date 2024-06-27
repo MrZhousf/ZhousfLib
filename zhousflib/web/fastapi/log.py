@@ -19,7 +19,7 @@ logger = Loggers.logger
 
 class Logger:
 
-    def __init__(self, log_file: Path):
+    def __init__(self, log_file: Path, rotation="3000KB", retention="7 days"):
         log_dir = log_file.parent
         if not log_dir.exists():
             log_dir.mkdir(parents=True, exist_ok=True)
@@ -48,8 +48,8 @@ class Logger:
             serialize=False,
             encoding="utf-8",
             enqueue=True,  # 异步写入
-            rotation="3000KB",  # 切割
-            retention="7 days",  # 设置历史保留时长
+            rotation=rotation,  # 切割
+            retention=retention,  # 设置历史保留时长
             backtrace=True,  # 回溯
             diagnose=False,  # 诊断
             compression="zip"  # 文件压缩
