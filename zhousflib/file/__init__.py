@@ -2,11 +2,13 @@
 # @Author  : zhousf
 # @Date    : 2023/11/1 
 # @Function:
+import os
 import base64
+import shutil
+import imghdr
 import hashlib
 from pathlib import Path
-
-import shutil
+from PIL import Image
 
 
 def overwrite_folder(from_dir: Path, to_dir: Path):
@@ -18,8 +20,6 @@ def overwrite_folder(from_dir: Path, to_dir: Path):
     """
     for file in from_dir.rglob("*.*"):
         shutil.copy(file, to_dir.joinpath(file.parent.name))
-        print(file)
-    pass
 
 
 def md5(file_path: Path):
@@ -45,3 +45,31 @@ def get_base64(file_path: Path, contain_file_name=False, split_char=","):
     if contain_file_name:
         base64_str = file_path.name + split_char + base64_str
     return base64_str
+
+
+def rename_images_with_md5(file_dir: Path):
+    """
+    图片MD5重命名
+    :param file_dir:
+    :return:
+    """
+    images = [file for file in file_dir.rglob("*.*") if imghdr.what(file)]
+    for image in images:
+        md5_str = md5(image)
+        img_arr = Image.open(image)
+        suffix = image.suffix
+        if hasattr(img_arr, "format") and img_arr.format.lower() in ["jpg", "png"]:
+            suffix = "." + img_arr.format
+        suffix = suffix.lower()
+        if suffix not in [".jpg", ".png"]:
+            suffix = ".png"
+        img_arr.close()
+        new_name = image.parent.joinpath("{0}{1}".format(md5_str, suffix))
+        if image.name == new_name.name:
+            continue
+        if new_name.exists():
+            image.unlink()
+            continue
+        os.rename(image, new_name)
+    return len(images)
+

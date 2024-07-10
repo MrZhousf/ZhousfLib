@@ -123,13 +123,13 @@ class BackendFastDeploy(Backend):
                 rec_model = kwargs.get("rec_model", None)
                 self.model = self.plugin(det_model, cls_model, rec_model)
 
-        if hasattr(self.model, "runtime_option"):
-            opt = self.model.runtime_option
-            if hasattr(opt, "backend"):
-                backend_ = opt.backend
-                if hasattr(backend_, "name"):
-                    if backend_.name != "ORT":
-                        if kwargs.get("clone_model", False):
+        if kwargs.get("clone_model", False):
+            if hasattr(self.model, "runtime_option"):
+                opt = self.model.runtime_option
+                if hasattr(opt, "backend"):
+                    backend_ = opt.backend
+                    if hasattr(backend_, "name"):
+                        if backend_.name != "ORT":
                             self.clone_model = True
 
         if self.model_dir is not None:
@@ -322,10 +322,10 @@ class BackendFastDeploy(Backend):
         return operations.get(type(infer_result), lambda: infer_result)()
 
     def inference(self, input_data, **kwargs):
-        if isinstance(input_data, Path):
-            kwargs["image_path"] = input_data
         image_arr = read(input_data)
         model = self.model.clone() if self.clone_model else self.model
-        infer_res = model.predict(image_arr)
+        infer_res = model.predict(image_arr, **kwargs)
+        if isinstance(input_data, Path):
+            kwargs["image_path"] = input_data
         res = self.post_process(infer_res, image_arr, **kwargs)
         return res

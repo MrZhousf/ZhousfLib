@@ -126,10 +126,8 @@ def data_statistics(image_dir: Path):
 
 
 if __name__ == "__main__":
-
-    # train_test_split(image_dir=Path(r"C:\Users\zhousf-a\Desktop\steel_id\images"), val_size=0.2, test_size=0,
-    #                  shuffle=False)
-    data_statistics(image_dir=Path(r"C:\Users\zhousf-a\Desktop\steel_id\images"))
+    train_test_split(image_dir=Path(r"D:\workspace\PaddleClas\dataset\classify\images"), val_size=0.2, test_size=0)
+    # data_statistics(image_dir=Path(r"D:\workspace\PaddleClas\data\classify"))
     pass
 
 
