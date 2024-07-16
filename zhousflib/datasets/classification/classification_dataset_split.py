@@ -121,13 +121,16 @@ def data_statistics(image_dir: Path):
             label_files[folder.parent.name] = [folder]
         else:
             label_files[folder.parent.name].append(folder)
+    total = 0
     for label in label_files:
+        total += len(label_files.get(label))
         print("{0}: {1}".format(label, len(label_files.get(label))))
+    print("\nTotal: {0}".format(total))
 
 
 if __name__ == "__main__":
     train_test_split(image_dir=Path(r"D:\workspace\PaddleClas\dataset\classify\images"), val_size=0.2, test_size=0)
-    # data_statistics(image_dir=Path(r"D:\workspace\PaddleClas\data\classify"))
+    # data_statistics(image_dir=Path(r"D:\workspace\PaddleClas\dataset\classify\images"))
     pass
 
 
