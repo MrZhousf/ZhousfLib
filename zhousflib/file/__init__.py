@@ -7,6 +7,7 @@ import base64
 import shutil
 import imghdr
 import hashlib
+import traceback
 from pathlib import Path
 from PIL import Image
 
@@ -73,3 +74,26 @@ def rename_images_with_md5(file_dir: Path):
         os.rename(image, new_name)
     return len(images)
 
+
+def drop_error_image(file_dir: Path, min_size=20):
+    """
+    删除无效图片
+    :param file_dir:
+    :param min_size: 图片最小尺寸，小于则删除
+    :return:
+    """
+    images = [file for file in file_dir.rglob("*.*") if imghdr.what(file)]
+    for image in images:
+        img_arr = Image.open(image)
+        try:
+            if img_arr is None:
+                print(image)
+                image.unlink()
+                continue
+            if min(img_arr.size) < min_size:
+                img_arr.close()
+                print(image)
+                image.unlink()
+                continue
+        except Exception as e:
+            print(e)

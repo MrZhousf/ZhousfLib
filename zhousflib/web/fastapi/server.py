@@ -101,7 +101,10 @@ class App(FastAPI, metaclass=abc.ABCMeta):
                         response_body = [chunk async for chunk in response.body_iterator]
                         response.body_iterator = iterate_in_threadpool(iter(response_body))
                         if len(response_body) > 0:
-                            self.logger.info(f"【response body】: {response_body[0].decode()}")
+                            body = str(response_body[0].decode())
+                            if len(body) > 2048:
+                                body = body[:2048] + "......"
+                            self.logger.info(f"【response body】: {body}")
                 response.headers["X-Process-Time"] = elapsed_time
                 self.logger.info(f"【X-Process-Time】: {elapsed_time}s")
             return response

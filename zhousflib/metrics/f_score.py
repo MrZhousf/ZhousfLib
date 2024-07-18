@@ -7,9 +7,6 @@ from sklearn.metrics import fbeta_score, classification_report
 
 
 class FBetaScore(object):
-    """
-    适用于二分类的评估系统
-    """
 
     def __init__(self, y_true: list, y_pre: list, f_beta: list, fbeta_score_average=None):
         """
