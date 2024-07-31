@@ -130,8 +130,8 @@ def data_statistics(image_dir: Path):
 
 if __name__ == "__main__":
     from zhousflib.file import rename_images_with_md5, drop_error_image
-    # drop_error_image(Path(r"D:\workspace\PaddleClas\dataset\classify\images"))
-    # rename_images_with_md5(Path(r"D:\workspace\PaddleClas\dataset\classify\images"))
+    drop_error_image(Path(r"C:\Users\zhousf-a\Desktop\data\验收集\20240722\2"))
+    # rename_images_with_md5(Path(r"C:\Users\zhousf-a\Desktop\data\验收集\20240722\2"))
     # train_test_split(image_dir=Path(r"D:\workspace\PaddleClas\dataset\classify\images"), val_size=0.2, test_size=0)
     # data_statistics(image_dir=Path(r"D:\workspace\PaddleClas\dataset\classify\images"))
     pass

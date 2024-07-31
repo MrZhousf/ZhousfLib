@@ -149,3 +149,19 @@ def normalize_calculate_formula(string: str) -> str:
     for blank in blank_map:
         string_blank = string_blank.replace(blank, blank_map.get(blank))
     return string_blank
+
+
+def fetch_filename_from_url(url: str) -> list:
+    """
+    提取网络地址中的文件名称
+    :param url: "https://img95.699pic.com/xsj/16/e1/yr.jpg%21/fh/300"
+    :return: ['yr.jpg']
+    """
+    files = []
+    patter = r'/([^/?]*)\.(jpg|JPG|png|PNG|bmp|BMP|svg|SVG|gif|GIF|pdf|PDF|zip|ZIP|json|JSON)\b'
+    items = re.findall(re.compile(patter), url)
+    if len(items) == 0:
+        return files
+    for item in items:
+        files.append("{0}.{1}".format(item[0], item[1]))
+    return files
