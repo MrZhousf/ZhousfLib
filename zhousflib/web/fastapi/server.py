@@ -89,7 +89,10 @@ class App(FastAPI, metaclass=abc.ABCMeta):
                     # noinspection PyBroadException
                     try:
                         body_json = await request.json()
-                        self.logger.info(f"【request body】: {body_json}")
+                        body = str(body_json)
+                        if len(body) > 2048:
+                            body = body[:2048] + "......"
+                        self.logger.info(f"【request body】: {body}")
                     except Exception as e:
                         pass
                 response = await call_next(request)

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # @Author  : zhousf
 # @Function:
+import copy
 from pathlib import Path
 from typing import Optional
 
@@ -25,6 +26,9 @@ from zhousflib.font import Font_SimSun
 from zhousflib.image import write
 from zhousflib.infer_framework.fast_infer.backend import Backend
 """
+download wheel
+https://www.paddlepaddle.org.cn/whl/fastdeploy.html
+
 https://www.paddlepaddle.org.cn/install/quick?docurl=/documentation/docs/zh/install/pip/linux-pip.html
 
 version base on cpu
@@ -87,7 +91,8 @@ class BackendFastDeploy(Backend):
             "fd.vision.ocr.PPOCRv4": fd.vision.ocr.PPOCRv4,
             "fd.vision.ocr.PPOCRv3": fd.vision.ocr.PPOCRv3,
         }
-        return plugin_classification | plugin_detection | plugin_segmentation | plugin_ocr
+        return {**plugin_classification, **plugin_detection, **plugin_segmentation, **plugin_ocr}
+        # return plugin_classification | plugin_detection | plugin_segmentation | plugin_ocr
 
     def build(self, **kwargs):
         self.plugin = self.plugins.get(kwargs.get("plugin"), None)
@@ -114,8 +119,8 @@ class BackendFastDeploy(Backend):
             union = [sublist for sublist in union if sublist]
             try:
                 self.model = self.plugin(*union)
-            except Exception:
-                raise Exception("Please check model_dir files: {0}".format(self.model_dir))
+            except Exception as e:
+                raise Exception("Please check model_dir files: {0} {1}".format(self.model_dir, e))
         else:
             if self.plugin in [fd.vision.ocr.PPOCRv4, fd.vision.ocr.PPOCRv3]:
                 det_model = kwargs.get("det_model", None)
@@ -324,7 +329,15 @@ class BackendFastDeploy(Backend):
     def inference(self, input_data, **kwargs):
         image_arr = read(input_data)
         model = self.model.clone() if self.clone_model else self.model
-        infer_res = model.predict(image_arr, **kwargs)
+        kwargs_infer = copy.deepcopy(kwargs)
+        delete_key = [k for k in kwargs_infer.keys() if k in ["vis_image_file", "vis_show", "vis_font", "vis_image_size",
+                                                              "vis_fill_transparent", "vis_transparent_weight"]]
+        if len(delete_key) > 0:
+            for k in delete_key:
+                kwargs_infer.pop(k)
+
+        infer_res = model.predict(image_arr, **kwargs_infer)
+
         if isinstance(input_data, Path):
             kwargs["image_path"] = input_data
         res = self.post_process(infer_res, image_arr, **kwargs)

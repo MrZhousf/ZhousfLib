@@ -245,8 +245,8 @@ def demo_ocr():
 
 
 if __name__ == "__main__":
-    # demo_ocr()
-    demo_classification()
+    demo_ocr()
+    # demo_classification()
     # demo_detection()
     # demo_segmentation()
     pass
