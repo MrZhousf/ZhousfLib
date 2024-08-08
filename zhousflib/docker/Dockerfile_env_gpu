@@ -14,23 +14,23 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-#COPY /packages/Python-3.9.19.tgz .
-#RUN tar -xvf Python-3.9.19.tgz
-#RUN cd Python-3.9.19 && \
-#    ./configure --enable-optimizations && \
-#    make && \
-#    make install
+COPY /packages/Python-3.9.19.tgz .
+RUN tar -xvf Python-3.9.19.tgz
+RUN cd Python-3.9.19 && \
+    ./configure --enable-optimizations && \
+    make && \
+    make install
 
-#RUN ln -s /usr/local/bin/python3 /usr/local/bin/python && \
-#    ln -s /usr/local/bin/pip3 /usr/local/bin/pip
+RUN ln -sf /usr/local/bin/python3 /usr/local/bin/python && \
+    ln -sf /usr/local/bin/pip3 /usr/local/bin/pip
 
-#COPY /packages/pip-24.2-py3-none-any.whl .
-#RUN python -m pip install --upgrade pip-24.2-py3-none-any.whl
+COPY /packages/pip-24.2-py3-none-any.whl .
+RUN python -m pip install --upgrade pip-24.2-py3-none-any.whl
 
 COPY /packages/opencv_python-4.8.1.78-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl .
 RUN pip install opencv_python-4.8.1.78-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl --default-timeout=1000 -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
 
-COPY /packages/fastdeploy_gpu_python-1.0.7-cp38-cp38-manylinux1_x86_64.whl .
-RUN pip install fastdeploy_gpu_python-1.0.7-cp38-cp38-manylinux1_x86_64.whl --default-timeout=1000 -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
+COPY /packages/fastdeploy_gpu_python-1.0.7-cp39-cp39-manylinux1_x86_64.whl .
+RUN pip install fastdeploy_gpu_python-1.0.7-cp39-cp39-manylinux1_x86_64.whl --default-timeout=1000 -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
 
 # docker run -it --name=test --rm zhousf_fd_env:1.0.7

@@ -57,7 +57,7 @@ def demo_segmentation():
     """
     fast.use_fastdeploy_backend(plugin="fd.vision.segmentation.PaddleSegModel")
     image_file = model_dir.joinpath("test.jpg")
-    vis_image_file = image_file.with_stem("{0}_vis".format(image_file.stem))
+    vis_image_file = image_file.with_name("{0}_vis{1}".format(image_file.stem, image_file.suffix))
     # 保存并显示可视化文件vis_image_file
     result = fast.infer(input_data=image_file,
                         vis_image_file=vis_image_file,

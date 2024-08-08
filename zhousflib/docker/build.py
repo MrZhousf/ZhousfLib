@@ -50,6 +50,6 @@ if __name__ == "__main__":
              # .pull_image(tag="registry.baidubce.com/paddlepaddle/paddle:2.3.1-gpu-cuda11.2-cudnn8 ", command_tip="拉取基础镜像")
              # .pull_image(tag="nvidia/cuda:11.6.1-cudnn8-runtime-ubuntu20.04", command_tip="拉取基础镜像")
              # .build_image(dockerfile="Dockerfile_env_cpu", name="zhousf_fd_py39_cpu", version="1.0.7", push=False, command_tip="构建环境镜像")
-             .build_image(dockerfile="Dockerfile_env_gpu", name="zhousf_fd_py38_cuda11.6.1-cudnn8", version="1.0.7", push=False, command_tip="构建环境镜像")
+             .build_image(dockerfile="Dockerfile_env_gpu", name="zhousf_fd_py39_cuda11.6.1-cudnn8", version="1.0.7", push=False, command_tip="构建环境镜像")
              # .build_image(dockerfile="Dockerfile_pro", name="zhousf_image_classify_gpu", version="0.1", push=True, command_tip="构建工程镜像")
              )

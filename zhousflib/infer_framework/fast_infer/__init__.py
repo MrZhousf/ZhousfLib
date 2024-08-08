@@ -197,7 +197,7 @@ def demo_segmentation():
     fast = FastInfer(model_dir=model_dir, device_id=-1)
     fast.use_fastdeploy_backend(plugin="fd.vision.segmentation.PaddleSegModel")
     image_file = model_dir.joinpath("test.jpg")
-    vis_image_file = image_file.with_stem("{0}_vis".format(image_file.stem))
+    vis_image_file = image_file.with_name("{0}_vis{1}".format(image_file.stem, image_file.suffix))
     result = fast.infer(input_data=image_file,
                         vis_image_file=vis_image_file,
                         vis_show=True)
@@ -210,7 +210,7 @@ def demo_ocr():
     # fast = FastInfer(model_dir=model_dir, device_id=0)
     # fast.use_fastdeploy_backend(plugin="fd.vision.ocr.DBDetector")
     # image_file = model_dir.joinpath("test.jpg")
-    # vis_image_file = image_file.with_stem("{0}_vis".format(image_file.stem))
+    # vis_image_file = image_file.with_name("{0}_vis{1}".format(image_file.stem, image_file.suffix))
     # res = fast.infer(input_data=image_file,
     #                  vis_image_file=vis_image_file,
     #                  vis_show=True)
@@ -237,7 +237,7 @@ def demo_ocr():
                                     cls_model=None,
                                     rec_model=fast_rec.backend.model)
     image_file = Path(r"D:\workspace\ZhousfLib\model\ch_PP-OCRv4_det_infer\test.jpg")
-    vis_image_file = image_file.with_stem("{0}_ocr_vis".format(image_file.stem))
+    vis_image_file = image_file.with_name("{0}_ocr_vis{1}".format(image_file.stem, image_file.suffix))
     res = fast_ocr.infer(input_data=image_file,
                          vis_image_file=vis_image_file,
                          vis_show=False)
