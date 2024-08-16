@@ -2,7 +2,10 @@
 # @Author  : zhousf
 # @Function: 相似度计算
 # pip install datasketch
-from datasketch import MinHash, MinHashLSH
+import numpy as np
+from typing import List
+from zhousflib.metrics.cosine import Cosine
+from zhousflib.ml.feature_vector import FeatureVector, TypeFeatureVector
 
 """
 字符串匹配算法：这是最基本的文本相似度计算方法，主要通过将两个文本字符串进行逐个字符的比较，计算相同字符的数量占总字符数的比例来判断文本的相似度。但是，这种方法对于大量文本的比对速度较慢，且只能检测出完全相同的文本
@@ -19,9 +22,6 @@ SimHash算法：
 工程应用上，海量文本用Simhash，短文本用Minhash，追求速度用KSentence。
 """
 
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
-
 """
 余弦相似度：from sklearn.metrics.pairwise import cosine_similarity   
 欧氏距离：  from sklearn.metrics.pairwise import euclidean_distances
@@ -29,29 +29,42 @@ from sklearn.metrics.pairwise import cosine_similarity
 """
 
 
-def compare_tfidf():
-    # 示例文本数据
-    documents = [
-        "Python is a popular programming language",
-        "Java is another widely used language",
-        "Programming languages are essential for software development",
-        "Programming languages are essential for software",
-        "Programming languages are essential for",
-        "Python and Java are both used in web development"
-    ]
-    # 创建TF-IDF向量化器
-    tfidf_vectorizer = TfidfVectorizer()
-    # 将文本数据转化为TF-IDF向量
-    tfidf_matrix = tfidf_vectorizer.fit_transform(documents)
-    # 计算文档之间的余弦相似性
-    similarity_matrix = cosine_similarity(tfidf_matrix)
-    # 查找最相似的文档
-    most_similar = similarity_matrix.argsort()[:, -2]
-    # 打印最相似的文档
-    for i, doc_index in enumerate(most_similar):
-        print(f"Document {i} is most similar to Document {doc_index} (Similarity Score: {similarity_matrix[i][doc_index]:.3f})")
+def text_to_vector(text: List[str], vector_type=TypeFeatureVector.TYPE_COUNT_VECTOR):
+    return FeatureVector(vector_type=vector_type).fit_transform(text)
+
+
+def compute_similarity(text: List[str], vector_type=TypeFeatureVector.TYPE_COUNT_VECTOR):
+    cosine = Cosine()
+    vector = text_to_vector(text, vector_type)
+    similarity_matrix = cosine.cosine_vector_with_matrix(vector)
+    return similarity_matrix
+
+
+def compute_similarity_filter(text: List[str], vector_type=TypeFeatureVector.TYPE_COUNT_VECTOR, filter_threshold: float = 0):
+    similarity_matrix = compute_similarity(text, vector_type)
+    results_ = {}
+    filter_indexes = np.where(similarity_matrix > filter_threshold)
+    for k in range(len(filter_indexes[0])):
+        file_name1 = text[int(filter_indexes[0][k])]
+        file_name2 = text[int(filter_indexes[1][k])]
+        # same file
+        if file_name1 == file_name2:
+            continue
+        # same file of different order
+        sim_score = similarity_matrix[filter_indexes[0][k]][filter_indexes[1][k]]
+        if (file_name1, file_name2) not in results_ and (file_name2, file_name1) not in results_:
+            results_[(file_name1, file_name2)] = sim_score
+    return results_
 
 
 if __name__ == "__main__":
-    compare_tfidf()
+    import time
+    start = time.time()
+    documents = ["This is the first document",
+                 "This document is the second document",
+                 "This is the third document"]
+    results = compute_similarity_filter(text=documents, vector_type=TypeFeatureVector.TYPE_COUNT_VECTOR, filter_threshold=0.1)
+    for item in results:
+        print(item, results.get(item))
+    print("耗时", time.time() - start)
 

@@ -91,8 +91,11 @@ class BackendFastDeploy(Backend):
             "fd.vision.ocr.PPOCRv4": fd.vision.ocr.PPOCRv4,
             "fd.vision.ocr.PPOCRv3": fd.vision.ocr.PPOCRv3,
         }
-        return {**plugin_classification, **plugin_detection, **plugin_segmentation, **plugin_ocr}
-        # return plugin_classification | plugin_detection | plugin_segmentation | plugin_ocr
+        plugin_text = {
+            "fd.text.uie.UIEModel": fd.text.uie.UIEModel
+        }
+        # return {**plugin_classification, **plugin_detection, **plugin_segmentation, **plugin_ocr}
+        return plugin_classification | plugin_detection | plugin_segmentation | plugin_ocr | plugin_text
 
     def build(self, **kwargs):
         self.plugin = self.plugins.get(kwargs.get("plugin"), None)

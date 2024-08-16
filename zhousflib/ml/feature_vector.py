@@ -33,20 +33,22 @@ class FeatureVector(object):
     特征向量表示器
     """
 
-    def __init__(self, default_pkl, vector_type=TypeFeatureVector.TYPE_TF_IDF, force_update=False):
+    def __init__(self, vector_type=TypeFeatureVector.TYPE_TF_IDF, default_pkl=None, force_update=False, **kwargs):
         """
-
-        :param default_pkl: 特征向量文件
         :param vector_type: 特征向量类型
+        :param default_pkl: 特征向量文件
         :param force_update: 强制更新模型文件
         """
         self.default_pkl = default_pkl
-        self.vector = self.load_model(default_pkl) if not force_update else None
+        if not force_update and default_pkl:
+            self.vector = self.load_model(default_pkl)
+        else:
+            self.vector = None
         if self.vector is None:
             if vector_type == TypeFeatureVector.TYPE_TF_IDF:
-                self.vector = TfidfVectorizer(lowercase=True)
+                self.vector = TfidfVectorizer(**kwargs)
             elif vector_type == TypeFeatureVector.TYPE_COUNT_VECTOR:
-                self.vector = CountVectorizer(lowercase=True)
+                self.vector = CountVectorizer(**kwargs)
         self.vector_type = vector_type
         self.vocabulary = self.vector.vocabulary_ if hasattr(self.vector, "vocabulary_") else None
 
@@ -79,8 +81,15 @@ class FeatureVector(object):
         :param text_list:
         :return:
         """
-        vec_form = self.vector.transform(text_list)
-        return vec_form
+        return self.vector.transform(text_list)
+
+    def fit_transform(self, text_list):
+        """
+        向量化
+        :param text_list:
+        :return:
+        """
+        return self.vector.fit_transform(text_list)
 
 
 def build_dict(excel_files, importance_files=None, save_vector_file=None, vector_type=TypeFeatureVector.TYPE_TF_IDF):
