@@ -69,13 +69,17 @@ def write_csv(file_path: Path, data, columns=None, seq=None):
     data_frame.to_csv(file_path, header=header, columns=columns, index=False, sep=seq)
 
 
-def read_excel(file_path, sheet_name=None, header=None):
+def read_excel(file_path, sheet_name=None, header=None, fill_nan=None):
     """
     读取excel文件
     :param file_path:
     :param sheet_name: None第一张表
     :param header: 为None则无表头，为0则第一行为表头
+    :param fill_nan: nan值替换，空则不替换
     :return:
+    1、按列读取数据
+        person_list = df["人名"].values.tolist()
+        phone_list = df["电话"].values.tolist()
     """
     if sheet_name is None:
         exc = pd.ExcelFile(file_path)
@@ -83,8 +87,8 @@ def read_excel(file_path, sheet_name=None, header=None):
         if len(sheets) > 0:
             sheet_name = sheets[0]
     data_ = pd.read_excel(file_path, sheet_name=sheet_name, dtype=object, header=header)
-    # 若nan则替换成空字符串
-    # data_ = data_.fillna("")
+    if fill_nan is not None:
+        data_ = data_.fillna(fill_nan)
     pd.set_option('future.no_silent_downcasting', True)
     return data_
 
@@ -114,6 +118,14 @@ def write_excel(data, columns=None, save_file: Path = Path('output.xlsx'), sheet
     :param save_file:
     :param sheet:
     :return:
+    1、按行写入时需要data和columns参数
+        data=[[1, 1], [2, 2]]
+        columns=['col1', 'col2']
+    2. 按列写入时只需要data，columns=None
+        data={
+            'col1': [1, 1],
+            'col2': [2, 2]
+        }
     """
     writer = pd.ExcelWriter(save_file)
     df1 = pd.DataFrame(data=data, columns=columns)

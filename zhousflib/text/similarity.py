@@ -42,18 +42,22 @@ def compute_similarity(text: List[str], vector_type=TypeFeatureVector.TYPE_COUNT
 
 def compute_similarity_filter(text: List[str], vector_type=TypeFeatureVector.TYPE_COUNT_VECTOR, filter_threshold: float = 0):
     similarity_matrix = compute_similarity(text, vector_type)
-    results_ = {}
-    filter_indexes = np.where(similarity_matrix > filter_threshold)
+    filter_indexes = np.where(similarity_matrix >= filter_threshold)
+    tmp = []
+    results_ = []
     for k in range(len(filter_indexes[0])):
         file_name1 = text[int(filter_indexes[0][k])]
         file_name2 = text[int(filter_indexes[1][k])]
         # same file
-        if file_name1 == file_name2:
+        if filter_indexes[0][k] == filter_indexes[1][k]:
             continue
         # same file of different order
         sim_score = similarity_matrix[filter_indexes[0][k]][filter_indexes[1][k]]
-        if (file_name1, file_name2) not in results_ and (file_name2, file_name1) not in results_:
-            results_[(file_name1, file_name2)] = sim_score
+        if (filter_indexes[0][k], filter_indexes[1][k]) not in tmp and (filter_indexes[1][k], filter_indexes[0][k]) not in tmp:
+            tmp.append((filter_indexes[0][k], filter_indexes[1][k]))
+            results_.append(dict(index=[filter_indexes[0][k], filter_indexes[1][k]], text=[file_name1, file_name2],
+                                 score=sim_score))
+    tmp.clear()
     return results_
 
 
@@ -65,6 +69,6 @@ if __name__ == "__main__":
                  "This is the third document"]
     results = compute_similarity_filter(text=documents, vector_type=TypeFeatureVector.TYPE_COUNT_VECTOR, filter_threshold=0.1)
     for item in results:
-        print(item, results.get(item))
+        print(item)
     print("耗时", time.time() - start)
 

@@ -43,8 +43,8 @@ class FBetaScore(object):
         self.f_beta = f_beta if f_beta is not None else [1]
         self.fbeta_score_average = fbeta_score_average
         self.tn, self.fp, self.fn, self.tp = self.confusion_matrix(y_true=self.y_true, y_pre=self.y_pre)
-        self.recall = self.tp / (self.tp + self.fn)
-        self.precision = self.tp / (self.tp + self.fp)
+        self.recall = self.tp / (self.tp + self.fn) if (self.tp + self.fn) > 0 else 0
+        self.precision = self.tp / (self.tp + self.fp) if  (self.tp + self.fp) > 0 else 0
         self.f_beta_score = self.f_beta_score_compute(f_beta=self.f_beta, y_true=self.y_true, y_pre=self.y_pre)
         self.report = classification_report(self.y_true, self.y_pre, digits=4)
 
@@ -78,10 +78,10 @@ class FBetaScore(object):
         TN 预测为0，实际为0，负样本预测正确
         """
         array = confusion_matrix_compute(y_true=y_true, y_pred=y_pre)
-        self.tp = array[1][1]
+        self.tp = array[1][1] if array.shape == (2, 2) else 0
         self.tn = array[0][0]
-        self.fp = array[0][1]
-        self.fn = array[1][0]
+        self.fp = array[0][1] if array.shape == (2, 2) else 0
+        self.fn = array[1][0] if array.shape == (2, 2) else 0
         return self.tn, self.fp, self.fn, self.tp
 
     def f_beta_score_compute(self, f_beta: list, y_true: list = None, y_pre: list = None):
@@ -110,6 +110,8 @@ class FBetaScore(object):
 if __name__ == "__main__":
     actual_labels =    [0, 1, 0, 1, 1, 0, 0, 0, 0, 0]
     predicted_labels = [0, 1, 0, 1, 0, 1, 1, 0, 0, 0]
+    actual_labels =    [0, 0, 0, 0, 0, 0, 1]
+    predicted_labels = [0, 0, 0, 0, 0, 1, 1]
     # actual_labels =    [0, 1, 0, 2, 1, 0, 0, 0, 0, 0]
     # predicted_labels = [0, 1, 0, 2, 0, 1, 1, 0, 0, 0]
     score = FBetaScore(y_true=actual_labels, y_pre=predicted_labels, f_beta=[1, 1.1, 2], fbeta_score_average=None)

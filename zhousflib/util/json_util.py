@@ -33,14 +33,15 @@ def json_str_to_class(json_str, object_hook):
     return json.loads(json_str, object_hook=object_hook)
 
 
-def write_dict_into_json_file(a_dict, json_file):
+def write_dict_into_json_file(a_dict, json_file, encoding="utf-8"):
     """
     将字典写入json文件中
     :param a_dict: 字典
     :param json_file: json文件
+    :param encoding:
     :return:
     """
-    with open(json_file, 'w') as f:
+    with open(json_file, 'w', encoding=encoding) as f:
         json.dump(a_dict, f, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ': '))
 
 
@@ -57,14 +58,15 @@ def write_obj_into_json_file(obj, json_file):
     write_dict_into_json_file(a_dict, json_file)
 
 
-def load_obj_from_json_file(obj, json_file):
+def load_obj_from_json_file(obj, json_file, encoding="utf-8"):
     """
     json文件转成对象
     :param obj:
     :param json_file:
+    :param encoding:
     :return:
     """
-    with open(json_file, 'r') as f:
+    with open(json_file, 'r', encoding=encoding) as f:
         content = f.read()
         if content is not None and content.strip() != '':
             obj.__dict__ = json.loads(s=content)
@@ -72,13 +74,14 @@ def load_obj_from_json_file(obj, json_file):
     return None
 
 
-def load_dict_from_json_file(json_file):
+def load_dict_from_json_file(json_file, encoding="utf-8"):
     """
     json文件转成字典
     :param json_file:
+    :param encoding:
     :return: dict
     """
-    with open(json_file, 'r') as f:
+    with open(json_file, 'r', encoding=encoding) as f:
         content = f.read()
         if content is not None and content.strip() != '':
             return json.loads(s=content)
@@ -94,11 +97,9 @@ def sort(json_or_dict):
     json_or_dict = json.loads(json.dumps(json_or_dict, sort_keys=True, ensure_ascii=False))
     for k in json_or_dict:
         if isinstance(json_or_dict[k], list):
-            # 字典不排序 by guanning
             if json_or_dict[k] and isinstance(json_or_dict[k][0], dict):
                 for index in range(0, len(json_or_dict[k])):
                     json_or_dict[k][index] = sorted(json_or_dict[k][index].items(), key=lambda x: x[0], reverse=True)
-                #按排序好的字典key(字典已经变成元组)的第一个 将list排序
                 json_or_dict[k] = sorted(json_or_dict[k], key=lambda x: x[0])
 
             else:

@@ -21,8 +21,11 @@ def unzip_file(zip_file, dst_dir):
     try:
         with zipfile.ZipFile(zip_file, 'r') as f:
             for fn in f.namelist():
-                # 解决中文乱码
-                name = fn.encode('cp437').decode('utf-8', "ignore")
+                try:
+                    # 解决中文乱码
+                    name = fn.encode('cp437').decode('utf-8', "ignore")
+                except:
+                    name = fn.encode('utf-8').decode('utf-8', "ignore")
                 if name.startswith("__MACOSX"):
                     continue
                 extracted_path = Path(f.extract(fn, dst_dir))
@@ -95,4 +98,4 @@ if __name__ == "__main__":
     zip_file_ = "/Users/zhousf/Desktop/case/银行卡.zip"
     # zip_file_ = "/Users/zhousf/Desktop/case/归档.zip"
     dst_dir_ = "/Users/zhousf/Desktop/case/img"
-    print(unzip_flat_file_rename(zip_file_, dst_dir_))
+    # print(unzip_flat_file_rename(zip_file_, dst_dir_))
