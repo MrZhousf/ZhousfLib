@@ -231,10 +231,12 @@ def demo_ocr():
     fast_det.use_fastdeploy_backend(plugin="fd.vision.ocr.DBDetector")
     fast_rec = FastInfer(model_dir=Path(r"D:\workspace\ZhousfLib\model\ch_PP-OCRv4_rec_infer"), device_id=0)
     fast_rec.use_fastdeploy_backend(plugin="fd.vision.ocr.Recognizer")
+    fast_cls = FastInfer(model_dir=Path(r"D:\workspace\ZhousfLib\model\ch_ppocr_mobile_v2.0_cls_slim_infer"), device_id=0)
+    fast_cls.use_fastdeploy_backend(plugin="fd.vision.ocr.Classifier")
     fast_ocr = FastInfer(model_dir=None, device_id=0)
     fast_ocr.use_fastdeploy_backend(plugin="fd.vision.ocr.PPOCRv4",
                                     det_model=fast_det.backend.model,
-                                    cls_model=None,
+                                    cls_model=fast_cls.backend.model,
                                     rec_model=fast_rec.backend.model)
     image_file = Path(r"D:\workspace\ZhousfLib\model\ch_PP-OCRv4_det_infer\test.jpg")
     image_file = Path(r"E:\数据2024\组件-图片信息抽取验收集\组织架构图\有-new\Snipaste_2024-05-06_16-19-06.png")

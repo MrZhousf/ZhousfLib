@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # @Author  : zhousf
 # @Function:
+import sys
 import copy
 from pathlib import Path
 from typing import Optional
@@ -94,8 +95,16 @@ class BackendFastDeploy(Backend):
         plugin_text = {
             "fd.text.uie.UIEModel": fd.text.uie.UIEModel
         }
-        # return {**plugin_classification, **plugin_detection, **plugin_segmentation, **plugin_ocr}
-        return plugin_classification | plugin_detection | plugin_segmentation | plugin_ocr | plugin_text
+        if sys.version_info > (3, 9):
+            return plugin_classification | plugin_detection | plugin_segmentation | plugin_ocr | plugin_text
+        elif (3, 5) < sys.version_info < (3, 9):
+            return {**plugin_classification, **plugin_detection, **plugin_segmentation, **plugin_ocr}
+        else:
+            merged_dict = dict(plugin_classification, **plugin_detection)
+            merged_dict = dict(merged_dict, **plugin_segmentation)
+            merged_dict = dict(merged_dict, **plugin_ocr)
+            merged_dict = dict(merged_dict, **plugin_text)
+            return merged_dict
 
     def build(self, **kwargs):
         self.plugin = self.plugins.get(kwargs.get("plugin"), None)

@@ -34,3 +34,41 @@ def write(image: np.ndarray, img_write_path: Path):
     """
     cv2.imencode(img_write_path.suffix, image[:, :, ::-1])[1].tofile(str(img_write_path))
 
+
+def is_transparent(img_path: Path):
+    """
+    判断图片是否透明背景
+    :param img_path:
+    :return:
+    """
+    img = cv2.imdecode(np.fromfile(str(img_path), dtype=np.uint8), cv2.IMREAD_UNCHANGED)
+    if img is not None and img.shape[2] == 4:
+        alpha_channel = img[:, :, 3]
+        if cv2.countNonZero(alpha_channel) < alpha_channel.size:
+            return True
+    return False
+
+
+def transparent_bg_to_white(img_path: Path, save_path: Path = None):
+    """
+    图片透明背景转成白色背景
+    :param img_path:
+    :param save_path:
+    :return:
+    """
+    img = cv2.imdecode(np.fromfile(img_path, dtype=np.uint8), cv2.IMREAD_UNCHANGED)
+    if img is not None and img.shape[2] == 4:
+        alpha_channel = img[:, :, 3]
+        if cv2.countNonZero(alpha_channel) < alpha_channel.size:
+            b_channel, g_channel, r_channel, a_channel = cv2.split(img)
+            white_background = np.ones_like(a_channel) * 255
+            a_channel = a_channel / 255.0
+            r_channel = r_channel * a_channel + white_background * (1 - a_channel)
+            g_channel = g_channel * a_channel + white_background * (1 - a_channel)
+            b_channel = b_channel * a_channel + white_background * (1 - a_channel)
+            result = cv2.merge((b_channel, g_channel, r_channel))
+            if save_path is not None:
+                write(result, save_path)
+            return result
+    return img
+
