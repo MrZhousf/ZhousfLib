@@ -239,7 +239,6 @@ def demo_ocr():
                                     cls_model=fast_cls.backend.model,
                                     rec_model=fast_rec.backend.model)
     image_file = Path(r"D:\workspace\ZhousfLib\model\ch_PP-OCRv4_det_infer\test.jpg")
-    image_file = Path(r"E:\数据2024\组件-图片信息抽取验收集\组织架构图\有-new\Snipaste_2024-05-06_16-19-06.png")
     vis_image_file = image_file.with_name("{0}_ocr_vis{1}".format(image_file.stem, image_file.suffix))
     res = fast_ocr.infer(input_data=image_file,
                          vis_image_file=vis_image_file,

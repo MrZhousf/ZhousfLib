@@ -12,16 +12,30 @@ from pathlib import Path
 """
 
 
-def read(img_path: Path):
+def read(img_path: Path, bg_to_white=False):
     """
     读图片-兼容图片路径包含中文
     :param img_path:
+    :param bg_to_white: 是否将图片的透明背景转成白色背景
     :return: np.ndarray
     """
     if isinstance(img_path, str):
         img_path = Path(img_path)
     if isinstance(img_path, Path):
-        img_path = cv2.imdecode(np.fromfile(str(img_path), dtype=np.uint8), cv2.IMREAD_COLOR)
+        if bg_to_white:
+            img_path = cv2.imdecode(np.fromfile(img_path, dtype=np.uint8), cv2.IMREAD_UNCHANGED)
+            if img_path is not None and img_path.shape[2] == 4:
+                alpha_channel = img_path[:, :, 3]
+                if cv2.countNonZero(alpha_channel) < alpha_channel.size:
+                    b_channel, g_channel, r_channel, a_channel = cv2.split(img_path)
+                    white_background = np.ones_like(a_channel) * 255
+                    a_channel = a_channel / 255.0
+                    r_channel = r_channel * a_channel + white_background * (1 - a_channel)
+                    g_channel = g_channel * a_channel + white_background * (1 - a_channel)
+                    b_channel = b_channel * a_channel + white_background * (1 - a_channel)
+                    img_path = cv2.merge((b_channel, g_channel, r_channel))
+        else:
+            img_path = cv2.imdecode(np.fromfile(str(img_path), dtype=np.uint8), cv2.IMREAD_COLOR)
     return img_path
 
 

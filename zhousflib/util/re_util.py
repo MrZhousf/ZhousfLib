@@ -48,13 +48,6 @@ def get_integer_decimals(text: str) -> list:
     return res
 
 
-def only_contain_letter_char(self, text: str) -> bool:
-    """
-    仅包含字母（大小写）
-    """
-    return len(self.get_letter_char(text)) == len(text)
-
-
 def get_letter_char(text: str) -> str:
     # 提取大小写字母
     return re.sub(u"([^\u0041-\u005a\u0061-\u007a])", "", text)
@@ -65,6 +58,11 @@ def get_digit_letter_char(text: str) -> str:
     return re.sub(u"([^\u0041-\u005a\u0061-\u007a\u0030-\u0039])", "", text)
 
 
+def get_chinese_char(text: str) -> str:
+    # 提取中文
+    return re.sub(u"([^\u4e00-\u9fa5])", "", text)
+
+
 def only_chinese(text: str) -> bool:
     """
     string都是中文
@@ -73,6 +71,13 @@ def only_chinese(text: str) -> bool:
     """
     match_chinese = re.sub(u"([^\u4e00-\u9fa5])", "", text)
     return len(match_chinese) == len(text)
+
+
+def only_contain_letter_char(self, text: str) -> bool:
+    """
+    仅包含字母（大小写）
+    """
+    return len(self.get_letter_char(text)) == len(text)
 
 
 def normalize_cos_sign(text, sign: str = None):

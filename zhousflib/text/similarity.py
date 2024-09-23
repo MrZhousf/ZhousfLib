@@ -35,20 +35,22 @@ def text_to_vector(text: List[str], vector_type=TypeFeatureVector.TYPE_COUNT_VEC
     return FeatureVector(vector_type=vector_type).fit_transform(text)
 
 
-def compute_similarity(text: List[str], vector_type=TypeFeatureVector.TYPE_COUNT_VECTOR, filter_punctuation=False):
+def compute_similarity(text: List[str], vector_type=TypeFeatureVector.TYPE_COUNT_VECTOR, filter_punctuation=True, cut_all=True):
     _text = []
     for txt in text:
         if filter_punctuation:
             txt = re_util.get_digit_letter_chinese(str(txt))
-        _text.append(str(jieba.lcut(txt, cut_all=True)))
+        _text.append(str(jieba.lcut(txt, cut_all=cut_all)))
+    print(_text)
     cosine = Cosine()
     vector = text_to_vector(_text, vector_type)
     similarity_matrix = cosine.cosine_vector_with_matrix(vector)
     return similarity_matrix
 
 
-def compute_similarity_filter(text: List[str], vector_type=TypeFeatureVector.TYPE_COUNT_VECTOR, filter_threshold: float = 0, filter_punctuation=False):
-    similarity_matrix = compute_similarity(text, vector_type, filter_punctuation)
+def compute_similarity_filter(text: List[str], vector_type=TypeFeatureVector.TYPE_COUNT_VECTOR, filter_threshold: float = 0,
+                              filter_punctuation=True, cut_all=True):
+    similarity_matrix = compute_similarity(text, vector_type, filter_punctuation, cut_all)
     filter_indexes = np.where(similarity_matrix >= filter_threshold)
     tmp = []
     results_ = []
@@ -74,7 +76,7 @@ if __name__ == "__main__":
     documents = ["This is the first document",
                  "This document is the second document",
                  "This is the third document"]
-    results = compute_similarity_filter(text=documents, vector_type=TypeFeatureVector.TYPE_COUNT_VECTOR, filter_threshold=0.1, filter_punctuation=True)
+    results = compute_similarity_filter(text=documents, vector_type=TypeFeatureVector.TYPE_COUNT_VECTOR, filter_threshold=0.1, filter_punctuation=True, cut_all=False)
     for item in results:
         print(item)
     print("耗时", time.time() - start)

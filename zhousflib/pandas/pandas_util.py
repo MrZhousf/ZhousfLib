@@ -13,62 +13,6 @@ from pathlib import Path
 import pandas as pd
 
 
-def read_csv(file_path: str, header="infer", title=None, encoding=None, nrows=None, dtype=None, sep="\t"):
-    """
-    取值：
-        csv_data['column_name']
-        csv_data['column_name'].values
-        columns = df_data.columns.values.tolist()
-        data = df_data.values.tolist()
-    :param file_path:
-    :param header: 当None则不返回列名
-    :param title:
-    :param encoding: gbk/utf-8
-    :param nrows: 读取的行数
-    :param dtype: 指定数据类型
-    :param sep: 分隔标志
-    :return:
-    """
-    if not os.path.exists(file_path):
-        raise Exception("file not exists: {}".format(file_path))
-    if header:
-        return pd.read_csv(file_path, header=header, usecols=title, encoding=encoding, nrows=nrows, dtype=dtype, sep=sep)
-    else:
-        return pd.read_csv(file_path, usecols=title, encoding=encoding, nrows=nrows, dtype=dtype, sep=sep)
-
-
-def read_csv_mars(csv_file):
-    """
-    大文件读取，采用mars
-    Mars 是基于张量的，用于进行大规模数据计算的统一计算框架
-    :param csv_file:
-    :return:
-    """
-    if not os.path.exists(csv_file):
-        raise Exception("file not exists: {}".format(csv_file))
-    import mars.dataframe as md
-    return md.read_csv(csv_file, low_memory=False).execute().fetch()
-
-
-def write_csv(file_path: Path, data, columns=None, seq=None):
-    """
-    按列写入csv
-    :param file_path: '/home/data.csv'
-    :param data:
-        当 columns=None时
-        data = {"周一": ['语文', '英语', '物理', '数学', '化学']，
-                "周二": ['音乐', '英语', '数学', '地理', '语文']}
-        当 columns=["周一", "周二"]
-        data = [['语文', '英语', '物理', '数学', '化学'], ['音乐', '英语', '数学', '地理', '语文']]
-    :param columns:
-    :param seq:
-    :return:
-    """
-    data_frame = pd.DataFrame(data)
-    header = True if columns else False
-    data_frame.to_csv(file_path, header=header, columns=columns, index=False, sep=seq)
-
-
 def read_excel(file_path, sheet_name=None, header=None, fill_nan=None):
     """
     读取excel文件
@@ -131,6 +75,62 @@ def write_excel(data, columns=None, save_file: Path = Path('output.xlsx'), sheet
     df1 = pd.DataFrame(data=data, columns=columns)
     df1.to_excel(writer, sheet, index=False)
     writer.close()
+
+
+def read_csv(file_path: str, header="infer", title=None, encoding=None, nrows=None, dtype=None, sep="\t"):
+    """
+    取值：
+        csv_data['column_name']
+        csv_data['column_name'].values
+        columns = df_data.columns.values.tolist()
+        data = df_data.values.tolist()
+    :param file_path:
+    :param header: 当None则不返回列名
+    :param title:
+    :param encoding: gbk/utf-8
+    :param nrows: 读取的行数
+    :param dtype: 指定数据类型
+    :param sep: 分隔标志
+    :return:
+    """
+    if not os.path.exists(file_path):
+        raise Exception("file not exists: {}".format(file_path))
+    if header:
+        return pd.read_csv(file_path, header=header, usecols=title, encoding=encoding, nrows=nrows, dtype=dtype, sep=sep)
+    else:
+        return pd.read_csv(file_path, usecols=title, encoding=encoding, nrows=nrows, dtype=dtype, sep=sep)
+
+
+def read_csv_mars(csv_file):
+    """
+    大文件读取，采用mars
+    Mars 是基于张量的，用于进行大规模数据计算的统一计算框架
+    :param csv_file:
+    :return:
+    """
+    if not os.path.exists(csv_file):
+        raise Exception("file not exists: {}".format(csv_file))
+    import mars.dataframe as md
+    return md.read_csv(csv_file, low_memory=False).execute().fetch()
+
+
+def write_csv(file_path: Path, data, columns=None, seq=None):
+    """
+    按列写入csv
+    :param file_path: '/home/data.csv'
+    :param data:
+        当 columns=None时
+        data = {"周一": ['语文', '英语', '物理', '数学', '化学']，
+                "周二": ['音乐', '英语', '数学', '地理', '语文']}
+        当 columns=["周一", "周二"]
+        data = [['语文', '英语', '物理', '数学', '化学'], ['音乐', '英语', '数学', '地理', '语文']]
+    :param columns:
+    :param seq:
+    :return:
+    """
+    data_frame = pd.DataFrame(data)
+    header = True if columns else False
+    data_frame.to_csv(file_path, header=header, columns=columns, index=False, sep=seq)
 
 
 def print_shape(file_path):
