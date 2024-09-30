@@ -28,16 +28,19 @@ db.display()
 
 class LMDB(object):
 
-    def __init__(self, db_dir: Path):
+    def __init__(self, db_dir: Path, map_size=int(1e9)):
         """
         初始化
         :param db_dir: 文件目录
+        :param map_size: 1e9 ≈ 1GB;
+                         1e10 ≈ 10GB;
+                         1e11 ≈ 100GB(最大值)
         """
-        self.env = self.initialize(db_dir)
+        self.env = self.initialize(db_dir, map_size)
 
     @staticmethod
-    def initialize(db_dir: Path):
-        return lmdb.open(path=str(db_dir), map_size=int(1e9))
+    def initialize(db_dir: Path, map_size=int(1e9)):
+        return lmdb.open(path=str(db_dir), map_size=map_size)
 
     def insert(self, key: str, value):
         """

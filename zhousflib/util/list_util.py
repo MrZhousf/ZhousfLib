@@ -1,11 +1,10 @@
 # -*- coding:utf-8 -*-
 # Author:  zhousf
 # Description:  list交集、并集、差集运算
+import math
 import random
-from math import ceil
 from collections import Counter
 
-import numpy as np
 from zhousflib.util import string_util
 
 
@@ -192,17 +191,20 @@ def delete_same_value(data_list: list, same_value_limit=1):
 def chunk_list(data: list, chunk_size=5) -> list:
     """
     将数组按照每chunk_size个一组
+    input : data=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]  chunk_size=5
+    output: [[0, 1], [2, 3], [4, 5], [6, 7], [8, 9], [10]]
     """
     if chunk_size <= 0:
         return data
-    return [data[i * chunk_size:(i+1)*chunk_size] for i in range(0, ceil(len(data) / chunk_size))]
+    return [data[i * chunk_size:(i+1)*chunk_size] for i in range(0, math.ceil(len(data) / chunk_size))]
 
 
 def split_list(data: list, split_size=2) -> list:
     """
     等分分割
+    input : data=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]  split_size=2
+    output: [[0, 1, 2, 3, 4, 5], [6, 7, 8, 9, 10]]
     """
-    splits = np.array_split(np.asarray(data), split_size, axis=0)
-    filtered_arrays = [arr for arr in splits if arr.size > 0]
-    return [filtered_arrays[i].tolist() for i in range(len(filtered_arrays))]
+    chunk_size = math.ceil(len(data) / split_size)
+    return [data[i * chunk_size:(i + 1) * chunk_size] for i in range(split_size)]
 

@@ -41,7 +41,6 @@ def compute_similarity(text: List[str], vector_type=TypeFeatureVector.TYPE_COUNT
         if filter_punctuation:
             txt = re_util.get_digit_letter_chinese(str(txt))
         _text.append(str(jieba.lcut(txt, cut_all=cut_all)))
-    print(_text)
     cosine = Cosine()
     vector = text_to_vector(_text, vector_type)
     similarity_matrix = cosine.cosine_vector_with_matrix(vector)
