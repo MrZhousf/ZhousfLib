@@ -4,6 +4,15 @@
 # 支持多进程
 """
 pip install lmdb
+
+[question]
+MDB_MAP_FULL: Environment mapsize limit reached
+[solution]
+提升map_size或定时删除历史数据
+
+[question]
+lmdb.PanicError: mdb_txn_begin: MDB_PANIC: Update of meta page failed or environment had fatal error
+
 """
 from pathlib import Path
 
@@ -114,9 +123,5 @@ class LMDB(object):
 
     def close(self):
         self.env.close()
-
-
-if __name__ == '__main__':
-    pass
 
 

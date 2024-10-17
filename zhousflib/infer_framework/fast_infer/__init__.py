@@ -226,19 +226,35 @@ def demo_ocr():
     #                  vis_show=False)
     # print(res)
 
+    import fastdeploy as fd
+    runtime_option = fd.RuntimeOption()
+    runtime_option.set_cpu_thread_num(10)
+    # runtime_option.use_ort_backend()
+    # runtime_option.use_paddle_backend()
+    runtime_option.enable_paddle_log_info()  # print log
     # ocr
     fast_det = FastInfer(model_dir=Path(r"D:\workspace\ZhousfLib\model\ch_PP-OCRv4_det_infer"), device_id=0)
-    fast_det.use_fastdeploy_backend(plugin="fd.vision.ocr.DBDetector")
+    fast_det.use_fastdeploy_backend(plugin="fd.vision.ocr.DBDetector", runtime_option=runtime_option, clone_moel=False)
+    fast_det.backend.model.preprocessor.max_side_len = 960
+    fast_det.backend.model.preprocessor.static_shape_infer = False
+    fast_det.backend.model.postprocessor.det_db_score_mode = 'slow'
+    fast_det.backend.model.postprocessor.det_db_unclip_ratio = 1.5
+    fast_det.backend.model.postprocessor.use_dilation = True
+    fast_cls = FastInfer(model_dir=Path(r"D:\workspace\ZhousfLib\model\ch_PP-OCRv4_cls_infer"), device_id=0)
+    fast_cls.use_fastdeploy_backend(plugin="fd.vision.ocr.Classifier", runtime_option=runtime_option, clone_moel=False)
+    fast_cls.backend.model.postprocessor.cls_thresh = 0.96
     fast_rec = FastInfer(model_dir=Path(r"D:\workspace\ZhousfLib\model\ch_PP-OCRv4_rec_infer"), device_id=0)
-    fast_rec.use_fastdeploy_backend(plugin="fd.vision.ocr.Recognizer")
-    fast_cls = FastInfer(model_dir=Path(r"D:\workspace\ZhousfLib\model\ch_ppocr_mobile_v2.0_cls_slim_infer"), device_id=0)
-    fast_cls.use_fastdeploy_backend(plugin="fd.vision.ocr.Classifier")
+    fast_rec.use_fastdeploy_backend(plugin="fd.vision.ocr.Recognizer", runtime_option=runtime_option, clone_moel=False)
     fast_ocr = FastInfer(model_dir=None, device_id=0)
     fast_ocr.use_fastdeploy_backend(plugin="fd.vision.ocr.PPOCRv4",
                                     det_model=fast_det.backend.model,
                                     cls_model=fast_cls.backend.model,
                                     rec_model=fast_rec.backend.model)
+    fast_ocr.backend.model.rec_batch_size = 20
+    fast_ocr.backend.model.cls_batch_size = 20
+
     image_file = Path(r"D:\workspace\ZhousfLib\model\ch_PP-OCRv4_det_infer\test.jpg")
+    image_file = Path(r"E:\数据2024\OCR难例\旋转图片\B180度.jpg")
     vis_image_file = image_file.with_name("{0}_ocr_vis{1}".format(image_file.stem, image_file.suffix))
     res = fast_ocr.infer(input_data=image_file,
                          vis_image_file=vis_image_file,
