@@ -34,7 +34,7 @@ class Cosine:
         Return a matrix:
             similarities[0, 1]: item1 & item2
             similarities[0, 2]: item1 & item3
-        OR return an array:
+        OR return a list:
             [[index1, index2, value], [index1, index3, value]]
         """
         similarity_matrix = cosine_similarity(arr)
@@ -46,7 +46,7 @@ class Cosine:
             nonzero = np.nonzero(upper_triangular)
             for i in range(len(nonzero[0])):
                 res.append((nonzero[0][i], nonzero[1][i], upper_triangular[nonzero[0][i]][nonzero[1][i]]))
-            return np.asarray(res)
+            return res
         return similarity_matrix
 
     @staticmethod
