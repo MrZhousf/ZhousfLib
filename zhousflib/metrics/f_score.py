@@ -52,7 +52,7 @@ class FBetaScore(object):
         from prettytable import PrettyTable
         table = PrettyTable(field_names=["confusion matrix", "recall", "precision", "f_beta_score"],
                             title="F_beta Score Statistical Table (total={0})".format(len(self.y_true)))
-        row = ["tp={0}  fp={1}\nfn={2}  tn={3}".format(self.tp, self.fp, self.fn, self.tn),
+        row = ["tp={0}  tn={1}\nfn={2}  fp={3}".format(self.tp, self.tn, self.fn, self.fp),
                "tp/(tp+fn)={0}/{1}\nrecall={2}".format(self.tp, self.tp + self.fn, self.recall),
                "tp/(tp+fp)={0}/{1}\nprecision={2}".format(self.tp, self.tp + self.fp, self.precision)]
         union = []

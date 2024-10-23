@@ -35,7 +35,18 @@ def text_to_vector(text: List[str], vector_type=TypeFeatureVector.TYPE_COUNT_VEC
     return FeatureVector(vector_type=vector_type).fit_transform(text)
 
 
-def compute_similarity(text: List[str], vector_type=TypeFeatureVector.TYPE_COUNT_VECTOR, filter_punctuation=True, cut_all=True):
+def compute_similarity(text: List[str], vector_type=TypeFeatureVector.TYPE_COUNT_VECTOR, filter_punctuation=True,
+                       cut_all=True, filter_result=False, filter_threshold: float = 0):
+    """
+
+    :param text:
+    :param vector_type:
+    :param filter_punctuation:
+    :param cut_all:
+    :param filter_result:
+    :param filter_threshold:
+    :return:
+    """
     _text = []
     for txt in text:
         if filter_punctuation:
@@ -43,30 +54,8 @@ def compute_similarity(text: List[str], vector_type=TypeFeatureVector.TYPE_COUNT
         _text.append(str(jieba.lcut(txt, cut_all=cut_all)))
     cosine = Cosine()
     vector = text_to_vector(_text, vector_type)
-    similarity_matrix = cosine.cosine_vector_with_matrix(vector)
+    similarity_matrix = cosine.cosine_vector_with_matrix(vector, filter_result=filter_result, filter_threshold=filter_threshold)
     return similarity_matrix
-
-
-def compute_similarity_filter(text: List[str], vector_type=TypeFeatureVector.TYPE_COUNT_VECTOR, filter_threshold: float = 0,
-                              filter_punctuation=True, cut_all=True):
-    similarity_matrix = compute_similarity(text, vector_type, filter_punctuation, cut_all)
-    filter_indexes = np.where(similarity_matrix >= filter_threshold)
-    tmp = []
-    results_ = []
-    for k in range(len(filter_indexes[0])):
-        file_name1 = text[int(filter_indexes[0][k])]
-        file_name2 = text[int(filter_indexes[1][k])]
-        # same file
-        if filter_indexes[0][k] == filter_indexes[1][k]:
-            continue
-        # same file of different order
-        sim_score = similarity_matrix[filter_indexes[0][k]][filter_indexes[1][k]]
-        if (filter_indexes[0][k], filter_indexes[1][k]) not in tmp and (filter_indexes[1][k], filter_indexes[0][k]) not in tmp:
-            tmp.append((filter_indexes[0][k], filter_indexes[1][k]))
-            results_.append(dict(index=[filter_indexes[0][k], filter_indexes[1][k]], text=[file_name1, file_name2],
-                                 score=sim_score))
-    tmp.clear()
-    return results_
 
 
 if __name__ == "__main__":
@@ -75,8 +64,8 @@ if __name__ == "__main__":
     documents = ["This is the first document",
                  "This document is the second document",
                  "This is the third document"]
-    results = compute_similarity_filter(text=documents, vector_type=TypeFeatureVector.TYPE_COUNT_VECTOR, filter_threshold=0.1, filter_punctuation=True, cut_all=False)
-    for item in results:
-        print(item)
+    results = compute_similarity(text=documents, vector_type=TypeFeatureVector.TYPE_COUNT_VECTOR,
+                                 filter_punctuation=False, cut_all=False, filter_result=False, filter_threshold=0.1)
+    print(results)
     print("耗时", time.time() - start)
 
