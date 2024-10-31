@@ -3,17 +3,26 @@
 # @Function:
 import sys
 import logging
+from pathlib import Path
 from types import FrameType
 from typing import cast
+"""
+
+from zhousflib.web.fastapi.log import Logger
+from configure import LogDir
+
+Loggers = Logger(LogDir.joinpath("service").joinpath("log.txt"))
+logger = Loggers.logger
+
+"""
 
 
 class Logger:
 
-    def __init__(self):
-        from configure import LogDir
-        service_dir = LogDir.joinpath("service")
-        if not service_dir.exists():
-            service_dir.mkdir(parents=True, exist_ok=True)
+    def __init__(self, log_file: Path, rotation="5000KB", retention="7 days"):
+        log_dir = log_file.parent
+        if not log_dir.exists():
+            log_dir.mkdir(parents=True, exist_ok=True)
         from loguru import logger as log
         self.logger = log
         # 清空所有设置
@@ -39,32 +48,36 @@ class Logger:
             serialize=False,
             encoding="utf-8",
             enqueue=True,  # 异步写入
-            rotation="5000KB",  # 切割
-            retention="7 days",  # 设置历史保留时长
+            rotation=rotation,  # 切割
+            retention=retention,  # 设置历史保留时长
             backtrace=True,  # 回溯
             diagnose=False,  # 诊断
             compression="zip"  # 文件压缩
         )
 
-    @staticmethod
-    def init_config():
+    def init_config(self):
         logger_names = ("uvicorn.asgi", "uvicorn.access", "uvicorn.error", "uvicorn",
                         "gunicorn", "gunicorn.access", "gunicorn.error")
-        logging.getLogger().handlers = [InterceptHandler()]
+        logging.getLogger().handlers = [InterceptHandler(self.logger)]
         for logger_name in logger_names:
             logging_logger = logging.getLogger(logger_name)
             logging_logger.propagate = False
-            logging_logger.handlers = [InterceptHandler()]
+            logging_logger.handlers = [InterceptHandler(self.logger)]
 
     def get_logger(self):
         return self.logger
 
 
 class InterceptHandler(logging.Handler):
+
+    def __init__(self, logger):
+        super().__init__()
+        self.logger = logger
+
     def emit(self, record: logging.LogRecord) -> None:  # pragma: no cover
         # Get corresponding Loguru level if it exists
         try:
-            level = logger.level(record.levelname).name
+            level = self.logger.level(record.levelname).name
         except ValueError:
             level = str(record.levelno)
 
@@ -74,10 +87,7 @@ class InterceptHandler(logging.Handler):
             frame = cast(FrameType, frame.f_back)
             depth += 1
 
-        logger.opt(depth=depth, exception=record.exc_info).log(
+        self.logger.opt(depth=depth, exception=record.exc_info).log(
             level, record.getMessage(),
         )
 
-
-Loggers = Logger()
-logger = Loggers.get_logger()

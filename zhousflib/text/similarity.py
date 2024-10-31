@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 # @Author  : zhousf
 # @Function: 相似度计算
-# pip install datasketch
 import jieba
-import numpy as np
 from typing import List
 from zhousflib.util import re_util
 from zhousflib.metrics.cosine import Cosine

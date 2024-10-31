@@ -66,7 +66,8 @@ class App(FastAPI, metaclass=abc.ABCMeta):
         super().__init__(**extra)
         self.logger = logger.logger if logger is not None else None
         self.models = models
-        logger.init_config()
+        if self.logger:
+            logger.init_config()
 
         @self.get("/")
         async def welcome():
@@ -109,6 +110,7 @@ class App(FastAPI, metaclass=abc.ABCMeta):
                                     body = body[:2048] + "......"
                                 self.logger.info(f"【response body】: {body}")
                     response.headers["X-Process-Time"] = elapsed_time
+                    response.headers["X-Request-ID"] = request_id
                     self.logger.info(f"【X-Process-Time】: {elapsed_time}s")
             return response
 

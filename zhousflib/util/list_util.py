@@ -192,7 +192,7 @@ def chunk_list(data: list, chunk_size=5) -> list:
     """
     将数组按照每chunk_size个一组
     input : data=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]  chunk_size=5
-    output: [[0, 1], [2, 3], [4, 5], [6, 7], [8, 9], [10]]
+    output: [[0, 1, 2, 3, 4], [5, 6, 7, 8, 9], [10]]
     """
     if chunk_size <= 0:
         return data

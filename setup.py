@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 # @Author  : zhousf
-# @Date    : 2023/6/6 
 # @Function:
 # Note: To use the 'upload' functionality of this file, you must:
 # $ pipenv install twine --dev
@@ -36,7 +35,7 @@ URL = 'https://github.com/MrZhousf/ZhousfLib'
 EMAIL = '442553199@qq.com'
 AUTHOR = 'zhousf'
 REQUIRES_PYTHON = '>=3.6.13'
-VERSION = '1.6.6.7'
+VERSION = '1.6.6.8'
 PACKAGE_DATA = {'': ['*.yaml', '*.ttf', '*.txt', '*.md']}
 
 
