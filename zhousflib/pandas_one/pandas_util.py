@@ -4,7 +4,7 @@
 # Description:
 # pip install xlrd==1.2.0  -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
 # pip install openpyxl  -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
-# pip install pandas  -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
+# pip install pandas_one  -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
 # pip install pymars -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
 import os
 import csv
@@ -48,7 +48,7 @@ def read_excel_merge_cell(file_path: Path, sheet_name=None, delete_duplicates_ra
     :param header:
     :return:
     """
-    from zhousflib.pandas import openpyxl_util
+    from zhousflib.pandas_one import openpyxl_util
     excel_file = openpyxl_util.unmerge_and_fill_cells(excel_file=file_path, target_sheet_name=sheet_name,
                                                       delete_duplicates_rate=delete_duplicates_rate, tmp_excel=tmp_excel)
     return read_excel(str(excel_file), sheet_name=sheet_name, header=header)

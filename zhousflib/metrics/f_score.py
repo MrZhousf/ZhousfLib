@@ -52,7 +52,7 @@ class FBetaScore(object):
         from prettytable import PrettyTable
         table = PrettyTable(field_names=["confusion matrix", "recall", "precision", "f_beta_score"],
                             title="F_beta Score Statistical Table (total={0})".format(len(self.y_true)))
-        row = ["tp={0}  tn={1}\nfn={2}  fp={3}".format(self.tp, self.tn, self.fn, self.fp),
+        row = ["tp={0}  fp={1}\nfn={2}  tn={3}".format(self.tp, self.fp, self.fn, self.tn),
                "tp/(tp+fn)={0}/{1}\nrecall={2}".format(self.tp, self.tp + self.fn, self.recall),
                "tp/(tp+fp)={0}/{1}\nprecision={2}".format(self.tp, self.tp + self.fp, self.precision)]
         union = []
@@ -71,11 +71,23 @@ class FBetaScore(object):
         """
         1为正例，0为负例
         -------------
-        TP 预测为1，实际为1，正样本预测正确
-        FN 预测为0，实际为1，正样本预测错误
+        TP 真正例，实际为1，预测为1，正样本预测正确
+        FN 假负例，实际为1，预测为0，正样本预测错误
         -------------
-        FP 预测为1，实际为0，负样本预测错误
-        TN 预测为0，实际为0，负样本预测正确
+        FP 假正例，实际为0，预测为1，负样本预测错误
+        TN 真负例，实际为0，预测为0，负样本预测正确
+
+        +------------------+------------------------------------ +
+        |                  |              True Class             |
+        | Predicted Class  |------------------+------------------+
+        |                  |     Positive     |     Negative     |
+        +------------------+------------------+------------------+
+        |        Y         |        TP        |        FP        |
+        +------------------+------------------+------------------+
+        |        N         |        FN        |        TN        |
+        +------------------+------------------+------------------+
+        查全率： Recall = TP/(TP+FN)；     实际为正例的样本中，模型正确预测为正例的比例
+        查准率： Precision = TP/(TP+FP)；  模型预测为正例的样本中，实际为正例的比例
         """
         array = confusion_matrix_compute(y_true=y_true, y_pred=y_pre)
         self.tp = array[1][1] if array.shape == (2, 2) else 0
@@ -111,7 +123,7 @@ if __name__ == "__main__":
     actual_labels =    [0, 1, 0, 1, 1, 0, 0, 0, 0, 0]
     predicted_labels = [0, 1, 0, 1, 0, 1, 1, 0, 0, 0]
     actual_labels =    [0, 0, 0, 0, 0, 0, 1]
-    predicted_labels = [0, 0, 0, 0, 0, 1, 1]
+    predicted_labels = [0, 0, 0, 0, 1, 1, 1]
     # actual_labels =    [0, 1, 0, 2, 1, 0, 0, 0, 0, 0]
     # predicted_labels = [0, 1, 0, 2, 0, 1, 1, 0, 0, 0]
     score = FBetaScore(y_true=actual_labels, y_pre=predicted_labels, f_beta=[1, 1.1, 2], fbeta_score_average=None)

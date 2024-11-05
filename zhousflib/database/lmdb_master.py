@@ -92,11 +92,15 @@ class LMDB(object):
         return None if res is None else pickle.loads(res)
 
     def query_all(self):
+        """
+        for k, v in db.query_all().items():
+            print(k, v)
+        """
         txn = self.env.begin()
         cur = txn.cursor()
         result = {}
         for key, value in cur:
-            result[str(key)] = pickle.loads(value)
+            result[bytes(key).decode()] = pickle.loads(value)
         return result
 
     def display(self):
@@ -107,7 +111,7 @@ class LMDB(object):
         txn = self.env.begin()
         cur = txn.cursor()
         for key, value in cur:
-            print(str(key), pickle.loads(value))
+            print(bytes(key).decode(), pickle.loads(value))
 
     def clear_all(self):
         """
@@ -117,11 +121,10 @@ class LMDB(object):
         txn = self.env.begin(write=True)
         cur = txn.cursor()
         for key, value in cur:
-            print(str(key), pickle.loads(value))
+            print(bytes(key).decode(), pickle.loads(value))
             txn.delete(str(key).encode())
         txn.commit()
 
     def close(self):
         self.env.close()
-
 
