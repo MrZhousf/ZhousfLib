@@ -2,6 +2,7 @@
 # @Author  : zhousf
 # @Date    : 2023/12/18 
 # @Function:
+import time
 from pathlib import Path
 
 
@@ -234,27 +235,26 @@ def demo_ocr():
     runtime_option.enable_paddle_log_info()  # print log
     # ocr
     fast_det = FastInfer(model_dir=Path(r"D:\workspace\ZhousfLib\model\ch_PP-OCRv4_det_infer"), device_id=0)
-    fast_det.use_fastdeploy_backend(plugin="fd.vision.ocr.DBDetector", runtime_option=runtime_option, clone_moel=False)
+    fast_det.use_fastdeploy_backend(plugin="fd.vision.ocr.DBDetector", runtime_option=runtime_option, clone_model=False)
     fast_det.backend.model.preprocessor.max_side_len = 960
     fast_det.backend.model.preprocessor.static_shape_infer = False
     fast_det.backend.model.postprocessor.det_db_score_mode = 'slow'
     fast_det.backend.model.postprocessor.det_db_unclip_ratio = 1.5
     fast_det.backend.model.postprocessor.use_dilation = True
     fast_cls = FastInfer(model_dir=Path(r"D:\workspace\ZhousfLib\model\ch_PP-OCRv4_cls_infer"), device_id=0)
-    fast_cls.use_fastdeploy_backend(plugin="fd.vision.ocr.Classifier", runtime_option=runtime_option, clone_moel=False)
+    fast_cls.use_fastdeploy_backend(plugin="fd.vision.ocr.Classifier", runtime_option=runtime_option, clone_model=False)
     fast_cls.backend.model.postprocessor.cls_thresh = 0.96
     fast_rec = FastInfer(model_dir=Path(r"D:\workspace\ZhousfLib\model\ch_PP-OCRv4_rec_infer"), device_id=0)
-    fast_rec.use_fastdeploy_backend(plugin="fd.vision.ocr.Recognizer", runtime_option=runtime_option, clone_moel=False)
+    fast_rec.use_fastdeploy_backend(plugin="fd.vision.ocr.Recognizer", runtime_option=runtime_option, clone_model=False)
     fast_ocr = FastInfer(model_dir=None, device_id=0)
     fast_ocr.use_fastdeploy_backend(plugin="fd.vision.ocr.PPOCRv4",
                                     det_model=fast_det.backend.model,
                                     cls_model=fast_cls.backend.model,
                                     rec_model=fast_rec.backend.model)
-    fast_ocr.backend.model.rec_batch_size = 20
-    fast_ocr.backend.model.cls_batch_size = 20
+    fast_ocr.backend.model.rec_batch_size = 6
+    fast_ocr.backend.model.cls_batch_size = 6
 
     image_file = Path(r"D:\workspace\ZhousfLib\model\ch_PP-OCRv4_det_infer\test.jpg")
-    image_file = Path(r"E:\数据2024\OCR难例\旋转图片\B180度.jpg")
     vis_image_file = image_file.with_name("{0}_ocr_vis{1}".format(image_file.stem, image_file.suffix))
     res = fast_ocr.infer(input_data=image_file,
                          vis_image_file=vis_image_file,
@@ -262,8 +262,27 @@ def demo_ocr():
     print(res)
 
 
+def demo_uie():
+    import fastdeploy as fd
+    runtime_option = fd.RuntimeOption()
+    runtime_option.use_paddle_backend()
+    fast_infer = FastInfer(model_dir=Path(r"D:\workspace\ZhousfLib\model\uie-base"), device_id=0)
+    fast_infer.use_fastdeploy_backend(plugin="fd.text.uie.UIEModel", batch_size=32, position_prob=0.2, max_length=128,
+                                      runtime_option=runtime_option)
+    start = time.time()
+    count = 1
+    schema = ["时间", "选手", "赛事名称"]
+    for i in range(count):
+        res = fast_infer.infer(input_data=["2月8日上午北京冬奥会自由式滑雪女子大跳台决赛中中国选手谷爱凌以188.25分获得金牌！",
+                                           "在北京举行的2024年世界乒乓球职业大联盟（WTT）中国大满贯男子双打决赛中，中国组合王楚钦/梁靖崑3比2战胜队友林高远/林诗栋，夺得冠军。"], return_dict=True, schema=schema)
+        print(res)
+    print(f"cost time: {(time.time()-start)/count}")
+    pass
+
+
 if __name__ == "__main__":
-    demo_ocr()
+    demo_uie()
+    # demo_ocr()
     # demo_classification()
     # demo_detection()
     # demo_segmentation()

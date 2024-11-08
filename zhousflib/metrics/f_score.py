@@ -38,6 +38,8 @@ class FBetaScore(object):
                     meaningful for multilabel classification where this differs from
                     :func:`accuracy_score`).
         """
+        assert len(y_true) > 0, "y_true is empty."
+        assert len(y_pre) > 0, "y_pre is empty."
         self.y_true = y_true
         self.y_pre = y_pre
         self.f_beta = f_beta if f_beta is not None else [1]

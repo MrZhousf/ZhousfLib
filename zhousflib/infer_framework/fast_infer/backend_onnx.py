@@ -43,7 +43,7 @@ class BackendONNX(Backend):
                 bin_files = self.get_file_by_suffix(model_dir=self.model_dir, suffix=".bin")
                 assert len(bin_files) > 0, '未找到.bin权重文件，请检查模型目录：{0}.'.format(self.model_dir)
                 import torch
-                from zhousflib.infer_framework.ann import get_device
+                from zhousflib.infer_framework.ann.torch import get_device
                 state_dict = torch.load(bin_files[0], map_location=get_device(device_id=self.device_id))
                 module.load_state_dict(state_dict)
                 module.eval()

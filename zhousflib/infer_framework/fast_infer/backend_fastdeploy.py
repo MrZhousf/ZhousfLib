@@ -12,6 +12,7 @@ import numpy
 from PIL import Image
 import fastdeploy as fd
 from easydict import EasyDict
+from fastdeploy import ModelFormat
 from fastdeploy.libs.fastdeploy_main.vision import (
     ClassifyResult,
     DetectionResult,
@@ -98,7 +99,7 @@ class BackendFastDeploy(Backend):
         if sys.version_info > (3, 9):
             return plugin_classification | plugin_detection | plugin_segmentation | plugin_ocr | plugin_text
         elif (3, 5) < sys.version_info < (3, 9):
-            return {**plugin_classification, **plugin_detection, **plugin_segmentation, **plugin_ocr}
+            return {**plugin_classification, **plugin_detection, **plugin_segmentation, **plugin_ocr, **plugin_text}
         else:
             merged_dict = dict(plugin_classification, **plugin_detection)
             merged_dict = dict(merged_dict, **plugin_segmentation)
@@ -107,9 +108,15 @@ class BackendFastDeploy(Backend):
             return merged_dict
 
     def build(self, **kwargs):
-        self.plugin = self.plugins.get(kwargs.get("plugin"), None)
+        plugin_name = kwargs.get("plugin")
+        clone_model = kwargs.get("clone_model", False)
+        self.plugin = self.plugins.get(plugin_name, None)
         if self.plugin is None:
             raise Exception("Plugin not found: {0}".format(self.plugin))
+        if "plugin" in kwargs:
+            kwargs.pop("plugin")
+        if "clone_model" in kwargs:
+            kwargs.pop("clone_model")
         runtime_option = kwargs.get("runtime_option", None)
         if runtime_option is None:
             runtime_option = fd.RuntimeOption()
@@ -118,19 +125,29 @@ class BackendFastDeploy(Backend):
             runtime_option.use_gpu(device_id=self.device_id)
         else:
             runtime_option.use_cpu()
-        model_format = kwargs.get("model_format")
+        model_format = kwargs.get("model_format", ModelFormat.PADDLE)
         if self.model_dir is not None:
-            union = [
-                self.get_file_path_by_suffix(model_dir=self.model_dir, suffix=".pdmodel"),
-                self.get_file_path_by_suffix(model_dir=self.model_dir, suffix=".pdiparams"),
-                self.get_file_path_by_suffix(model_dir=self.model_dir, suffix=".yaml"),
-                self.get_file_path_by_suffix(model_dir=self.model_dir, suffix=".txt"),
-                runtime_option,
-                model_format
-            ]
-            union = [sublist for sublist in union if sublist]
+            txt_file_mapping = {
+                "fd.vision.ocr.Recognizer": "label_path",
+                "fd.text.uie.UIEModel": "vocab_file",
+            }
+            union = {
+                "model_file": self.get_file_path_by_suffix(model_dir=self.model_dir, suffix=".pdmodel"),
+                "params_file": self.get_file_path_by_suffix(model_dir=self.model_dir, suffix=".pdiparams"),
+                "config_file": self.get_file_path_by_suffix(model_dir=self.model_dir, suffix=".yaml"),
+                txt_file_mapping.get(plugin_name): self.get_file_path_by_suffix(model_dir=self.model_dir, suffix=".txt"),
+                "runtime_option": runtime_option,
+                "model_format": model_format
+            }
+            union = {k: v for k, v in union.items() if v is not None}
+            if sys.version_info > (3, 9):
+                union = union | kwargs
+            elif (3, 5) < sys.version_info < (3, 9):
+                union = {**union, **kwargs}
+            else:
+                union = dict(union, **kwargs)
             try:
-                self.model = self.plugin(*union)
+                self.model = self.plugin(**union)
             except Exception as e:
                 raise Exception("Please check model_dir files: {0} {1}".format(self.model_dir, e))
         else:
@@ -140,7 +157,7 @@ class BackendFastDeploy(Backend):
                 rec_model = kwargs.get("rec_model", None)
                 self.model = self.plugin(det_model, cls_model, rec_model)
 
-        if kwargs.get("clone_model", False):
+        if clone_model:
             if hasattr(self.model, "runtime_option"):
                 opt = self.model.runtime_option
                 if hasattr(opt, "backend"):
@@ -340,14 +357,16 @@ class BackendFastDeploy(Backend):
 
     def inference(self, input_data, **kwargs):
         image_arr = read(input_data)
-        model = self.model.clone() if self.clone_model else self.model
+        model = self.model.clone() if self.clone_model and hasattr(self.model, "clone") else self.model
+        schema = kwargs.get("schema", None)
         kwargs_infer = copy.deepcopy(kwargs)
         delete_key = [k for k in kwargs_infer.keys() if k in ["vis_image_file", "vis_show", "vis_font", "vis_image_size",
-                                                              "vis_fill_transparent", "vis_transparent_weight"]]
+                                                              "vis_fill_transparent", "vis_transparent_weight", "schema"]]
         if len(delete_key) > 0:
             for k in delete_key:
                 kwargs_infer.pop(k)
-
+        if hasattr(model, "set_schema") and schema:
+            self.model.set_schema(schema)
         infer_res = model.predict(image_arr, **kwargs_infer)
 
         if isinstance(input_data, Path):
