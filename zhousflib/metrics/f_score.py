@@ -46,8 +46,9 @@ class FBetaScore(object):
         self.fbeta_score_average = fbeta_score_average
         self.tn, self.fp, self.fn, self.tp = self.confusion_matrix(y_true=self.y_true, y_pre=self.y_pre)
         self.recall = self.tp / (self.tp + self.fn) if (self.tp + self.fn) > 0 else 0
-        self.precision = self.tp / (self.tp + self.fp) if  (self.tp + self.fp) > 0 else 0
+        self.precision = self.tp / (self.tp + self.fp) if (self.tp + self.fp) > 0 else 0
         self.f_beta_score = self.f_beta_score_compute(f_beta=self.f_beta, y_true=self.y_true, y_pre=self.y_pre)
+        self.accuracy = (self.tp + self.tn) / (self.tp + self.tn + self.fp + self.fn)
         self.report = classification_report(self.y_true, self.y_pre, digits=4)
 
     def print(self, is_print=True):
@@ -124,8 +125,8 @@ class FBetaScore(object):
 if __name__ == "__main__":
     actual_labels =    [0, 1, 0, 1, 1, 0, 0, 0, 0, 0]
     predicted_labels = [0, 1, 0, 1, 0, 1, 1, 0, 0, 0]
-    actual_labels =    [0, 0, 0, 0, 0, 0, 1]
-    predicted_labels = [0, 0, 0, 0, 1, 1, 1]
+    # actual_labels =    [0, 0, 0, 0, 0, 0, 1]
+    # predicted_labels = [0, 0, 0, 0, 1, 1, 1]
     # actual_labels =    [0, 1, 0, 2, 1, 0, 0, 0, 0, 0]
     # predicted_labels = [0, 1, 0, 2, 0, 1, 1, 0, 0, 0]
     score = FBetaScore(y_true=actual_labels, y_pre=predicted_labels, f_beta=[1, 1.1, 2], fbeta_score_average=None)

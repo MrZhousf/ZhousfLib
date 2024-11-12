@@ -270,7 +270,7 @@ def demo_uie():
     fast_infer.use_fastdeploy_backend(plugin="fd.text.uie.UIEModel", batch_size=32, position_prob=0.2, max_length=128,
                                       runtime_option=runtime_option)
     start = time.time()
-    count = 1
+    count = 100
     schema = ["时间", "选手", "赛事名称"]
     for i in range(count):
         res = fast_infer.infer(input_data=["2月8日上午北京冬奥会自由式滑雪女子大跳台决赛中中国选手谷爱凌以188.25分获得金牌！",
