@@ -184,7 +184,7 @@ def fetch_filename_from_url(url: str) -> list:
     :return: ['yr.jpg']
     """
     files = []
-    patter = r'/([^/?]*)\.(jpg|JPG|png|PNG|bmp|BMP|svg|SVG|gif|GIF|pdf|PDF|zip|ZIP|json|JSON)\b'
+    patter = r'/([^/?]*)\.(jpg|JPG|jpeg|JPEG|png|PNG|bmp|BMP|svg|SVG|gif|GIF|pdf|PDF|zip|ZIP|json|JSON)\b'
     items = re.findall(re.compile(patter), url)
     if len(items) == 0:
         return files

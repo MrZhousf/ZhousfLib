@@ -8,6 +8,14 @@ import matplotlib.patches as mpathes
 from shapely import geometry
 from shapely.geometry import Polygon
 
+"""
+[question]
+Backend TkAgg is interactive backend. Turning interactive mode on.
+[solution]
+import matplotlib
+matplotlib.use('TkAgg')
+"""
+
 
 def in_poly(poly, point):
     """

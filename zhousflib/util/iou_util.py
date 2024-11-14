@@ -7,6 +7,14 @@ import matplotlib.colors as mcolors
 
 from zhousflib.util import math_util
 
+"""
+[question]
+Backend TkAgg is interactive backend. Turning interactive mode on.
+[solution]
+import matplotlib
+matplotlib.use('TkAgg')
+"""
+
 
 def show_rect(boxes: list):
     """
