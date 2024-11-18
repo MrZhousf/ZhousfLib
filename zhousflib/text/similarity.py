@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # @Author  : zhousf
 # @Function: 相似度计算
+import re
 import jieba
 from typing import List
 from zhousflib.util import re_util
@@ -33,13 +34,14 @@ def text_to_vector(text: List[str], vector_type=TypeFeatureVector.TYPE_COUNT_VEC
     return FeatureVector(vector_type=vector_type).fit_transform(text)
 
 
-def compute_similarity(text: List[str], vector_type=TypeFeatureVector.TYPE_COUNT_VECTOR, filter_punctuation=True,
+def compute_similarity(text: List[str], vector_type=TypeFeatureVector.TYPE_COUNT_VECTOR, filter_punctuation=True, filter_s=True,
                        cut_all=True, filter_result=False, filter_threshold: float = 0):
     """
 
     :param text:
     :param vector_type:
-    :param filter_punctuation:
+    :param filter_punctuation: 过滤标点符号
+    :param filter_s: 过滤空格、制表符、换行符
     :param cut_all:
     :param filter_result:
     :param filter_threshold:
@@ -48,7 +50,13 @@ def compute_similarity(text: List[str], vector_type=TypeFeatureVector.TYPE_COUNT
     _text = []
     for txt in text:
         if filter_punctuation:
-            txt = re_util.get_digit_letter_chinese(str(txt))
+            txt = re_util.remove_special_punctuation(str(txt))
+            if filter_s:
+                # 提取中文、数字、字母
+                txt = re.sub(r"[^\u0041-\u005a\u0061-\u007a\u0030-\u0039\u4e00-\u9fa5]", "", txt)
+            else:
+                # 提取中文、数字、字母、包括 \s （空格、制表符、换行符等）
+                txt = re.sub(r"[^\u0041-\u005a\u0061-\u007a\u0030-\u0039\u4e00-\u9fa5\s]", "", txt)
         _text.append(str(jieba.lcut(txt, cut_all=cut_all)))
     cosine = Cosine()
     vector = text_to_vector(_text, vector_type)
@@ -63,7 +71,7 @@ if __name__ == "__main__":
                  "This document is the second document",
                  "This is the third document"]
     results = compute_similarity(text=documents, vector_type=TypeFeatureVector.TYPE_COUNT_VECTOR,
-                                 filter_punctuation=False, cut_all=False, filter_result=False, filter_threshold=0.1)
+                                 filter_punctuation=True, filter_s=False, cut_all=False, filter_result=False, filter_threshold=0.1)
     print(results)
     print("耗时", time.time() - start)
 
