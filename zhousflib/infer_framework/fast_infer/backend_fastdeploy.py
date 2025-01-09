@@ -51,6 +51,15 @@ touch ./etc/conda/activate.d/env_vars.sh
 ImportError: libGL.so.1: cannot open shared object file: No such file or directory
 [solution]
 pip install opencv-python-headless -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+[question]
+RuntimeError: FastDeploy initalized failed! Error: /lib64/libstdc++.so.6: version `GLIBCXX_3.4.21' not found
+[solution]
+find / -name "libstdc++.so*"
+找到后选择其中一个目录， 例如：/root/anaconda3/lib
+export LD_LIBRARY_PATH=/root/anaconda3/lib/:$LD_LIBRARY_PATH
+
+
 """
 
 

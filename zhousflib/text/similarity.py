@@ -15,15 +15,14 @@ N-gram算法：N-gram算法是一种基于文本分词的方法，将文本分�
 向量空间模型算法：向量空间模型算法是一种基于文本向量化的方法，将文本转换成向量，然后计算向量之间的相似度来判断文本的相似度。这种方法可以识别出语义相似的文本，相对于其他算法，其检测精度更高。
 
 MinHash算法：MinHash算法是一种基于哈希的文本查重方法，它通过随机排列文档中的词项并使用哈希函数来比较文档的相似性。
-SimHash算法：
+SimHash算法：是一种局部敏感哈希（Locality Sensitive Hashing, LSH）技术，最初由Google提出，用于高效地计算文本相似度
+。其核心思想是将相似的文本映射到相近的哈希空间中，从而实现快速的相似性检测。
 
 运行速度：KSentence > Simhash > Minhash
 准确率：KSentence > Minhash > Simhash
 召回率：Simhash > Minhash > KSentence
 工程应用上，海量文本用Simhash，短文本用Minhash，追求速度用KSentence。
-"""
 
-"""
 余弦相似度：from sklearn.metrics.pairwise import cosine_similarity   
 欧氏距离：  from sklearn.metrics.pairwise import euclidean_distances
 曼哈顿距离：from sklearn.metrics.pairwise import manhattan_distances
@@ -71,7 +70,7 @@ if __name__ == "__main__":
                  "This document is the second document",
                  "This is the third document"]
     results = compute_similarity(text=documents, vector_type=TypeFeatureVector.TYPE_COUNT_VECTOR,
-                                 filter_punctuation=True, filter_s=False, cut_all=False, filter_result=False, filter_threshold=0.1)
+                                 filter_punctuation=True, filter_s=True, cut_all=False, filter_result=True, filter_threshold=0.9)
     print(results)
     print("耗时", time.time() - start)
 

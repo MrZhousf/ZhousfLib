@@ -44,6 +44,10 @@ class FBetaScore(object):
         self.y_pre = y_pre
         self.f_beta = f_beta if f_beta is not None else [1]
         self.fbeta_score_average = fbeta_score_average
+        self.tp_multi = {}
+        self.tn_multi = {}
+        self.fp_multi = {}
+        self.fn_multi = {}
         self.tn, self.fp, self.fn, self.tp = self.confusion_matrix(y_true=self.y_true, y_pre=self.y_pre)
         self.recall = self.tp / (self.tp + self.fn) if (self.tp + self.fn) > 0 else 0
         self.precision = self.tp / (self.tp + self.fp) if (self.tp + self.fp) > 0 else 0
@@ -66,6 +70,12 @@ class FBetaScore(object):
         table.align = "l"
         # table.align["confusion matrix"] = "c"
         if is_print:
+            union = self.tn_multi | self.tn_multi | self.fp_multi | self.fn_multi
+            if len(union) > 0:
+                print("True Positives (TP):", self.tp_multi)
+                print("True Negatives (TN):", self.tn_multi)
+                print("False Positives (FP):", self.fp_multi)
+                print("False Negatives (FN):", self.fn_multi)
             print(table)
             print(self.report)
         return table, self.report
@@ -92,11 +102,22 @@ class FBetaScore(object):
         查全率： Recall = TP/(TP+FN)；     实际为正例的样本中，模型正确预测为正例的比例
         查准率： Precision = TP/(TP+FP)；  模型预测为正例的样本中，实际为正例的比例
         """
-        array = confusion_matrix_compute(y_true=y_true, y_pred=y_pre)
-        self.tp = array[1][1] if array.shape == (2, 2) else 0
-        self.tn = array[0][0]
-        self.fp = array[0][1] if array.shape == (2, 2) else 0
-        self.fn = array[1][0] if array.shape == (2, 2) else 0
+        if len(set(y_true)) == 2:
+            # 二分类
+            self.tn, self.fp, self.fn, self.tp = confusion_matrix_compute(y_true=y_true, y_pred=y_pre).ravel()
+        else:
+            # 多分类
+            cm = confusion_matrix_compute(y_true=y_true, y_pred=y_pre)
+            # 遍历每个类别
+            for i in range(len(cm)):
+                self.tp_multi[i] = cm[i, i]  # 真正例
+                self.fn_multi[i] = cm[i, :].sum() - cm[i, i]  # 假负例
+                self.fp_multi[i] = cm[:, i].sum() - cm[i, i]  # 假正例
+                self.tn_multi[i] = cm.sum() - (self.tp_multi[i] + self.fn_multi[i] + self.fp_multi[i])  # 真负例需要计算除了当前类别i之外的所有其他类别的TN之和
+            self.tp = sum([v for k, v in self.tp_multi.items()])
+            self.tn = sum([v for k, v in self.tn_multi.items()])
+            self.fp = sum([v for k, v in self.fp_multi.items()])
+            self.fn = sum([v for k, v in self.fn_multi.items()])
         return self.tn, self.fp, self.fn, self.tp
 
     def f_beta_score_compute(self, f_beta: list, y_true: list = None, y_pre: list = None):
@@ -123,13 +144,16 @@ class FBetaScore(object):
 
 
 if __name__ == "__main__":
-    actual_labels =    [0, 1, 0, 1, 1, 0, 0, 0, 0, 0]
-    predicted_labels = [0, 1, 0, 1, 0, 1, 1, 0, 0, 0]
+    # actual_labels =    [0, 1, 0, 1, 1, 0, 0, 0, 0, 0]
+    # predicted_labels = [0, 1, 0, 1, 0, 1, 1, 0, 0, 0]
     # actual_labels =    [0, 0, 0, 0, 0, 0, 1]
     # predicted_labels = [0, 0, 0, 0, 1, 1, 1]
-    # actual_labels =    [0, 1, 0, 2, 1, 0, 0, 0, 0, 0]
-    # predicted_labels = [0, 1, 0, 2, 0, 1, 1, 0, 0, 0]
-    score = FBetaScore(y_true=actual_labels, y_pre=predicted_labels, f_beta=[1, 1.1, 2], fbeta_score_average=None)
+    # actual_labels =    [-1, 1, -1, 2, 2, 3]
+    # predicted_labels = [-1, 1, -1, 2, 1, 3]
+    actual_labels =    [1, 0, 2, 1, 0, 0]
+    predicted_labels = [1, 0, 2, 0, 1, 1]
+
+    score = FBetaScore(y_true=actual_labels, y_pre=predicted_labels, f_beta=[1], fbeta_score_average=None)
     score.print()
 
 

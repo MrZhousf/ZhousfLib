@@ -1,34 +1,35 @@
 # -*- coding: utf-8 -*-
 # @Author  : zhousf
-# @Function:
+# @Function:  pip install python-dotenv
 import time
-import datetime as dt
-from datetime import datetime
 import shutil
 import traceback
 import multiprocessing
+import datetime as dt
+from datetime import datetime
 from loguru import logger
+from dotenv import dotenv_values
 from configure import LogDir
+
+
+config_env = dotenv_values(".env.dev")
 
 gunicorn_dir = LogDir.joinpath("gunicorn")
 if not gunicorn_dir.exists():
     gunicorn_dir.mkdir(parents=True, exist_ok=True)
 
-HOST = "0.0.0.0"
-PORT = 5006
 
-# ip/port
-bind = "{0}:{1}".format(HOST, PORT)
+bind = "{0}:{1}".format(config_env.get("HOST"), config_env.get("PORT"))
 # 进程文件
 pidfile = '{0}/gunicorn.pid'.format(gunicorn_dir)
 # 进程数
-workers = 5
+workers = config_env.get("WORKERS")
 # 进程名称
 proc_name = "zhousf_project"
 # 每个进程开启的线程数
 threads = multiprocessing.cpu_count() * 2
 # 设置后台守护进程
-daemon = 'True'
+daemon = config_env.get("DAEMON")
 # 设置最大并发量
 worker_connections = 50
 # 超时

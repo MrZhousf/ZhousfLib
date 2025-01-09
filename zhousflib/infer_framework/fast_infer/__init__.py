@@ -268,27 +268,26 @@ def demo_uie():
     runtime_option = fd.RuntimeOption()
     runtime_option.use_paddle_backend()
     fast_infer = FastInfer(model_dir=Path(r"D:\workspace\ZhousfLib\model\uie-base"), device_id=0)
-    fast_infer.use_fastdeploy_backend(plugin="fd.text.uie.UIEModel", batch_size=32, position_prob=0.5, max_length=128,
+    fast_infer.use_fastdeploy_backend(plugin="fd.text.uie.UIEModel", batch_size=32, position_prob=0.3, max_length=256,
                                       runtime_option=runtime_option)
     start = time.time()
     count = 1
-    # for i in range(count):
-    #     res = fast_infer.infer(input_data=["2月8日上午北京冬奥会自由式滑雪女子大跳台决赛中中国选手谷爱凌以188.25分获得金牌！",
-    #                                        "在北京举行的2024年世界乒乓球职业大联盟（WTT）中国大满贯男子双打决赛中，中国组合王楚钦/梁靖崑3比2战胜队友林高远/林诗栋，夺得冠军。"],
-    #                            return_dict=True, schema=["时间", "选手", "赛事名称"])
-    #     print(res)
     for i in range(count):
-        res = fast_infer.infer(input_data=[r"北京市海淀区人民法院\n民事判决书\n(199x)建初字第xxx号\n原告：张三。\n委托代理人李四，北京市 A律师事务所律师。\n被告：B公司，法定代表人王五，开发公司总经理。\n委托代理人赵六，北京市 C律师事务所律师。"],
-                               return_dict=True, schema=['法院', {'原告': '委托代理人'}, {'被告': '委托代理人'}])
-        print(json.dumps(res, ensure_ascii=False))
-    print(f"cost time: {(time.time()-start)/count}")
+        res = fast_infer.infer(input_data=["2月8日上午北京冬奥会自由式滑雪女子大跳台决赛中中国选手谷爱凌以188.25分获得金牌！",
+                                           "在北京举行的2024年世界乒乓球职业大联盟（WTT）中国大满贯男子双打决赛中，中国组合王楚钦/梁靖崑3比2战胜队友林高远/林诗栋，夺得冠军。"],
+                               return_dict=True, schema=["时间", "选手", "赛事名称"])
+        print(json.dumps(res, ensure_ascii=False, indent=2))
+    # res = fast_infer.infer(input_data=[r"北京市海淀区人民法院\n民事判决书\n(199x)建初字第xxx号\n原告：张三。\n委托代理人李四，北京市 A律师事务所律师。\n被告：B公司，法定代表人王五，开发公司总经理。\n委托代理人赵六，北京市 C律师事务所律师。"],
+    #                        return_dict=True, schema=['法院', {'原告': '委托代理人'}, {'被告': '委托代理人'}])
+    # print(json.dumps(res, ensure_ascii=False, indent=2))
+    print(f"cost time: {(time.time() - start) / count}")
     pass
 
 
 if __name__ == "__main__":
-    # demo_uie()
+    demo_uie()
     # demo_ocr()
     # demo_classification()
-    demo_detection()
+    # demo_detection()
     # demo_segmentation()
     pass

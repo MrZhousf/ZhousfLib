@@ -35,8 +35,10 @@ URL = 'https://github.com/MrZhousf/ZhousfLib'
 EMAIL = '442553199@qq.com'
 AUTHOR = 'zhousf'
 REQUIRES_PYTHON = '>=3.6.13'
-VERSION = '1.6.7.6'
+VERSION = '1.6.7.8'
 PACKAGE_DATA = {'': ['*.yaml', '*.ttf', '*.txt', '*.md']}
+UPLOAD_TO_PYPI = False
+PUSH_TO_GITHUB = False
 
 
 with open('README.md', 'r', encoding='utf-8') as fh:
@@ -104,12 +106,14 @@ class UploadCommand(Command):
         self.status('Building Source and Wheel (universal) distribution…')
         os.system('{0} setup.py sdist bdist_wheel --universal'.format(sys.executable))
 
-        self.status('Uploading the package to PyPI via Twine…')
-        os.system('twine upload dist/* --verbose')
+        if UPLOAD_TO_PYPI:
+            self.status('Uploading the package to PyPI via Twine…')
+            os.system('twine upload dist/* --verbose')
 
-        # self.status('Pushing git tags…')
-        # os.system('git tag v{0}'.format(about['__version__']))
-        # os.system('git push --tags')
+        if PUSH_TO_GITHUB:
+            self.status('Pushing git tags…')
+            os.system('git tag v{0}'.format(about['__version__']))
+            os.system('git push --tags')
 
         sys.exit()
 
