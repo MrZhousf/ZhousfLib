@@ -8,7 +8,8 @@ from sklearn.metrics import fbeta_score, classification_report
 
 class FBetaScore(object):
 
-    def __init__(self, y_true: list, y_pre: list, f_beta: list, fbeta_score_average=None):
+    def __init__(self, y_true: list, y_pre: list, f_beta: list, fbeta_score_average=None, report_label=None,
+                 report_digits=4, zero_division=0):
         """
 
         :param y_true:
@@ -37,6 +38,11 @@ class FBetaScore(object):
                     Calculate metrics for each instance, and find their average (only
                     meaningful for multilabel classification where this differs from
                     :func:`accuracy_score`).
+        :param report_label: 需要统计的类别，例如(1, 2, 3)
+        :param report_digits: 统计指标保留的小数位数
+        :param zero_division: "warn", 0 or 1, default="warn"
+                              Sets the value to return when there is a zero division. If set to
+                              "warn", this acts as 0, but warnings are also raised.
         """
         assert len(y_true) > 0, "y_true is empty."
         assert len(y_pre) > 0, "y_pre is empty."
@@ -44,16 +50,22 @@ class FBetaScore(object):
         self.y_pre = y_pre
         self.f_beta = f_beta if f_beta is not None else [1]
         self.fbeta_score_average = fbeta_score_average
+        self.report_label = report_label
+        self.report_digits = report_digits
+        self.zero_division = zero_division
         self.tp_multi = {}
         self.tn_multi = {}
         self.fp_multi = {}
         self.fn_multi = {}
         self.tn, self.fp, self.fn, self.tp = self.confusion_matrix(y_true=self.y_true, y_pre=self.y_pre)
         self.recall = self.tp / (self.tp + self.fn) if (self.tp + self.fn) > 0 else 0
+        self.recall = f'{self.recall:.{self.report_digits}f}'
         self.precision = self.tp / (self.tp + self.fp) if (self.tp + self.fp) > 0 else 0
+        self.precision = f'{self.precision:.{self.report_digits}f}'
         self.f_beta_score = self.f_beta_score_compute(f_beta=self.f_beta, y_true=self.y_true, y_pre=self.y_pre)
         self.accuracy = (self.tp + self.tn) / (self.tp + self.tn + self.fp + self.fn)
-        self.report = classification_report(self.y_true, self.y_pre, digits=4)
+        self.report = classification_report(self.y_true, self.y_pre, digits=self.report_digits, labels=self.report_label,
+                                            zero_division=self.zero_division)
 
     def print(self, is_print=True):
         from prettytable import PrettyTable
@@ -64,7 +76,7 @@ class FBetaScore(object):
                "tp/(tp+fp)={0}/{1}\nprecision={2}".format(self.tp, self.tp + self.fp, self.precision)]
         union = []
         for i, beta in enumerate(self.f_beta):
-            union.append("f_{0}={1}".format(beta, self.f_beta_score[i]))
+            union.append("f_{0}: {1}".format(beta, self.f_beta_score[i]))
         row.append("\n".join(union))
         table.add_row(row)
         table.align = "l"
@@ -102,7 +114,7 @@ class FBetaScore(object):
         查全率： Recall = TP/(TP+FN)；     实际为正例的样本中，模型正确预测为正例的比例
         查准率： Precision = TP/(TP+FP)；  模型预测为正例的样本中，实际为正例的比例
         """
-        if len(set(y_true)) == 2:
+        if len(set(y_true+y_pre)) == 2:
             # 二分类
             self.tn, self.fp, self.fn, self.tp = confusion_matrix_compute(y_true=y_true, y_pred=y_pre).ravel()
         else:
@@ -138,7 +150,21 @@ class FBetaScore(object):
             y_pre = self.y_pre
         f_score = []
         for beta in f_beta:
-            f_score.append(fbeta_score(y_true=y_true, y_pred=y_pre, beta=beta, average=self.fbeta_score_average))
+            f_print = "\n"
+            scores = fbeta_score(y_true=y_true, y_pred=y_pre, beta=beta, average=self.fbeta_score_average,
+                                 labels=self.report_label, zero_division=self.zero_division).tolist()
+            if self.report_label is not None:
+                report_label = list(self.report_label)
+                # f_print = []
+                for i, v in enumerate(report_label):
+                    f_print += f'  {report_label[i]}: {scores[i]:.{self.report_digits}f}'
+                    if i < len(report_label) - 1:
+                        f_print += "\n"
+                f_score.append(f_print)
+            else:
+                f_score.append(fbeta_score(y_true=y_true, y_pred=y_pre, beta=beta, average=self.fbeta_score_average,
+                                           labels=self.report_label, zero_division=self.zero_division))
+                pass
         # f_score = (1 + beta ** 2) * (precision * recall) / (beta ** 2 * precision + recall)
         return f_score
 
@@ -150,10 +176,11 @@ if __name__ == "__main__":
     # predicted_labels = [0, 0, 0, 0, 1, 1, 1]
     # actual_labels =    [-1, 1, -1, 2, 2, 3]
     # predicted_labels = [-1, 1, -1, 2, 1, 3]
-    actual_labels =    [1, 0, 2, 1, 0, 0]
-    predicted_labels = [1, 0, 2, 0, 1, 1]
-
-    score = FBetaScore(y_true=actual_labels, y_pre=predicted_labels, f_beta=[1], fbeta_score_average=None)
+    # actual_labels =    [1, 0, 2, 1, 0, 0]
+    # predicted_labels = [1, 0, 2, 0, 1, 1]
+    actual_labels =    ['1', '3', '2', '1_2', '2', '2']
+    predicted_labels = ['1_2', '3', '2', '1', '1', '1']
+    score = FBetaScore(y_true=actual_labels, y_pre=predicted_labels, f_beta=[1], fbeta_score_average=None, report_label=("1", "2", "3", "4"))
     score.print()
 
 

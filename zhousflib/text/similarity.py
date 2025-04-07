@@ -40,7 +40,7 @@ def compute_similarity(text: List[str], vector_type=TypeFeatureVector.TYPE_COUNT
     :param text:
     :param vector_type:
     :param filter_punctuation: 过滤标点符号
-    :param filter_s: 过滤空格、制表符、换行符
+    :param filter_s: 中文计算时，过滤空格、制表符、换行符，若计算英文时filter_s设置为False
     :param cut_all:
     :param filter_result:
     :param filter_threshold:
@@ -70,7 +70,7 @@ if __name__ == "__main__":
                  "This document is the second document",
                  "This is the third document"]
     results = compute_similarity(text=documents, vector_type=TypeFeatureVector.TYPE_COUNT_VECTOR,
-                                 filter_punctuation=True, filter_s=True, cut_all=False, filter_result=True, filter_threshold=0.9)
+                                 filter_punctuation=True, filter_s=False, cut_all=False, filter_result=True, filter_threshold=0.01)
     print(results)
     print("耗时", time.time() - start)
 

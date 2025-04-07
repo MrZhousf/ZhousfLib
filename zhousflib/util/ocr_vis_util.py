@@ -220,7 +220,7 @@ def draw_ocr_box_txt(image,
                      drop_score=0.5,
                      font_path="./doc/simfang.ttf"):
     """
-    如果竖排文字重叠请安装：pillow==9.0.1
+    如果出现竖排文字重叠问题，请安装：pillow==9.0.1
     """
     if image.mode != "RGB":
         image = image.convert('RGB')

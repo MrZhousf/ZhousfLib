@@ -12,15 +12,17 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
+from fastapi_cdn_host import patch_docs
 from starlette.concurrency import iterate_in_threadpool
 
-from zhousflib.web.fastapi.exceptions import EXCEPTION_HANDLERS
 
+# pip install fastapi-cdn-host
 """
 from pathlib import Path
 
 from fastapi import FastAPI
 from zhousflib.web.fastapi.server import App
+from zhousflib.web.fastapi.exceptions import EXCEPTION_HANDLERS
 
 from my_log import Loggers
 
@@ -31,9 +33,9 @@ ML_MODELS = {}
 class Application(App):
 
     def __init__(self):
-        super().__init__(logger=Loggers, show_docs=False, models=ML_MODELS)
+        super().__init__(logger=Loggers, show_docs=False, models=ML_MODELS, exception_handlers=EXCEPTION_HANDLERS)
 
-    def init_plugins(self, app: FastAPI, models: dict, exception_handler: dict):
+    def init_plugins(self, app: FastAPI, models: dict):
         from fastapi.staticfiles import StaticFiles
         app.mount('/static', StaticFiles(directory=Path(__file__).parent.joinpath("app").joinpath("static")), name='static')
 
@@ -58,7 +60,6 @@ class App(FastAPI, metaclass=abc.ABCMeta):
         ),
     ]):
         extra["lifespan"] = self.lifespan
-        extra["exception_handlers"] = EXCEPTION_HANDLERS
         if not show_docs:
             extra["docs_url"] = None
             extra["redoc_url"] = None
@@ -127,12 +128,13 @@ class App(FastAPI, metaclass=abc.ABCMeta):
     async def lifespan(self, app: FastAPI):
         if self.logger:
             self.logger.info("init plugins.")
-        self.init_plugins(app, self.models, EXCEPTION_HANDLERS)
+        patch_docs(app)
+        self.init_plugins(app, self.models)
         yield
         self.models.clear()
 
     @abc.abstractmethod
-    def init_plugins(self, app: FastAPI, models: dict, exception_handler: dict):
+    def init_plugins(self, app: FastAPI, models: dict):
         pass
 
     @staticmethod

@@ -46,8 +46,17 @@ class FeatureVector(object):
             self.vector = None
         if self.vector is None:
             if vector_type == TypeFeatureVector.TYPE_TF_IDF:
+                """
+                TfidfVectorizer 除了考虑词汇在文本中的出现频率外，还会考虑词汇在所有文档中的分布情况。
+                TF-IDF值越高，表示该词汇在特定文档中重要且在所有文档中稀少，适用于需要强调词汇重要性和稀疏性的场景‌。
+                """
                 self.vector = TfidfVectorizer(**kwargs)
+                # TfidfVectorizer 将文本数据转换为 TF-IDF 矩阵，其中每行代表一个文档，每列代表一个词汇的 TF-IDF 值
             elif vector_type == TypeFeatureVector.TYPE_COUNT_VECTOR:
+                """
+                CountVectorizer 将文本中的词语转换为词频矩阵。它将文本分词后，将所有文档中的词汇作为一个字典，
+                每一行的长度为字典的长度，存在的词置为1，不存在的词置为0。这种方式简单直观，适用于需要精确统计词汇出现次数的场景‌。
+                """
                 self.vector = CountVectorizer(**kwargs)
         self.vector_type = vector_type
         self.vocabulary = self.vector.vocabulary_ if hasattr(self.vector, "vocabulary_") else None

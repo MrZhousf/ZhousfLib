@@ -267,9 +267,9 @@ def demo_uie():
     import fastdeploy as fd
     runtime_option = fd.RuntimeOption()
     runtime_option.use_paddle_backend()
-    fast_infer = FastInfer(model_dir=Path(r"D:\workspace\ZhousfLib\model\uie-base"), device_id=0)
+    fast_infer = FastInfer(model_dir=Path(r"D:\workspace\ZhousfLib\model\uie-mini"), device_id=0)
     fast_infer.use_fastdeploy_backend(plugin="fd.text.uie.UIEModel", batch_size=32, position_prob=0.3, max_length=256,
-                                      runtime_option=runtime_option)
+                                      runtime_option=runtime_option, clone_model=True)
     start = time.time()
     count = 1
     for i in range(count):

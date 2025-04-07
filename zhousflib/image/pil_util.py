@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # @Author  : zhousf
-# @Function:
+# @Function: pillow==9.0.1
 import numpy
 from pathlib import Path
 

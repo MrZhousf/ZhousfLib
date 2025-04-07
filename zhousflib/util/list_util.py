@@ -120,11 +120,11 @@ def difference(a, b):
     return list(set(a).difference(set(b)))
 
 
-def sort(data: list, index: int = 0, reverse=False):
+def sort(data: list, index, reverse=False):
     """
     排序
     :param data:
-    :param index: 排序参考的索引
+    :param index: 排序参考的索引：int，或dict中key：str
     :param reverse: 是否倒序
     :return:
     """
