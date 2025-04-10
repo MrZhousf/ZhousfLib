@@ -25,11 +25,14 @@ RUN ln -sf /usr/local/bin/python3 /usr/local/bin/python && \
 
 COPY /packages/pip-24.2-py3-none-any.whl .
 RUN python -m pip install --upgrade pip-24.2-py3-none-any.whl
+RUN rm pip-24.2-py3-none-any.whl
 
 COPY /packages/opencv_python-4.8.1.78-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl .
 RUN pip install opencv_python-4.8.1.78-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl --default-timeout=1000 -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
+RUN rm opencv_python-4.8.1.78-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
 
 COPY /packages/fastdeploy_gpu_python-1.0.7-cp39-cp39-manylinux1_x86_64.whl .
 RUN pip install fastdeploy_gpu_python-1.0.7-cp39-cp39-manylinux1_x86_64.whl --default-timeout=1000 -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
+RUN rm fastdeploy_gpu_python-1.0.7-cp39-cp39-manylinux1_x86_64.whl
 
 # docker run -it --name=test --rm zhousf_fd_env:1.0.7

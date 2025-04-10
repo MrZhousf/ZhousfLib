@@ -2,6 +2,8 @@
 # @Author  : zhousf
 # @Function:
 # pip install scikit-learn
+from collections import Counter
+
 from sklearn.metrics import confusion_matrix as confusion_matrix_compute
 from sklearn.metrics import fbeta_score, classification_report
 
@@ -57,6 +59,7 @@ class FBetaScore(object):
         self.tn_multi = {}
         self.fp_multi = {}
         self.fn_multi = {}
+        self.label_count = Counter(self.y_true)
         self.tn, self.fp, self.fn, self.tp = self.confusion_matrix(y_true=self.y_true, y_pre=self.y_pre)
         self.recall = self.tp / (self.tp + self.fn) if (self.tp + self.fn) > 0 else 0
         self.recall = f'{self.recall:.{self.report_digits}f}'
@@ -76,7 +79,7 @@ class FBetaScore(object):
                "tp/(tp+fp)={0}/{1}\nprecision={2}".format(self.tp, self.tp + self.fp, self.precision)]
         union = []
         for i, beta in enumerate(self.f_beta):
-            union.append("f_{0}: {1}".format(beta, self.f_beta_score[i]))
+            union.append("f-{0}-score: {1}\n".format(beta, self.f_beta_score[i]))
         row.append("\n".join(union))
         table.add_row(row)
         table.align = "l"
@@ -155,11 +158,18 @@ class FBetaScore(object):
                                  labels=self.report_label, zero_division=self.zero_division).tolist()
             if self.report_label is not None:
                 report_label = list(self.report_label)
-                # f_print = []
                 for i, v in enumerate(report_label):
                     f_print += f'  {report_label[i]}: {scores[i]:.{self.report_digits}f}'
                     if i < len(report_label) - 1:
                         f_print += "\n"
+                if self.report_label is not None:
+                    micro_avg = fbeta_score(y_true=y_true, y_pred=y_pre, beta=beta, average="micro", labels=self.report_label, zero_division=self.zero_division)
+                    macro_avg = fbeta_score(y_true=y_true, y_pred=y_pre, beta=beta, average="macro", labels=self.report_label, zero_division=self.zero_division)
+                    weighted_avg = fbeta_score(y_true=y_true, y_pred=y_pre, beta=beta, average="weighted", labels=self.report_label, zero_division=self.zero_division)
+                    f_print += f"\n  --------------------"
+                    f_print += f"\n  micro avg: {micro_avg:.{self.report_digits}f}"
+                    f_print += f"\n  macro avg: {macro_avg:.{self.report_digits}f}"
+                    f_print += f"\n  weighted avg: {weighted_avg:.{self.report_digits}f}"
                 f_score.append(f_print)
             else:
                 f_score.append(fbeta_score(y_true=y_true, y_pred=y_pre, beta=beta, average=self.fbeta_score_average,
@@ -180,7 +190,7 @@ if __name__ == "__main__":
     # predicted_labels = [1, 0, 2, 0, 1, 1]
     actual_labels =    ['1', '3', '2', '1_2', '2', '2']
     predicted_labels = ['1_2', '3', '2', '1', '1', '1']
-    score = FBetaScore(y_true=actual_labels, y_pre=predicted_labels, f_beta=[1], fbeta_score_average=None, report_label=("1", "2", "3", "4"))
+    score = FBetaScore(y_true=actual_labels, y_pre=predicted_labels, f_beta=[0.5, 1], fbeta_score_average=None, report_label=("1", "2", "3", "4"))
     score.print()
 
 
