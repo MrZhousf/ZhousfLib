@@ -91,6 +91,8 @@ class BackendFastDeploy(Backend):
             "fd.vision.detection.YOLOv8": fd.vision.detection.YOLOv8,
             "fd.vision.detection.YOLOv7": fd.vision.detection.YOLOv7,
             "fd.vision.detection.YOLOv6": fd.vision.detection.YOLOv6,
+            "fd.vision.detection.PicoDet": fd.vision.detection.PicoDet,
+            "fd.vision.detection.RetinaNet": fd.vision.detection.RetinaNet,
         }
         plugin_segmentation = {
             "fd.vision.segmentation.PaddleSegModel": fd.vision.segmentation.PaddleSegModel,
@@ -211,13 +213,16 @@ class BackendFastDeploy(Backend):
         vis_fill_transparent = kwargs.get("vis_fill_transparent", 60)
         # config of save visualization file
         vis_image_file: Optional[Path] = kwargs.get("vis_image_file", None)
-
         image_file = kwargs.get("image_path", None)
         if vis_image_file is not None or vis_show:
+            texts = kwargs.get("label_names", None)
+            draw_text_color = kwargs.get("vis_font_color", None)
             draw_img = pil_util.draw_polygon(polygon=boxes,
+                                             texts=texts,
                                              image_file=image_file,
                                              image_size=vis_image_size,
                                              font=vis_font,
+                                             draw_text_color=draw_text_color,
                                              fill_transparent=vis_fill_transparent,
                                              show=vis_show)
             if vis_image_file is not None:
@@ -238,6 +243,7 @@ class BackendFastDeploy(Backend):
         return result
 
     def op_detection(self, infer_result, image_arr, **kwargs):
+        score_threshold = kwargs.get("score_threshold", -1)
         result = EasyDict()
         label_ids = infer_result.label_ids
         scores = infer_result.scores
@@ -245,6 +251,8 @@ class BackendFastDeploy(Backend):
         items = []
         label_names = []
         for i, box in enumerate(infer_result.boxes):
+            if scores[i] < score_threshold != -1:
+                continue
             bboxes.append([int(box[0]), int(box[1]), int(box[2]), int(box[3])])
             class_name = self.label_list[label_ids[i]]
             items.append([class_name, scores[i], int(box[0]), int(box[1]), int(box[2]), int(box[3])])
@@ -253,9 +261,11 @@ class BackendFastDeploy(Backend):
         result.label_ids = infer_result.label_ids
         result.label_names = label_names
         result.boxes = bboxes
+        infer_result.boxes = bboxes
         result.scores = infer_result.scores
         result.masks = infer_result.masks
         result.contain_masks = infer_result.contain_masks
+        kwargs["label_names"] = label_names
         self.draw_boxes(infer_result, **kwargs)
         return result
 
@@ -365,12 +375,30 @@ class BackendFastDeploy(Backend):
         return operations.get(type(infer_result), lambda: infer_result)()
 
     def inference(self, input_data, **kwargs):
+        """
+        :param input_data:
+        :param kwargs:
+            vis_show：显示可视化文件
+            vis_image_file：保存可视化文件
+            vis_font：可视化-字体
+            vis_font_color: 可视化-字体颜色（black/red/blue/yellow/white...）
+            vis_image_size：可视化-图片尺寸
+            vis_fill_transparent：可视化-透明
+            vis_transparent_weight：可视化-透明度
+            schema：UIE抽取的实体名称
+            score_threshold: 置信度过滤阈值：目标检测
+            max_connectivity_domain: 图像分割-是否开启掩码最大连通域计算
+            mask_hole_area_thresh: 图像分割-掩码空洞填充阈值
+        :return:
+        """
         image_arr = read(input_data)
         model = self.model.clone() if self.clone_model and hasattr(self.model, "clone") else self.model
         schema = kwargs.get("schema", None)
         kwargs_infer = copy.deepcopy(kwargs)
-        delete_key = [k for k in kwargs_infer.keys() if k in ["vis_image_file", "vis_show", "vis_font", "vis_image_size",
-                                                              "vis_fill_transparent", "vis_transparent_weight", "schema"]]
+        delete_key = [k for k in kwargs_infer.keys() if k in ["vis_image_file", "vis_show", "vis_font", "vis_font_color",
+                                                              "vis_fill_transparent", "vis_transparent_weight", "schema",
+                                                              "score_threshold", "max_connectivity_domain",
+                                                              "mask_hole_area_thresh", "vis_image_size"]]
         if len(delete_key) > 0:
             for k in delete_key:
                 kwargs_infer.pop(k)

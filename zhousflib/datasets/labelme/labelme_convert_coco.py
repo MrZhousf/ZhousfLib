@@ -7,7 +7,7 @@ import shutil
 import colorsys
 from pathlib import Path
 
-from zhousflib.image.img_util import get_file_base64
+from zhousflib.file import get_base64
 
 
 def coco_convert_bbox(box_coco: list):
@@ -132,7 +132,7 @@ def coco_convert_labelme(coco_dir: Path, dist_dir: Path, is_rectangle=False):
             "imagePath": image_name,
             "imageWidth": image_info_data.get(image_id).get("width"),
             "imageHeight": image_info_data.get(image_id).get("height"),
-            "imageData": get_file_base64(images_dir.joinpath(image_name)),
+            "imageData": get_base64(images_dir.joinpath(image_name)),
 
         }
         shutil.copy(images_dir.joinpath(image_name), dist_dir)

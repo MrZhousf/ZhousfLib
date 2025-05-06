@@ -54,15 +54,13 @@ class DockerBuild:
 if __name__ == "__main__":
     _docker_hub_domain = "packages.xxx.com"
     _docker_hub_namespace = "docker-xxx"
-    # _docker_hub_domain = "registry.cn-beijing.aliyuncs.com"
-    # _docker_hub_namespace = "zhousf-ai"
     build = (DockerBuild(docker_hub_domain=_docker_hub_domain, docker_hub_namespace=_docker_hub_namespace)
              # .pull_image(tag="nvidia/cuda:11.3.1-cudnn8-devel-ubuntu20.04", command_tip="拉取基础镜像")
              # .pull_image(tag="registry.baidubce.com/paddlepaddle/paddle:2.3.1-gpu-cuda11.2-cudnn8 ", command_tip="拉取基础镜像")
              # .pull_image(tag="nvidia/cuda:11.6.1-cudnn8-runtime-ubuntu20.04", command_tip="拉取基础镜像")
              # .build_image(dockerfile="Dockerfile_env_cpu", name="zhousf_fd_py39_cpu", version="1.0.7", push=False, command_tip="构建环境镜像")
              # .build_image(dockerfile="Dockerfile_env_gpu", name="zhousf_fd_py39_cuda11.6.1-cudnn8", version="1.0.7", push=False, command_tip="构建环境镜像")
-             .push_image(current_image_name="pdf_omni:web_py3.10_cuda11.8_cudnn8.6_v0.3.1")
+             .push_image(current_image_name="pdf_omni:web_py3.10_cuda11.8_cudnn8.6_v0.3.2")
              # .push_image(current_image_name="pdf_omni:env_py3.10_cuda11.8_cudnn8.6_v0.3")
              # .push_image(current_image_name="zhousf_fd_py39_cuda11.6.1-cudnn8:1.0.7", tag_image_name="fast_infer:py3.9_cuda11.6.1_cudnn8_v1.0.7")
              # .build_image(dockerfile="Dockerfile_pro", name="zhousf_image_classify_gpu", version="0.1", push=True, command_tip="构建工程镜像")

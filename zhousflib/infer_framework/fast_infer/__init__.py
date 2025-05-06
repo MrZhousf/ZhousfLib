@@ -184,14 +184,41 @@ def demo_classification():
 
 def demo_detection():
     import fastdeploy
-    model_dir = Path(r"D:\workspace\ZhousfLib\model\global_ppyoloe_plus_crn_l_80e_coco-v10")
+    # model_dir = Path(r"D:\workspace\ZhousfLib\model\global_ppyoloe_plus_crn_l_80e_coco-v10")
+    # fast = FastInfer(model_dir=model_dir, device_id=0)
+    # runtime_option = fastdeploy.RuntimeOption()
+    # runtime_option.use_trt_backend()
+    # runtime_option.trt_option.serialize_file = str(model_dir.joinpath("model.trt"))
+    # fast.use_fastdeploy_backend(plugin="fd.vision.detection.PPYOLOE", runtime_option=runtime_option)
+    # result = fast.infer(input_data=model_dir.joinpath("test.jpg"), score_threshold=0.8, vis_show=True)
+    # print(result)
+
+    model_dir = Path(r"D:\workspace\ZhousfLib\model\PP-DocLayout-M_infer")
+    model_dir = Path(r"D:\workspace\ZhousfLib\model\layout_picodet_l_640_coco_lcnet")
     fast = FastInfer(model_dir=model_dir, device_id=0)
     runtime_option = fastdeploy.RuntimeOption()
-    runtime_option.use_trt_backend()
-    runtime_option.trt_option.serialize_file = str(model_dir.joinpath("model.trt"))
-    fast.use_fastdeploy_backend(plugin="fd.vision.detection.PPYOLOE", runtime_option=runtime_option)
-    result = fast.infer(input_data=model_dir.joinpath("test.jpg"))
+    runtime_option.paddle_infer_option.enable_log_info = True
+    runtime_option.use_paddle_backend()
+    # runtime_option.use_trt_backend()
+    # runtime_option.trt_option.serialize_file = str(model_dir.joinpath("model.trt"))
+    fast.use_fastdeploy_backend(plugin="fd.vision.detection.PicoDet", runtime_option=runtime_option)
+    from PIL import ImageFont
+    from zhousflib.font import Font_SimSun
+    font = ImageFont.truetype(font=str(Font_SimSun), size=16)
+    result = fast.infer(input_data=model_dir.joinpath("test.png"),
+                        vis_font=font,
+                        vis_font_color="red",
+                        score_threshold=0.5,
+                        vis_show=True)
     print(result)
+    # start = time.time()
+    # for i in range(10):
+    #     result = fast.infer(input_data=model_dir.joinpath("test.png"),
+    #                         vis_font=font,
+    #                         vis_font_color="red",
+    #                         score_threshold=0.5,
+    #                         vis_show=False)
+    # print(f"{(time.time() - start) / 10}")
 
 
 def demo_segmentation():
@@ -202,7 +229,7 @@ def demo_segmentation():
     vis_image_file = image_file.with_name("{0}_vis{1}".format(image_file.stem, image_file.suffix))
     result = fast.infer(input_data=image_file,
                         vis_image_file=vis_image_file,
-                        vis_show=True)
+                        vis_show=False)
     print(result.contain_score_map)
 
 
@@ -235,7 +262,8 @@ def demo_ocr():
     # runtime_option.use_paddle_backend()
     runtime_option.enable_paddle_log_info()  # print log
     # ocr
-    fast_det = FastInfer(model_dir=Path(r"D:\workspace\ZhousfLib\model\ch_PP-OCRv4_det_infer"), device_id=0)
+    # fast_det = FastInfer(model_dir=Path(r"D:\workspace\ZhousfLib\model\ch_PP-OCRv4_det_infer"), device_id=0)
+    fast_det = FastInfer(model_dir=Path(r"D:\workspace\ZhousfLib\model\ch_PP-OCRv4_det_mobile_infer"), device_id=0)
     fast_det.use_fastdeploy_backend(plugin="fd.vision.ocr.DBDetector", runtime_option=runtime_option, clone_model=False)
     fast_det.backend.model.preprocessor.max_side_len = 960
     fast_det.backend.model.preprocessor.static_shape_infer = False
@@ -255,12 +283,20 @@ def demo_ocr():
     fast_ocr.backend.model.rec_batch_size = 6
     fast_ocr.backend.model.cls_batch_size = 6
 
-    image_file = Path(r"D:\workspace\ZhousfLib\model\ch_PP-OCRv4_det_infer\test.jpg")
+    # image_file = Path(r"D:\workspace\ZhousfLib\model\ch_PP-OCRv4_det_infer\test.jpg")
+    image_file = Path(r"D:\workspace\ZhousfLib\model\layout_picodet_l_640_coco_lcnet\test.png")
     vis_image_file = image_file.with_name("{0}_ocr_vis{1}".format(image_file.stem, image_file.suffix))
     res = fast_ocr.infer(input_data=image_file,
                          vis_image_file=vis_image_file,
                          vis_show=True)
-    print(res)
+    # print(res)
+    # start = time.time()
+    # for i in range(10):
+    #     res = fast_ocr.infer(input_data=image_file,
+    #                          vis_image_file=vis_image_file,
+    #                          vis_show=False)
+    #     print(res)
+    # print(f"{(time.time()-start)/10}")
 
 
 def demo_uie():
@@ -285,9 +321,9 @@ def demo_uie():
 
 
 if __name__ == "__main__":
-    demo_uie()
+    # demo_uie()
     # demo_ocr()
     # demo_classification()
-    # demo_detection()
+    demo_detection()
     # demo_segmentation()
     pass

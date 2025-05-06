@@ -66,6 +66,14 @@ def load_onnx(**kwargs):
 
 
 class OnnxPredictor(object):
+    """
+    from zhousflib.infer_framework.ann.onnx import OnnxPredictor
+    model_onnx = OnnxPredictor(model_file=model_dir, device_id=0)
+    x = np.random.random((1, 3, 800, 608)).astype('float32')
+    ort_inputs = {model_onnx.session.get_inputs()[0].name: x}
+    res = model_onnx.run(output_names=None, input_feed=ort_inputs)
+    print(res)
+    """
 
     def __init__(self, **kwargs):
         self.predictor = load_onnx(**kwargs)

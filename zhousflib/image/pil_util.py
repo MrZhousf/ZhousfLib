@@ -5,6 +5,8 @@ import numpy
 from pathlib import Path
 
 import colorsys
+
+import numpy as np
 from PIL import Image, ImageDraw
 
 
@@ -58,19 +60,33 @@ def get_w_h(image_file: Path = None):
     return [image.width, image.height]
 
 
-def draw_polygon(polygon: list, image_file=None, image_size: list = None, font=None,
+def draw_polygon(polygon: list, image_file=None, image_size: list = None, font=None, draw_text_color=None,
                  texts: list = None, fill_transparent=255, show=True):
     """
     绘制四边形
-    :param polygon: [[[255, 376], [291, 409], [255, 443], [218, 409]], [[252, 140], [300, 140], [300, 189], [252, 189]]]
+    :param polygon:
+            [[[255, 376], [291, 409], [255, 443], [218, 409]], [[252, 140], [300, 140], [300, 189], [252, 189]]]
+            or
+            [[3796.740478515625, 968.7546997070312, 4216.4248046875, 1528.115478515625], [3857.1689453125, 272.2844543457031, 4227.78271484375, 799.551513671875]]
     :param image_file: 空时以空白为背景进行绘制
     :param image_size:
     :param font: ImageFont.truetype(font_path, font_size, encoding="utf-8")
+    :param draw_text_color:
     :param texts: box框的描述文本，长度等于polygon
     :param fill_transparent: 填充色透明度[0, 255]，当为-1时则不填充
     :param show:
     :return:
     """
+    draw_text_color = "black" if draw_text_color is None else draw_text_color
+    if len(np.asarray(polygon).shape) == 2:
+        convert_bbox = []
+        for box in polygon:
+            x_min = box[0]
+            y_min = box[1]
+            x_max = box[2]
+            y_max = box[3]
+            convert_bbox.append([[x_min, y_min], [x_max, y_min], [x_max, y_max], [x_min, y_max]])
+        polygon = convert_bbox
     hsv_tuples = [(1.0 * x / len(polygon), 1., 1.) for x in range(len(polygon))]
     colors = list(map(lambda x: colorsys.hsv_to_rgb(*x), hsv_tuples))
     colors = list(map(lambda x: (int(x[0] * 255), int(x[1] * 255), int(x[2] * 255)), colors))
@@ -101,9 +117,9 @@ def draw_polygon(polygon: list, image_file=None, image_size: list = None, font=N
         else:
             text = str(index)
         if font:
-            draw.text(xy=(draw_p[0][0]+1, draw_p[0][1]+1), text=text, fill="black", font=font)
+            draw.text(xy=(draw_p[0][0]+1, draw_p[0][1]+1), text=text, fill=draw_text_color, font=font)
         else:
-            draw.text(xy=(draw_p[0][0] + 1, draw_p[0][1] + 1), text=text, fill="black")
+            draw.text(xy=(draw_p[0][0] + 1, draw_p[0][1] + 1), text=text, fill=draw_text_color)
     if image_white is not None:
         image.paste(Image.alpha_composite(image, image_white))
     if show:
@@ -115,5 +131,6 @@ def draw_polygon(polygon: list, image_file=None, image_size: list = None, font=N
 
 if __name__ == "__main__":
     # draw_rectangle([(218, 376, 291, 443)])
-    draw_polygon([[[255, 376], [291, 409], [255, 443], [218, 409]], [[252, 140], [300, 140], [300, 189], [252, 189]]])
+    # draw_polygon([[[255, 376], [291, 409], [255, 443], [218, 409]], [[252, 140], [300, 140], [300, 189], [252, 189]]])
+    draw_polygon([[3796.740478515625, 968.7546997070312, 4216.4248046875, 1528.115478515625], [3857.1689453125, 272.2844543457031, 4227.78271484375, 799.551513671875]])
     pass

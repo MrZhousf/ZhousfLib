@@ -7,7 +7,7 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
-from zhousflib.image.img_util import get_file_base64
+from zhousflib.file import get_base64
 from zhousflib.font import Font_SimSun
 FONT = ImageFont.truetype(font=str(Font_SimSun), size=15)
 
@@ -65,7 +65,7 @@ def clip_img(labelme_dir: Path, dst_dir: Path, clip_labels: list, show=False):
             # 写json文件
             save_file = dst_dir.joinpath("{0}_{1}.json".format(image_file.stem, i))
             data_clip = {"imagePath": str(save_img_file.name),
-                         "imageData": get_file_base64(save_img_file),
+                         "imageData": get_base64(save_img_file),
                          "imageHeight": image_h_clip,
                          "imageWidth": image_w_clip}
             shape_clip = shape.copy()
