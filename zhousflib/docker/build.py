@@ -54,6 +54,8 @@ class DockerBuild:
 if __name__ == "__main__":
     _docker_hub_domain = "packages.xxx.com"
     _docker_hub_namespace = "docker-xxx"
+    # _docker_hub_domain = "registry.cn-beijing.aliyuncs.com"
+    # _docker_hub_namespace = "zhousf-ai"
     build = (DockerBuild(docker_hub_domain=_docker_hub_domain, docker_hub_namespace=_docker_hub_namespace)
              # .pull_image(tag="nvidia/cuda:11.3.1-cudnn8-devel-ubuntu20.04", command_tip="拉取基础镜像")
              # .pull_image(tag="registry.baidubce.com/paddlepaddle/paddle:2.3.1-gpu-cuda11.2-cudnn8 ", command_tip="拉取基础镜像")

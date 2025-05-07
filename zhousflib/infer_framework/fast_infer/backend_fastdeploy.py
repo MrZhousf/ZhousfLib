@@ -176,7 +176,8 @@ class BackendFastDeploy(Backend):
                     if hasattr(backend_, "name"):
                         if backend_.name != "ORT":
                             self.clone_model = True
-
+            elif self.plugin in [fd.vision.ocr.PPOCRv4, fd.vision.ocr.PPOCRv3]:
+                self.clone_model = True
         if self.model_dir is not None:
             # init label list
             config_file = self.get_file_path_by_suffix(model_dir=self.model_dir, suffix=".yaml")

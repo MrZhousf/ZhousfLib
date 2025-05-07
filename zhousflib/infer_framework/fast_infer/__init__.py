@@ -164,9 +164,11 @@ def demo_bert():
 
 
 def demo_classification():
-    # classification
     import fastdeploy
-    model_dir = Path(r"D:\workspace\ZhousfLib\model\PPLCNet_x1_0_infer-v9")
+    """
+    classification
+    """
+    model_dir = model_base_dir.joinpath(r"Classification\PPLCNet_x1_0_infer-v9")
     fast = FastInfer(model_dir=model_dir, device_id=0)
     runtime_option = fastdeploy.RuntimeOption()
     runtime_option.use_ort_backend()
@@ -174,8 +176,10 @@ def demo_classification():
     result = fast.infer(input_data=model_dir.joinpath("test.png"), topk=5)
     print(result)
 
-    # extract image feature
-    # model_dir = Path(r"D:\workspace\ZhousfLib\model\general_PPLCNetV2_base_pretrained_v1.0")
+    """
+    extract image feature
+    """
+    model_dir = model_base_dir.joinpath(r"FeatureExtractImage\general_PPLCNetV2_base_pretrained_v1.0")
     # fast = FastInfer(model_dir=model_dir, device_id=-1)
     # fast.use_fastdeploy_backend(plugin="fd.vision.classification.PPShiTuV2Recognizer", clone_model=True)
     # result = fast.infer(input_data=model_dir.joinpath("test.jpg"))
@@ -184,7 +188,10 @@ def demo_classification():
 
 def demo_detection():
     import fastdeploy
-    # model_dir = Path(r"D:\workspace\ZhousfLib\model\global_ppyoloe_plus_crn_l_80e_coco-v10")
+    """
+    目标检测
+    """
+    model_dir = model_base_dir.joinpath(r"ObjectDetection\ppyoloe_plus_crn_l_80e_coco-v10")
     # fast = FastInfer(model_dir=model_dir, device_id=0)
     # runtime_option = fastdeploy.RuntimeOption()
     # runtime_option.use_trt_backend()
@@ -193,8 +200,11 @@ def demo_detection():
     # result = fast.infer(input_data=model_dir.joinpath("test.jpg"), score_threshold=0.8, vis_show=True)
     # print(result)
 
-    model_dir = Path(r"D:\workspace\ZhousfLib\model\PP-DocLayout-M_infer")
-    model_dir = Path(r"D:\workspace\ZhousfLib\model\layout_picodet_l_640_coco_lcnet")
+    """
+    版面分析
+    """
+    model_dir = model_base_dir.joinpath(r"LayoutAnalysis\layout_picodet_l_640_coco_lcnet-v10")
+    model_dir = model_base_dir.joinpath(r"LayoutAnalysis\PP-DocLayout-M_infer")
     fast = FastInfer(model_dir=model_dir, device_id=0)
     runtime_option = fastdeploy.RuntimeOption()
     runtime_option.paddle_infer_option.enable_log_info = True
@@ -222,7 +232,7 @@ def demo_detection():
 
 
 def demo_segmentation():
-    model_dir = Path(r"D:\workspace\ZhousfLib\model\local_pp_liteseg_512x512_1k-v5")
+    model_dir = model_base_dir.joinpath(r"Segmentation\pp_liteseg_512x512_1k-v5")
     fast = FastInfer(model_dir=model_dir, device_id=-1)
     fast.use_fastdeploy_backend(plugin="fd.vision.segmentation.PaddleSegModel")
     image_file = model_dir.joinpath("test.jpg")
@@ -234,9 +244,16 @@ def demo_segmentation():
 
 
 def demo_ocr():
-    # detector
-    # model_dir = Path(r"D:\workspace\ZhousfLib\model\ch_PP-OCRv4_det_infer")
-    # fast = FastInfer(model_dir=model_dir, device_id=0)
+    import fastdeploy as fd
+    """
+    detector
+    """
+    # det_model = model_base_dir.joinpath(r"OCR\ch_PP-OCRv4_det_infer")
+    det_model = model_base_dir.joinpath(r"OCR\ch_PP-OCRv4_det_mobile_infer")
+    cls_model = model_base_dir.joinpath(r"OCR\ch_PP-OCRv4_cls_infer")
+    rec_model = model_base_dir.joinpath(r"OCR\ch_PP-OCRv4_rec_infer")
+    # rec_model = model_base_dir.joinpath(r"OCR\PP-OCRv4_server_rec")
+    # fast = FastInfer(det_model=det_model, device_id=0)
     # fast.use_fastdeploy_backend(plugin="fd.vision.ocr.DBDetector")
     # image_file = model_dir.joinpath("test.jpg")
     # vis_image_file = image_file.with_name("{0}_vis{1}".format(image_file.stem, image_file.suffix))
@@ -245,9 +262,10 @@ def demo_ocr():
     #                  vis_show=True)
     # print(res.boxes)
 
-    # recognizer
-    # model_dir = Path(r"D:\workspace\ZhousfLib\model\ch_PP-OCRv4_rec_infer")
-    # fast = FastInfer(model_dir=model_dir, device_id=0)
+    """
+    recognizer
+    """
+    # fast = FastInfer(model_dir=rec_model, device_id=0)
     # fast.use_fastdeploy_backend(plugin="fd.vision.ocr.Recognizer")
     # image_file = model_dir.joinpath("test.jpg")
     # res = fast.infer(input_data=image_file,
@@ -255,36 +273,35 @@ def demo_ocr():
     #                  vis_show=False)
     # print(res)
 
-    import fastdeploy as fd
+    """
+    ocr
+    """
     runtime_option = fd.RuntimeOption()
     runtime_option.set_cpu_thread_num(10)
     # runtime_option.use_ort_backend()
-    # runtime_option.use_paddle_backend()
-    runtime_option.enable_paddle_log_info()  # print log
-    # ocr
-    # fast_det = FastInfer(model_dir=Path(r"D:\workspace\ZhousfLib\model\ch_PP-OCRv4_det_infer"), device_id=0)
-    fast_det = FastInfer(model_dir=Path(r"D:\workspace\ZhousfLib\model\ch_PP-OCRv4_det_mobile_infer"), device_id=0)
-    fast_det.use_fastdeploy_backend(plugin="fd.vision.ocr.DBDetector", runtime_option=runtime_option, clone_model=False)
+    runtime_option.use_paddle_backend()
+    # runtime_option.paddle_infer_option.enable_log_info = True  # print log
+    fast_det = FastInfer(model_dir=det_model, device_id=0)
+    fast_det.use_fastdeploy_backend(plugin="fd.vision.ocr.DBDetector")
     fast_det.backend.model.preprocessor.max_side_len = 960
     fast_det.backend.model.preprocessor.static_shape_infer = False
     fast_det.backend.model.postprocessor.det_db_score_mode = 'slow'
     fast_det.backend.model.postprocessor.det_db_unclip_ratio = 1.5
     fast_det.backend.model.postprocessor.use_dilation = True
-    fast_cls = FastInfer(model_dir=Path(r"D:\workspace\ZhousfLib\model\ch_PP-OCRv4_cls_infer"), device_id=0)
-    fast_cls.use_fastdeploy_backend(plugin="fd.vision.ocr.Classifier", runtime_option=runtime_option, clone_model=False)
+    fast_cls = FastInfer(model_dir=cls_model, device_id=0)
+    fast_cls.use_fastdeploy_backend(plugin="fd.vision.ocr.Classifier")
     fast_cls.backend.model.postprocessor.cls_thresh = 0.96
-    fast_rec = FastInfer(model_dir=Path(r"D:\workspace\ZhousfLib\model\ch_PP-OCRv4_rec_infer"), device_id=0)
-    fast_rec.use_fastdeploy_backend(plugin="fd.vision.ocr.Recognizer", runtime_option=runtime_option, clone_model=False)
+    fast_rec = FastInfer(model_dir=rec_model, device_id=0)
+    fast_rec.use_fastdeploy_backend(plugin="fd.vision.ocr.Recognizer")
     fast_ocr = FastInfer(model_dir=None, device_id=0)
     fast_ocr.use_fastdeploy_backend(plugin="fd.vision.ocr.PPOCRv4",
                                     det_model=fast_det.backend.model,
                                     cls_model=fast_cls.backend.model,
-                                    rec_model=fast_rec.backend.model)
+                                    rec_model=fast_rec.backend.model, runtime_option=runtime_option, clone_model=True)
     fast_ocr.backend.model.rec_batch_size = 6
     fast_ocr.backend.model.cls_batch_size = 6
 
-    # image_file = Path(r"D:\workspace\ZhousfLib\model\ch_PP-OCRv4_det_infer\test.jpg")
-    image_file = Path(r"D:\workspace\ZhousfLib\model\layout_picodet_l_640_coco_lcnet\test.png")
+    image_file = model_base_dir.joinpath(r"OCR/test2.jpeg")
     vis_image_file = image_file.with_name("{0}_ocr_vis{1}".format(image_file.stem, image_file.suffix))
     res = fast_ocr.infer(input_data=image_file,
                          vis_image_file=vis_image_file,
@@ -303,7 +320,7 @@ def demo_uie():
     import fastdeploy as fd
     runtime_option = fd.RuntimeOption()
     runtime_option.use_paddle_backend()
-    fast_infer = FastInfer(model_dir=Path(r"D:\workspace\ZhousfLib\model\uie-mini"), device_id=0)
+    fast_infer = FastInfer(model_dir=model_base_dir.joinpath(r"UIE\uie-mini"), device_id=0)
     fast_infer.use_fastdeploy_backend(plugin="fd.text.uie.UIEModel", batch_size=32, position_prob=0.3, max_length=256,
                                       runtime_option=runtime_option, clone_model=True)
     start = time.time()
@@ -321,9 +338,10 @@ def demo_uie():
 
 
 if __name__ == "__main__":
+    model_base_dir = Path(r"D:\workspace\ZhousfLib\model")
     # demo_uie()
-    # demo_ocr()
+    demo_ocr()
     # demo_classification()
-    demo_detection()
+    # demo_detection()
     # demo_segmentation()
     pass
