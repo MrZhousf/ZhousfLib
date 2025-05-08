@@ -35,10 +35,10 @@ URL = 'https://github.com/MrZhousf/ZhousfLib'
 EMAIL = '442553199@qq.com'
 AUTHOR = 'zhousf'
 REQUIRES_PYTHON = '>=3.6.13'
-VERSION = '1.6.8.3'
+VERSION = '1.6.8.5'
 PACKAGE_DATA = {'': ['*.yaml', '*.ttf', '*.txt', '*.md']}
 UPLOAD_TO_PYPI = True
-PUSH_TO_GITHUB = True
+PUSH_TO_GITHUB = False
 
 
 with open('README.md', 'r', encoding='utf-8') as fh:

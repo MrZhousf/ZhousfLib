@@ -142,8 +142,12 @@ class FastInfer:
         return self.backend.build(**kwargs)
 
     def infer(self, input_data, **kwargs):
-        assert self.backend is not None, "请设置backend，例如.use_onnx_backend()"
+        assert self.backend is not None, "请设置backend，例如: use_onnx_backend()"
         return self.backend.inference(input_data=input_data, **kwargs)
+
+    def infer_batch(self, input_data, **kwargs):
+        assert self.backend is not None, "请设置backend，例如: use_onnx_backend()"
+        return self.backend.inference_batch(input_data=input_data, **kwargs)
 
 
 def demo_bert():
@@ -203,8 +207,8 @@ def demo_detection():
     """
     版面分析
     """
-    model_dir = model_base_dir.joinpath(r"LayoutAnalysis\layout_picodet_l_640_coco_lcnet-v10")
-    model_dir = model_base_dir.joinpath(r"LayoutAnalysis\PP-DocLayout-M_infer")
+    model_dir = model_base_dir.joinpath(r"LayoutAnalysis\layout_picodet_l_640_coco_lcnet")
+    # model_dir = model_base_dir.joinpath(r"LayoutAnalysis\PP-DocLayout-M_infer")
     fast = FastInfer(model_dir=model_dir, device_id=0)
     runtime_option = fastdeploy.RuntimeOption()
     runtime_option.paddle_infer_option.enable_log_info = True
@@ -219,8 +223,8 @@ def demo_detection():
                         vis_font=font,
                         vis_font_color="red",
                         score_threshold=0.5,
+                        nms_thresh={"base": 0.8},
                         vis_show=True)
-    print(result)
     # start = time.time()
     # for i in range(10):
     #     result = fast.infer(input_data=model_dir.joinpath("test.png"),
@@ -229,6 +233,24 @@ def demo_detection():
     #                         score_threshold=0.5,
     #                         vis_show=False)
     # print(f"{(time.time() - start) / 10}")
+
+
+def demo_batch_predict():
+    import fastdeploy
+    model_dir = model_base_dir.joinpath(r"LayoutAnalysis\layout_picodet_l_640_coco_lcnet")
+    fast = FastInfer(model_dir=model_dir, device_id=0)
+    runtime_option = fastdeploy.RuntimeOption()
+    runtime_option.paddle_infer_option.enable_log_info = True
+    runtime_option.use_paddle_backend()
+    fast.use_fastdeploy_backend(plugin="fd.vision.detection.PicoDet", runtime_option=runtime_option)
+    from PIL import ImageFont
+    from zhousflib.font import Font_SimSun
+    font = ImageFont.truetype(font=str(Font_SimSun), size=16)
+    result = fast.infer_batch(input_data=[model_dir.joinpath("test.png"), model_dir.joinpath("test1.png")],
+                              vis_font=font,
+                              vis_font_color="red",
+                              score_threshold=0.5,
+                              vis_show=True)
 
 
 def demo_segmentation():
@@ -340,8 +362,8 @@ def demo_uie():
 if __name__ == "__main__":
     model_base_dir = Path(r"D:\workspace\ZhousfLib\model")
     # demo_uie()
-    demo_ocr()
+    # demo_ocr()
     # demo_classification()
-    # demo_detection()
+    demo_detection()
     # demo_segmentation()
     pass

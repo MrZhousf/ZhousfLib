@@ -26,6 +26,7 @@ from zhousflib.image import pil_util
 from zhousflib.util import ocr_vis_util
 from zhousflib.font import Font_SimSun
 from zhousflib.image import write
+from zhousflib.image.nms_util import multi_nms
 from zhousflib.infer_framework.fast_infer.backend import Backend
 """
 download wheel
@@ -61,6 +62,11 @@ export LD_LIBRARY_PATH=/root/anaconda3/lib/:$LD_LIBRARY_PATH
 
 
 """
+
+
+EXTRA_PARAMS = ["vis_image_file", "vis_show", "vis_font", "vis_font_color", "vis_fill_transparent",
+                "vis_transparent_weight", "schema", "score_threshold", "max_connectivity_domain",
+                "mask_hole_area_thresh", "vis_image_size", "nms_thresh"]
 
 
 class BackendFastDeploy(Backend):
@@ -246,26 +252,52 @@ class BackendFastDeploy(Backend):
     def op_detection(self, infer_result, image_arr, **kwargs):
         score_threshold = kwargs.get("score_threshold", -1)
         result = EasyDict()
-        label_ids = infer_result.label_ids
-        scores = infer_result.scores
+        label_ids = []
         bboxes = []
+        scores = []
         items = []
         label_names = []
-        for i, box in enumerate(infer_result.boxes):
-            if scores[i] < score_threshold != -1:
-                continue
-            bboxes.append([int(box[0]), int(box[1]), int(box[2]), int(box[3])])
-            class_name = self.label_list[label_ids[i]]
-            items.append([class_name, scores[i], int(box[0]), int(box[1]), int(box[2]), int(box[3])])
-            label_names.append(class_name)
+        nms_thresh = kwargs.get("nms_thresh", None)
+        # nms
+        if nms_thresh is not None:
+            nms_boxes = []
+            tmp = []
+            for i, box in enumerate(infer_result.boxes):
+                if infer_result.scores[i] < score_threshold != -1:
+                    continue
+                class_name = self.label_list[infer_result.label_ids[i]]
+                nms_boxes.append([class_name, infer_result.scores[i], int(box[0]), int(box[1]), int(box[2]), int(box[3])])
+                tmp.append(i)
+            nms_boxes_res = multi_nms(boxes=nms_boxes, iou_thresh=nms_thresh)
+            for k in nms_boxes_res:
+                i = tmp[k]
+                box = infer_result.boxes[i]
+                label_ids.append(infer_result.label_ids[i])
+                scores.append(infer_result.scores[i])
+                bboxes.append([int(box[0]), int(box[1]), int(box[2]), int(box[3])])
+                class_name = self.label_list[infer_result.label_ids[i]]
+                items.append([class_name, infer_result.scores[i], int(box[0]), int(box[1]), int(box[2]), int(box[3])])
+                label_names.append(class_name)
+        else:
+            for i, box in enumerate(infer_result.boxes):
+                box = infer_result.boxes[i]
+                if infer_result.scores[i] < score_threshold != -1:
+                    continue
+                label_ids.append(infer_result.label_ids[i])
+                scores.append(infer_result.scores[i])
+                bboxes.append([int(box[0]), int(box[1]), int(box[2]), int(box[3])])
+                class_name = self.label_list[infer_result.label_ids[i]]
+                items.append([class_name, infer_result.scores[i], int(box[0]), int(box[1]), int(box[2]), int(box[3])])
+                label_names.append(class_name)
+
         result.items = items
-        result.label_ids = infer_result.label_ids
+        result.label_ids = label_ids
         result.label_names = label_names
         result.boxes = bboxes
-        infer_result.boxes = bboxes
-        result.scores = infer_result.scores
+        result.scores = scores
         result.masks = infer_result.masks
         result.contain_masks = infer_result.contain_masks
+        infer_result.boxes = bboxes
         kwargs["label_names"] = label_names
         self.draw_boxes(infer_result, **kwargs)
         return result
@@ -375,6 +407,27 @@ class BackendFastDeploy(Backend):
         }
         return operations.get(type(infer_result), lambda: infer_result)()
 
+    def inference_batch(self, input_data, **kwargs):
+        image_arr = [read(item) for item in input_data]
+        model = self.model.clone() if self.clone_model and hasattr(self.model, "clone") else self.model
+        schema = kwargs.get("schema", None)
+        kwargs_infer = copy.deepcopy(kwargs)
+        delete_key = [k for k in kwargs_infer.keys() if k in EXTRA_PARAMS]
+        if len(delete_key) > 0:
+            for k in delete_key:
+                kwargs_infer.pop(k)
+        if hasattr(model, "set_schema") and schema:
+            self.model.set_schema(schema)
+        infer_res = model.batch_predict(image_arr, **kwargs_infer)
+        final_result = []
+        if isinstance(input_data, list):
+            for i, img in enumerate(input_data):
+                if isinstance(img, Path):
+                    kwargs["image_path"] = img
+                res = self.post_process(infer_res[i], image_arr[i], **kwargs)
+                final_result.append(res)
+        return final_result
+
     def inference(self, input_data, **kwargs):
         """
         :param input_data:
@@ -390,16 +443,14 @@ class BackendFastDeploy(Backend):
             score_threshold: 置信度过滤阈值：目标检测
             max_connectivity_domain: 图像分割-是否开启掩码最大连通域计算
             mask_hole_area_thresh: 图像分割-掩码空洞填充阈值
+            nms_thresh: 目标检测nms后处理，交并比的阈值，当大于该阈值时则选优 {"base": 0.8, "cls_1": 0.5, "cls_2": 0.5}
         :return:
         """
         image_arr = read(input_data)
         model = self.model.clone() if self.clone_model and hasattr(self.model, "clone") else self.model
         schema = kwargs.get("schema", None)
         kwargs_infer = copy.deepcopy(kwargs)
-        delete_key = [k for k in kwargs_infer.keys() if k in ["vis_image_file", "vis_show", "vis_font", "vis_font_color",
-                                                              "vis_fill_transparent", "vis_transparent_weight", "schema",
-                                                              "score_threshold", "max_connectivity_domain",
-                                                              "mask_hole_area_thresh", "vis_image_size"]]
+        delete_key = [k for k in kwargs_infer.keys() if k in EXTRA_PARAMS]
         if len(delete_key) > 0:
             for k in delete_key:
                 kwargs_infer.pop(k)
