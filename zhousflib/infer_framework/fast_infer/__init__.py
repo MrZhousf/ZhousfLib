@@ -207,7 +207,9 @@ def demo_detection():
     """
     版面分析
     """
-    model_dir = model_base_dir.joinpath(r"LayoutAnalysis\layout_picodet_l_640_coco_lcnet")
+    # model_dir = model_base_dir.joinpath(r"LayoutAnalysis\layout_picodet_l_640_coco_lcnet")
+    # model_dir = model_base_dir.joinpath(r"LayoutAnalysis\PicoDet-L_layout_17cls_infer")
+    model_dir = model_base_dir.joinpath(r"LayoutAnalysis\PP-DocLayout-S_infer")
     # model_dir = model_base_dir.joinpath(r"LayoutAnalysis\PP-DocLayout-M_infer")
     fast = FastInfer(model_dir=model_dir, device_id=0)
     runtime_option = fastdeploy.RuntimeOption()
@@ -215,24 +217,22 @@ def demo_detection():
     runtime_option.use_paddle_backend()
     # runtime_option.use_trt_backend()
     # runtime_option.trt_option.serialize_file = str(model_dir.joinpath("model.trt"))
-    fast.use_fastdeploy_backend(plugin="fd.vision.detection.PicoDet", runtime_option=runtime_option)
+    # fast.use_fastdeploy_backend(plugin="fd.vision.detection.PicoDet", runtime_option=runtime_option)
+    fast.use_fastdeploy_backend(plugin="fd.vision.detection.GFL", runtime_option=runtime_option)
     from PIL import ImageFont
     from zhousflib.font import Font_SimSun
-    font = ImageFont.truetype(font=str(Font_SimSun), size=16)
-    result = fast.infer(input_data=model_dir.joinpath("test.png"),
+    font = ImageFont.truetype(font=str(Font_SimSun), size=14)
+    img_file = model_dir.joinpath("test.png")
+    # img_file = Path(r"D:\home\paas\zhousf\log\pdf_parse_omni\2\55.png")
+    result = fast.infer(input_data=img_file,
                         vis_font=font,
                         vis_font_color="red",
-                        score_threshold=0.5,
-                        nms_thresh={"base": 0.8},
+                        score_threshold=0.3,
+                        nms_match_threshold=0.8,
+                        nms_match_metric="ios",
+                        vis_fill_transparent=10,
                         vis_show=True)
-    # start = time.time()
-    # for i in range(10):
-    #     result = fast.infer(input_data=model_dir.joinpath("test.png"),
-    #                         vis_font=font,
-    #                         vis_font_color="red",
-    #                         score_threshold=0.5,
-    #                         vis_show=False)
-    # print(f"{(time.time() - start) / 10}")
+    print(result)
 
 
 def demo_batch_predict():
@@ -324,6 +324,7 @@ def demo_ocr():
     fast_ocr.backend.model.cls_batch_size = 6
 
     image_file = model_base_dir.joinpath(r"OCR/test2.jpeg")
+    image_file = Path(r"F:\work_documents\项目\2025PDF扫描件\接口测试\image\87216dc44e3e4110a6f3dd6ecd51a18e.jpg")
     vis_image_file = image_file.with_name("{0}_ocr_vis{1}".format(image_file.stem, image_file.suffix))
     res = fast_ocr.infer(input_data=image_file,
                          vis_image_file=vis_image_file,

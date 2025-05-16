@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Optional
 
 import cv2
+import numpy as np
 import yaml
 import numpy
 from PIL import Image
@@ -26,7 +27,7 @@ from zhousflib.image import pil_util
 from zhousflib.util import ocr_vis_util
 from zhousflib.font import Font_SimSun
 from zhousflib.image import write
-from zhousflib.image.nms_util import multi_nms
+from zhousflib.image.nms_util import multiclass_nms
 from zhousflib.infer_framework.fast_infer.backend import Backend
 """
 download wheel
@@ -66,7 +67,7 @@ export LD_LIBRARY_PATH=/root/anaconda3/lib/:$LD_LIBRARY_PATH
 
 EXTRA_PARAMS = ["vis_image_file", "vis_show", "vis_font", "vis_font_color", "vis_fill_transparent",
                 "vis_transparent_weight", "schema", "score_threshold", "max_connectivity_domain",
-                "mask_hole_area_thresh", "vis_image_size", "nms_thresh"]
+                "mask_hole_area_thresh", "vis_image_size", "nms_match_threshold", "nms_match_metric"]
 
 
 class BackendFastDeploy(Backend):
@@ -77,6 +78,7 @@ class BackendFastDeploy(Backend):
         self.plugin = None
         self.model = None
         self.label_list = []
+        self.label_id_list = []
         self.clone_model = False
         super().__init__(*args)
         self.plugins = self.__register_plugin()
@@ -98,6 +100,10 @@ class BackendFastDeploy(Backend):
             "fd.vision.detection.YOLOv7": fd.vision.detection.YOLOv7,
             "fd.vision.detection.YOLOv6": fd.vision.detection.YOLOv6,
             "fd.vision.detection.PicoDet": fd.vision.detection.PicoDet,
+            "fd.vision.detection.GFL": fd.vision.detection.GFL,
+            "fd.vision.detection.FCOS": fd.vision.detection.FCOS,
+            "fd.vision.detection.RTMDet": fd.vision.detection.RTMDet,
+            "fd.vision.detection.TTFNet": fd.vision.detection.TTFNet,
             "fd.vision.detection.RetinaNet": fd.vision.detection.RetinaNet,
         }
         plugin_segmentation = {
@@ -201,6 +207,8 @@ class BackendFastDeploy(Backend):
                             item = label.split(" ")
                             if len(item) == 2:
                                 self.label_list.append(item[1])
+            if len(self.label_list) > 0:
+                self.label_id_list = [i for i in range(len(self.label_list))]
 
     @staticmethod
     def draw_boxes(infer_result, **kwargs):
@@ -222,7 +230,7 @@ class BackendFastDeploy(Backend):
         vis_image_file: Optional[Path] = kwargs.get("vis_image_file", None)
         image_file = kwargs.get("image_path", None)
         if vis_image_file is not None or vis_show:
-            texts = kwargs.get("label_names", None)
+            texts = kwargs.get("text", None)
             draw_text_color = kwargs.get("vis_font_color", None)
             draw_img = pil_util.draw_polygon(polygon=boxes,
                                              texts=texts,
@@ -257,27 +265,25 @@ class BackendFastDeploy(Backend):
         scores = []
         items = []
         label_names = []
-        nms_thresh = kwargs.get("nms_thresh", None)
+        draw_texts = []
+        nms_match_threshold = kwargs.get("nms_match_threshold", None)
+        nms_match_metric = kwargs.get("nms_match_metric", 'ios')
         # nms
-        if nms_thresh is not None:
+        if nms_match_threshold is not None:
             nms_boxes = []
-            tmp = []
             for i, box in enumerate(infer_result.boxes):
                 if infer_result.scores[i] < score_threshold != -1:
                     continue
-                class_name = self.label_list[infer_result.label_ids[i]]
-                nms_boxes.append([class_name, infer_result.scores[i], int(box[0]), int(box[1]), int(box[2]), int(box[3])])
-                tmp.append(i)
-            nms_boxes_res = multi_nms(boxes=nms_boxes, iou_thresh=nms_thresh)
+                nms_boxes.append([infer_result.label_ids[i], infer_result.scores[i], int(box[0]), int(box[1]), int(box[2]), int(box[3])])
+            nms_boxes_res = multiclass_nms(boxes=np.array(nms_boxes), num_classes=len(self.label_list), match_threshold=nms_match_threshold, match_metric=nms_match_metric)
             for k in nms_boxes_res:
-                i = tmp[k]
-                box = infer_result.boxes[i]
-                label_ids.append(infer_result.label_ids[i])
-                scores.append(infer_result.scores[i])
-                bboxes.append([int(box[0]), int(box[1]), int(box[2]), int(box[3])])
-                class_name = self.label_list[infer_result.label_ids[i]]
-                items.append([class_name, infer_result.scores[i], int(box[0]), int(box[1]), int(box[2]), int(box[3])])
+                label_ids.append(int(k[0]))
+                scores.append(k[1])
+                bboxes.append([int(k[2]), int(k[3]), int(k[4]), int(k[5])])
+                class_name = self.label_list[int(k[0])]
+                items.append([class_name, k[1], int(k[2]), int(k[3]), int(k[4]), int(k[5])])
                 label_names.append(class_name)
+                draw_texts.append(f"{class_name}: {k[1]:.4f}")
         else:
             for i, box in enumerate(infer_result.boxes):
                 box = infer_result.boxes[i]
@@ -289,6 +295,7 @@ class BackendFastDeploy(Backend):
                 class_name = self.label_list[infer_result.label_ids[i]]
                 items.append([class_name, infer_result.scores[i], int(box[0]), int(box[1]), int(box[2]), int(box[3])])
                 label_names.append(class_name)
+                draw_texts.append(f"{class_name}: {infer_result.scores[i]:.4f}")
 
         result.items = items
         result.label_ids = label_ids
@@ -298,7 +305,7 @@ class BackendFastDeploy(Backend):
         result.masks = infer_result.masks
         result.contain_masks = infer_result.contain_masks
         infer_result.boxes = bboxes
-        kwargs["label_names"] = label_names
+        kwargs["text"] = draw_texts
         self.draw_boxes(infer_result, **kwargs)
         return result
 
@@ -443,7 +450,8 @@ class BackendFastDeploy(Backend):
             score_threshold: 置信度过滤阈值：目标检测
             max_connectivity_domain: 图像分割-是否开启掩码最大连通域计算
             mask_hole_area_thresh: 图像分割-掩码空洞填充阈值
-            nms_thresh: 目标检测nms后处理，交并比的阈值，当大于该阈值时则选优 {"base": 0.8, "cls_1": 0.5, "cls_2": 0.5}
+            nms_match_threshold: 目标检测nms后处理，overlap thresh for match metric.
+            nms_match_metric: 目标检测nms后处理，'iou' or 'ios'
         :return:
         """
         image_arr = read(input_data)
