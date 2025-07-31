@@ -183,11 +183,26 @@ def fetch_filename_from_url(url: str) -> list:
     :param url: "https://img95.699pic.com/xsj/16/e1/yr.jpg%21/fh/300"
     :return: ['yr.jpg']
     """
-    files = []
-    patter = r'/([^/?]*)\.(jpg|JPG|jpeg|JPEG|png|PNG|bmp|BMP|svg|SVG|gif|GIF|pdf|PDF|zip|ZIP|json|JSON)\b'
+    files_ = []
+    patter = r'/([^/?]*)\.(jpg|JPG|jpeg|JPEG|png|PNG|gif|GIF|bmp|BMP|svg|SVG|gif|GIF|pdf|PDF|zip|ZIP|json|JSON|doc|DOC|docx|DOCX|xlsx|XLSX|xls|XLS|ppt|PPT|pptx|PPTX|txt|TXT|yml|YML|yaml|YAML|xml|XML)\b'
     items = re.findall(re.compile(patter), url)
     if len(items) == 0:
-        return files
+        return files_
     for item in items:
-        files.append("{0}.{1}".format(item[0], item[1]))
-    return files
+        files_.append("{0}.{1}".format(item[0], item[1]))
+    return files_
+
+
+def fetch_single_filename_from_url(url: str, return_left=True):
+    """
+    提取网络地址中的文件名称
+    :param url: "https://img95.699pic.com/xsj/16/e1/yr.xlsx%21/abc.txt/fh/300"
+    :param return_left: 是否返回最左侧文件名，否则返回最右侧文件名
+    :return: 'yr.jpg'
+    """
+    patter = r'/([^/?]*)\.(jpg|JPG|jpeg|JPEG|png|PNG|gif|GIF|bmp|BMP|svg|SVG|gif|GIF|pdf|PDF|zip|ZIP|json|JSON|doc|DOC|docx|DOCX|xlsx|XLSX|xls|XLS|ppt|PPT|pptx|PPTX|txt|TXT|yml|YML|yaml|YAML|xml|XML)\b'
+    items = re.findall(re.compile(patter), url)
+    if len(items) == 0:
+        return None
+    items.sort(reverse=return_left)
+    return "{0}.{1}".format(items[0][0], items[0][1])

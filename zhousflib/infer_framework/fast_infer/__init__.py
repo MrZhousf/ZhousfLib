@@ -221,9 +221,9 @@ def demo_detection():
     fast.use_fastdeploy_backend(plugin="fd.vision.detection.GFL", runtime_option=runtime_option)
     from PIL import ImageFont
     from zhousflib.font import Font_SimSun
-    font = ImageFont.truetype(font=str(Font_SimSun), size=14)
+    font = ImageFont.truetype(font=str(Font_SimSun), size=20)
     img_file = model_dir.joinpath("test.png")
-    # img_file = Path(r"D:\home\paas\zhousf\log\pdf_parse_omni\2\55.png")
+    img_file = Path(r"D:\home\paas\zhousf\log\pdf_parse_omni\PP-DocLayout-S_infer_nms-L\images\1.png")
     result = fast.infer(input_data=img_file,
                         vis_font=font,
                         vis_font_color="red",
@@ -271,9 +271,12 @@ def demo_ocr():
     detector
     """
     # det_model = model_base_dir.joinpath(r"OCR\ch_PP-OCRv4_det_infer")
-    det_model = model_base_dir.joinpath(r"OCR\ch_PP-OCRv4_det_mobile_infer")
-    cls_model = model_base_dir.joinpath(r"OCR\ch_PP-OCRv4_cls_infer")
-    rec_model = model_base_dir.joinpath(r"OCR\ch_PP-OCRv4_rec_infer")
+    det_model = model_base_dir.joinpath(r"OCR\PP-OCRv5_mobile_det_infer")
+    # det_model = model_base_dir.joinpath(r"OCR\ch_PP-OCRv4_det_mobile_infer")
+    cls_model = model_base_dir.joinpath(r"OCR\ch_ppocr_mobile_v2.0_cls_slim_infer")
+    # rec_model = model_base_dir.joinpath(r"OCR\PP-OCRv5_server_rec_infer")
+    rec_model = model_base_dir.joinpath(r"OCR\PP-OCRv5_mobile_rec_infer")
+    # rec_model = model_base_dir.joinpath(r"OCR\ch_PP-OCRv4_rec_infer")
     # rec_model = model_base_dir.joinpath(r"OCR\PP-OCRv4_server_rec")
     # fast = FastInfer(det_model=det_model, device_id=0)
     # fast.use_fastdeploy_backend(plugin="fd.vision.ocr.DBDetector")
@@ -307,7 +310,7 @@ def demo_ocr():
     fast_det.use_fastdeploy_backend(plugin="fd.vision.ocr.DBDetector")
     fast_det.backend.model.preprocessor.max_side_len = 960
     fast_det.backend.model.preprocessor.static_shape_infer = False
-    fast_det.backend.model.postprocessor.det_db_score_mode = 'slow'
+    fast_det.backend.model.postprocessor.det_db_score_mode = 'fast'
     fast_det.backend.model.postprocessor.det_db_unclip_ratio = 1.5
     fast_det.backend.model.postprocessor.use_dilation = True
     fast_cls = FastInfer(model_dir=cls_model, device_id=0)
@@ -319,16 +322,30 @@ def demo_ocr():
     fast_ocr.use_fastdeploy_backend(plugin="fd.vision.ocr.PPOCRv4",
                                     det_model=fast_det.backend.model,
                                     cls_model=fast_cls.backend.model,
-                                    rec_model=fast_rec.backend.model, runtime_option=runtime_option, clone_model=True)
-    fast_ocr.backend.model.rec_batch_size = 6
-    fast_ocr.backend.model.cls_batch_size = 6
+                                    rec_model=fast_rec.backend.model, runtime_option=runtime_option, clone_model=False)
+    fast_ocr.backend.model.rec_batch_size = 8
+    fast_ocr.backend.model.cls_batch_size = 8
 
     image_file = model_base_dir.joinpath(r"OCR/test2.jpeg")
-    image_file = Path(r"F:\work_documents\项目\2025PDF扫描件\接口测试\image\87216dc44e3e4110a6f3dd6ecd51a18e.jpg")
-    vis_image_file = image_file.with_name("{0}_ocr_vis{1}".format(image_file.stem, image_file.suffix))
-    res = fast_ocr.infer(input_data=image_file,
-                         vis_image_file=vis_image_file,
-                         vis_show=True)
+    # image_file = Path(r"E:\数据2024\OCR难例\手写体\0ab110ec45841bdfb3ce613445fb3c6a.jpg")
+    from zhousflib.image import read
+    # vis_image_file = image_file.with_name("{0}_ocr_vis{1}".format(image_file.stem, image_file.suffix))
+    # res = fast_ocr.infer(input_data=read(image_file), image_path=image_file,
+    #                      vis_image_file=vis_image_file,
+    #                      vis_show=True)
+
+    start = time.time()
+    page = 0
+    for image in Path(r"D:\workspace\PdfParseOmni\data").joinpath("images").rglob("*.png"):
+        if image.stem.endswith("_vis"):
+            continue
+        print(image)
+        fast_ocr.infer(input_data=read(image_file), image_path=image_file,
+                       vis_image_file=None,
+                       vis_show=False)
+        page += 1
+    print(f"avg page cost time: {(time.time() - start) / page}, page={page}")
+
     # print(res)
     # start = time.time()
     # for i in range(10):

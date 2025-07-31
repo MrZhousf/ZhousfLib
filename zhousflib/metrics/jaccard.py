@@ -17,7 +17,10 @@ def jaccard_vector(set1: Set, set2: Set):
 
 
 if __name__ == "__main__":
+    # similarity = jaccard_vector(set("This is the first document".split()),
+    #                             set("The document is the second document".split()))
+    # print(similarity)
     similarity = jaccard_vector(set("This is the first document".split()),
-                                set("The document is the second document".split()))
+                                set("The first document is there".split()))
     print(similarity)
     pass

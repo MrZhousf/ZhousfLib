@@ -43,6 +43,12 @@ pip install fastdeploy-gpu-python -f https://www.paddlepaddle.org.cn/whl/fastdep
 conda config --add channels conda-forge && conda install cudatoolkit=11.2 cudnn=8.2
 
 [question]
+ExternalError: CUDNN error(9), CUDNN_STATUS_NOT_SUPPORTED.
+[solution]
+pip install cuda-python==12.3.0
+
+
+[question]
 ImportError: libcudart.so.11.0: cannot open shared object file: No such file or directory
 [solution]
 cd $CONDA_PREFIX
@@ -59,7 +65,7 @@ RuntimeError: FastDeploy initalized failed! Error: /lib64/libstdc++.so.6: versio
 [solution]
 find / -name "libstdc++.so*"
 找到后选择其中一个目录， 例如：/root/anaconda3/lib
-export LD_LIBRARY_PATH=/root/anaconda3/lib/:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/root/anaconda3/envs/paddlenlp/lib/:$LD_LIBRARY_PATH
 
 
 """
@@ -67,7 +73,7 @@ export LD_LIBRARY_PATH=/root/anaconda3/lib/:$LD_LIBRARY_PATH
 
 EXTRA_PARAMS = ["vis_image_file", "vis_show", "vis_font", "vis_font_color", "vis_fill_transparent",
                 "vis_transparent_weight", "schema", "score_threshold", "max_connectivity_domain",
-                "mask_hole_area_thresh", "vis_image_size", "nms_match_threshold", "nms_match_metric"]
+                "mask_hole_area_thresh", "vis_image_size", "nms_match_threshold", "nms_match_metric", "image_path"]
 
 
 class BackendFastDeploy(Backend):
@@ -104,7 +110,7 @@ class BackendFastDeploy(Backend):
             "fd.vision.detection.FCOS": fd.vision.detection.FCOS,
             "fd.vision.detection.RTMDet": fd.vision.detection.RTMDet,
             "fd.vision.detection.TTFNet": fd.vision.detection.TTFNet,
-            "fd.vision.detection.RetinaNet": fd.vision.detection.RetinaNet,
+            "fd.vision.detection.RetinaNet": fd.vision.detection.RetinaNet
         }
         plugin_segmentation = {
             "fd.vision.segmentation.PaddleSegModel": fd.vision.segmentation.PaddleSegModel,
@@ -194,7 +200,7 @@ class BackendFastDeploy(Backend):
             # init label list
             config_file = self.get_file_path_by_suffix(model_dir=self.model_dir, suffix=".yaml")
             if config_file is not None and isinstance(config_file, str):
-                with Path(config_file).open("r") as f:
+                with Path(config_file).open("r", encoding="utf-8") as f:
                     yml_conf = yaml.safe_load(f)
                     if "label_list" in yml_conf:
                         self.label_list = yml_conf["label_list"]
@@ -275,15 +281,20 @@ class BackendFastDeploy(Backend):
                 if infer_result.scores[i] < score_threshold != -1:
                     continue
                 nms_boxes.append([infer_result.label_ids[i], infer_result.scores[i], int(box[0]), int(box[1]), int(box[2]), int(box[3])])
-            nms_boxes_res = multiclass_nms(boxes=np.array(nms_boxes), num_classes=len(self.label_list), match_threshold=nms_match_threshold, match_metric=nms_match_metric)
-            for k in nms_boxes_res:
-                label_ids.append(int(k[0]))
-                scores.append(k[1])
-                bboxes.append([int(k[2]), int(k[3]), int(k[4]), int(k[5])])
-                class_name = self.label_list[int(k[0])]
-                items.append([class_name, k[1], int(k[2]), int(k[3]), int(k[4]), int(k[5])])
-                label_names.append(class_name)
-                draw_texts.append(f"{class_name}: {k[1]:.4f}")
+            if len(nms_boxes) > 0:
+                nms_boxes_res = multiclass_nms(boxes=np.array(nms_boxes), num_classes=len(self.label_list), match_threshold=nms_match_threshold, match_metric=nms_match_metric)
+                for k in nms_boxes_res:
+                    label_ids.append(int(k[0]))
+                    scores.append(float(k[1]))
+                    bboxes.append([int(k[2]), int(k[3]), int(k[4]), int(k[5])])
+                    class_name = self.label_list[int(k[0])]
+                    x_min = int(k[2])
+                    y_min = int(k[3])
+                    x_max = int(k[4])
+                    y_max = int(k[5])
+                    items.append([class_name, float(k[1]), [[x_min, y_min], [x_max, y_min], [x_max, y_max], [x_min, y_max]]])
+                    label_names.append(class_name)
+                    draw_texts.append(f"{class_name}: {k[1]:.4f}")
         else:
             for i, box in enumerate(infer_result.boxes):
                 box = infer_result.boxes[i]
@@ -291,9 +302,13 @@ class BackendFastDeploy(Backend):
                     continue
                 label_ids.append(infer_result.label_ids[i])
                 scores.append(infer_result.scores[i])
-                bboxes.append([int(box[0]), int(box[1]), int(box[2]), int(box[3])])
+                x_min = int(box[0])
+                y_min = int(box[1])
+                x_max = int(box[2])
+                y_max = int(box[3])
+                bboxes.append([x_min, y_min, x_max, y_max])
                 class_name = self.label_list[infer_result.label_ids[i]]
-                items.append([class_name, infer_result.scores[i], int(box[0]), int(box[1]), int(box[2]), int(box[3])])
+                items.append([class_name, infer_result.scores[i], [[x_min, y_min], [x_max, y_min], [x_max, y_max], [x_min, y_max]]])
                 label_names.append(class_name)
                 draw_texts.append(f"{class_name}: {infer_result.scores[i]:.4f}")
 
@@ -390,6 +405,7 @@ class BackendFastDeploy(Backend):
                     texts.append(result.text[i])
                     scores.append(result.rec_scores[i])
                 image_file: Optional[Path] = kwargs.get("image_path", None)
+                assert image_file, "image_path is missing when open visualization"
                 image = Image.open(image_file)
                 draw_img = ocr_vis_util.draw_ocr_box_txt(
                     image,
@@ -465,7 +481,6 @@ class BackendFastDeploy(Backend):
         if hasattr(model, "set_schema") and schema:
             self.model.set_schema(schema)
         infer_res = model.predict(image_arr, **kwargs_infer)
-
         if isinstance(input_data, Path):
             kwargs["image_path"] = input_data
         res = self.post_process(infer_res, image_arr, **kwargs)

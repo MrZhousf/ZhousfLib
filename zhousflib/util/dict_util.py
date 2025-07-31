@@ -92,3 +92,12 @@ def merge_list(ml):
             first = merge(first,ml[i])
     return first
 
+
+def merge_dicts(d1, d2):
+    res = d1.copy()
+    for k, v in d2.items():
+        if k in res and isinstance(res[k], dict) and isinstance(v, dict):
+            res[k] = merge_dicts(res[k], v)
+        else:
+            res[k] = v
+    return res
