@@ -200,7 +200,7 @@ class DocxParser:
     @staticmethod
     def extract_image_bytes_and_ext(drawing, part):
         """从 drawing XML 中提取图片数据及扩展名"""
-        #虑组合图片的场景
+        # 虑组合图片的场景
         blip = drawing.findall('.//' + qn('a:blip'))
         if blip:
             rid = blip[0].get(qn('r:embed'))
