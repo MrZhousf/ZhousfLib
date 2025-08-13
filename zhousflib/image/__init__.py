@@ -23,7 +23,7 @@ def write(image: np.ndarray, img_write_path: Path):
     cv2.imencode(img_write_path.suffix, image[:, :, ::-1])[1].tofile(str(img_write_path))
 
 
-def read(img_path: Union[str, Path], bg_to_white=False, contain_half_transparency=False, overwrite=False) -> np.ndarray:
+def read(img_path: Union[str, Path, np.ndarray], bg_to_white=False, contain_half_transparency=False, overwrite=False) -> np.ndarray:
     """
     读图片-兼容图片路径包含中文
     :param img_path:
@@ -43,23 +43,25 @@ def read(img_path: Union[str, Path], bg_to_white=False, contain_half_transparenc
 
     if isinstance(img_path, str):
         img_path = Path(img_path)
-    if bg_to_white:
-        img_arr = cv2.imdecode(np.fromfile(img_path, dtype=np.uint8), cv2.IMREAD_UNCHANGED)
-        if img_arr is not None and img_arr.ndim > 2 and img_arr.shape[2] == 4:
-            alpha_channel = img_arr[:, :, 3]
-            if contain_half_transparency:
-                # 如果包含半透明像素，则将半透明像素处理成白色背景
-                if np.any(alpha_channel != 255):
-                    img_arr = deal_img(img_arr)
-            else:
-                # 如果只处理全透明像素，则判断是否全透明
-                if np.all(alpha_channel == 0):
-                    img_arr = deal_img(img_arr)
-            if overwrite:
-                write(img_arr, img_path)
-    else:
-        img_arr = cv2.imdecode(np.fromfile(str(img_path), dtype=np.uint8), cv2.IMREAD_COLOR)
-    return img_arr
+    if isinstance(img_path, Path):
+        if bg_to_white:
+            img_arr = cv2.imdecode(np.fromfile(img_path, dtype=np.uint8), cv2.IMREAD_UNCHANGED)
+            if img_arr is not None and img_arr.ndim > 2 and img_arr.shape[2] == 4:
+                alpha_channel = img_arr[:, :, 3]
+                if contain_half_transparency:
+                    # 如果包含半透明像素，则将半透明像素处理成白色背景
+                    if np.any(alpha_channel != 255):
+                        img_arr = deal_img(img_arr)
+                else:
+                    # 如果只处理全透明像素，则判断是否全透明
+                    if np.all(alpha_channel == 0):
+                        img_arr = deal_img(img_arr)
+                if overwrite:
+                    write(img_arr, img_path)
+        else:
+            img_arr = cv2.imdecode(np.fromfile(str(img_path), dtype=np.uint8), cv2.IMREAD_COLOR)
+        return img_arr
+    return img_path
 
 
 def is_transparent(img_path: Path):
