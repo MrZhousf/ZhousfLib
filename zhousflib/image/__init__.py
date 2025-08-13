@@ -3,6 +3,7 @@
 # Description:
 import cv2
 import numpy as np
+from typing import Union
 from pathlib import Path
 
 """
@@ -12,7 +13,7 @@ from pathlib import Path
 """
 
 
-def read(img_path: Path, bg_to_white=False):
+def read(img_path: Union[str, Path], bg_to_white=False) -> np.ndarray:
     """
     读图片-兼容图片路径包含中文
     :param img_path:
@@ -85,4 +86,38 @@ def transparent_bg_to_white(img_path: Path, save_path: Path = None):
                 write(result, save_path)
             return result
     return img
+
+
+def is_pure_color(image: Union[str, Path, np.ndarray]):
+    """
+    判断图片是否为纯色
+    :param image: 可以是图片路径或numpy数组
+    :type image: Union[str, Path, np.ndarray]
+    :return: bool
+    """
+    if not isinstance(image, np.ndarray):
+        image = read(image, bg_to_white=False)
+    if image.ndim == 2:  # 灰度图
+        return np.all(image[0, 0] == image)
+    elif image.ndim == 3:  # 彩色图
+        return np.all(image[0] == image)
+    else:
+        return False
+
+
+def get_image_colors(image: Union[str, Path, np.ndarray]):
+    """
+    获取图片的颜色数量
+    :param image: 可以是图片路径或numpy数组
+    :type image: Union[str, Path, np.ndarray]
+    :return: int
+    """
+    image_arr = read(image, False)
+    if image_arr.ndim == 2:  # 灰度图
+        return len(np.unique(image_arr))
+    elif image_arr.ndim == 3:  # 彩色图
+        colors = np.unique(image_arr.reshape(-1, image_arr.shape[-1]), axis=0)
+        return len(colors)
+    else:
+        return 0
 

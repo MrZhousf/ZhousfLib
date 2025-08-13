@@ -4,6 +4,10 @@
 import numpy as np
 import scipy.spatial.distance as dist
 from sklearn.metrics.pairwise import cosine_similarity
+"""
+pip install scipy
+pip install scikit-learn
+"""
 
 
 class Cosine:
