@@ -35,7 +35,7 @@ URL = 'https://github.com/MrZhousf/ZhousfLib'
 EMAIL = '442553199@qq.com'
 AUTHOR = 'zhousf'
 REQUIRES_PYTHON = '>=3.6.13'
-VERSION = '1.6.8.5.5'
+VERSION = '1.6.8.5.6'
 PACKAGE_DATA = {'': ['*.yaml', '*.ttf', '*.txt', '*.md']}
 UPLOAD_TO_PYPI = False
 PUSH_TO_GITHUB = False
